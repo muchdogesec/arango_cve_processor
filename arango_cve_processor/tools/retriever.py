@@ -53,8 +53,8 @@ class STIXObjectRetriever:
         logging.info("fetching from: %s", endpoint)
         while True:
             resp = s.get(endpoint, params=dict(page=page, page_size=50))
-            if resp.status_code != 200:
-                break
+            if resp.status_code not in [200, 404]:
+                raise Exception("STIXObjectRetriever failed with HTTP status code: %d", resp.status_code)
             d = resp.json()
             if len(d[key]) == 0:
                 break

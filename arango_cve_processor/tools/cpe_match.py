@@ -26,7 +26,7 @@ def fetch_cpe_matches(cve_id, criteria_ids):
 
         try:
             logging.info(f"Query => {query}")
-            response = requests.get(url, query, headers=dict(apiKey=os.getenv("NVD_API_KEY")), verify=False)
+            response = requests.get(url, query, headers=dict(apiKey=os.getenv("NVD_API_KEY")))
             logging.info(f"Status Code => {response.status_code}")
             if response.status_code != 200:
                 logging.warning("Got response status code %d.", response.status_code)

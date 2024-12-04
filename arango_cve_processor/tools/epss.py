@@ -33,7 +33,7 @@ class EPSSManager:
             return cls._epss_data[d]
         d_str = d.strftime('%Y-%m-%d')
         url = "https://epss.cyentia.com/epss_scores-{}.csv.gz".format(d_str)
-        resp = requests.get(url, verify=False)
+        resp = requests.get(url)
         csv_data = gzip.decompress(resp.content).decode()
         if not cls.keep_old_data:
             cls._epss_data = {}

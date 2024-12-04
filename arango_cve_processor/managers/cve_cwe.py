@@ -20,19 +20,21 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
     def get_objects(self, **kwargs):
         query = """
         FOR doc IN @@collection
-        FILTER doc._is_latest AND doc.type == 'vulnerability'
+        FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name]
         RETURN KEEP(doc, '_id', 'id', 'external_references', 'name', 'created', 'modified')
         """
-        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
+        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection, 'source_name': self.source_name})
     
     def relate_multiple(self, objects):
-        logging.info("relating %s/%s", self.relationship_note, self.ctibutler_path)
+        logging.info("relating %s (%s)", self.relationship_note, self.ctibutler_path)
         cve_id_cwe_map: dict[str, list[str]] = {}
         for cve in objects:
-             cve_id_cwe_map[cve['id']] = [ref['external_id'] for ref in cve['external_references'] if ref['source_name'] == self.source_name]
+            cve_id_cwe_map[cve['id']] = [ref['external_id'] for ref in cve['external_references'] if ref and ref['source_name'] == self.source_name]
         cwe_ids = list(itertools.chain(*cve_id_cwe_map.values()))
         all_cwe_objects = STIXObjectRetriever('ctibutler').get_objects_by_external_ids(cwe_ids, self.ctibutler_path, query_filter=self.ctibutler_query)
 
+        print(len(all_cwe_objects))
+        
         retval = list({v['id']: v for v in itertools.chain(*all_cwe_objects.values())}.values())
         for cve in objects:
             cve_id = cve['name']
