@@ -12,6 +12,8 @@ class CveAttack(CveCapec, relationship_note='cve-attack'):
     MATRICES = ["ics", "mobile", "enterprise"]
 
     def relate_multiple(self, objects):
+        retval = []
         for matrix in self.MATRICES:
             self.ctibutler_path = f'attack-{matrix}'
-            return super().relate_multiple(objects)
+            retval.extend(super().relate_multiple(objects))
+        return retval

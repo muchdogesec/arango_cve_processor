@@ -33,7 +33,6 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
         cwe_ids = list(itertools.chain(*cve_id_cwe_map.values()))
         all_cwe_objects = STIXObjectRetriever('ctibutler').get_objects_by_external_ids(cwe_ids, self.ctibutler_path, query_filter=self.ctibutler_query)
 
-
         retval = list({v['id']: v for v in itertools.chain(*all_cwe_objects.values())}.values())
         for cve in objects:
             cve_id = cve['name']

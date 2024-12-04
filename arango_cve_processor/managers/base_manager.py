@@ -129,6 +129,7 @@ class STIXRelationManager:
     def process(self, **kwargs):
         logging.info("getting objects")
         objects = self.get_objects(**kwargs)
+        logging.info("got %d objects", len(objects))
         uploads = []
         match self.relation_type:
             case RelationType.RELATE_SEQUENTIAL:

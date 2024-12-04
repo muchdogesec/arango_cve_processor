@@ -35,6 +35,7 @@ LET cwe_capec_map = MERGE(
 FOR doc IN @@vertex_collection
     FILTER doc.id IN KEYS(cve_cwe_map) AND doc._is_latest
     LET capec_ids = FLATTEN(FOR cwe_id IN cve_cwe_map[doc.id] RETURN cwe_capec_map[cwe_id])
+    FILTER LENGTH(capec_ids) != 0
     RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'created', 'modified'), {external_references: capec_ids})
 """
         return self.arango.execute_raw_query(query, bind_vars={"@vertex_collection": self.collection, "@edge_collection": self.edge_collection, "cve_cwe_note": self.prev_note, 'source_name': self.source_name})
