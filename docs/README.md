@@ -2,16 +2,16 @@
 
 ### Default STIX objects
 
-To support the generation of relationship, ArangoDB CTI Processor checks the following objects exist in the database, and if they do not adds the following objects to each vertex collection related to the import.
+To support the generation of relationship, ACVEP checks the following objects exist in the database, and if they do not adds the following objects to each vertex collection related to the import.
 
-The following objects are automatically inserted (if they do not exist) to each vertex collection on script run (e.g. if running `capec-attack`, then the objects will be stored in `mitre_capec_vertex_collection`).
+The following objects are automatically inserted (if they do not exist) to each vertex collection on script run
 
-* Identity: https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/identity/arango_cti_processor.json
-* Marking Definition: https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/marking-definition/arango_cti_processor.json
+* Identity: https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/identity/arango_cve_processor.json
+* Marking Definition: https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/marking-definition/arango_cve_processor.json
 
 When imported these objects always have the following Arango custom properties added to them:
 
-* `_arango_cti_processor_note`: `automatically imported object at script runtime`
+* `_arango_cve_processor_note`: `automatically imported object at script runtime`
 * `_record_created`: time of collection creation
 * `_record_modified`: time of collection creation
 * `_record_md5_hash`: hash of object
@@ -23,7 +23,7 @@ They are added as follows;
 LET default_objects = [
     {
         "_key": "<THE OBJECTS STIX ID>",
-        "_arango_cti_processor_note": "automatically imported object at script runtime",
+        "_arango_cve_processor_note": "automatically imported object at script runtime",
         "_record_created": "<DATETIME OBJECT WAS INSERTED IN DB>",
         "_record_modified": "<DATETIME OBJECT WAS INSERTED IN DB>",
         "_record_md5_hash": "<HASH OF OBJECT>",
@@ -35,21 +35,29 @@ FOR default_object IN default_objects
 INSERT default_object INTO <SOURCE>_vertex_collection
 ```
 
+### Imported objects
+
+CWE, ATT&CK and CAPEC objects are imported from CTI Butler. These are added to the DB with the following metadata;
+
+```sql
+LET default_objects = [
+    {
+        "_key": "<THE OBJECTS STIX ID>",
+        "_arango_cve_processor_note": "<SCRIPT MODE>",
+        "_record_created": "<DATETIME OBJECT WAS INSERTED IN DB>",
+        "_record_modified": "<DATETIME OBJECT WAS INSERTED IN DB>",
+        "_record_md5_hash": "<HASH OF OBJECT>",
+        "_is_latest": true,
+        "<STIX DEFAULT OBJECT>"
+    }
+]
+FOR default_object IN default_objects
+INSERT default_object INTO nvd_cve_vertex_collection
+```
+
 ### How objects are joined
 
-Note, relationships will cross collections. A created relationship will always be stored in the source object edge collections.
-
-For example, if a relationship between an object in the `mitre_capec_vertex_collection` to another object in the `mitre_attack_enterprise_vertex_collection`, the relationship will be created in the `mitre_capec_edge_collection`
-
-At a high-level the data in CTI Butler is joined follows:
-
-1. CVE (`vulnerability`) -> CWE (`weakness`) [`exploited-using`]
-2. CVE (`indicator`) -> CPE (`software`) [`pattern-contains`]
-3. CVE add EPSS (`EPSS`)
-
-The parenthesis (`()`) in the list above denote the STIX Object types in each knowledge-base that are used as the `source_ref` and `target_ref` used to create the joins. The square brackets (`[]`) define the STIX `relationship_type` used in the relationship object used to link them.
-
-Note, all SROs created are added to the respective ArangoDB Collection with the following data;
+All SROs created (wether from local or imported source objects) to the respective ArangoDB Collection with the following data;
 
 ```sql
 LET relationships = [
@@ -73,16 +81,12 @@ INSERT relationship INTO <SOURCE>_edge_collection
 Where:
 
 * `_key`: for new objects, the ID of the STIX object, e.g. `relationship--8e2e2d2b-17d4-4cbf-938f-98ee46b3cd3f`
-* `_arango_cti_processor_note`: Used to identify objects processed by Arango CTI Processor. Shows the link between objects (e.g `capec-attack`)
+* `_arango_cve_processor_note`: Used to identify objects processed by Arango CTI Processor. Shows the link between objects (e.g `cve-attack`)
 * `_record_created`: the datetime the object was inserted into the database (e.g. `2020-01-01T01:00:00.000Z`)
 * `_record_modified`: the datetime the object was last updated (e.g. `2020-01-01T01:00:00.000Z`). Note, for new objects this always matches the `_record_created` time
 * `_record_md5_hash` is an MD5 hash of the STIX objects and the `_arango_cti_processor_note` field. This is used to detect updates to objects.
 * `is_latest`: boolean, for newly inserted objects will always be `true`. See update logic to understand why.
 * `_is_ref`: boolean, denotes if object was created by a ref or refs property insides a STIX object (see refs section). Will always be `false` for created SROs.
-
-### Logic for specific modes
-
-See the files in this directory for how the SROs are created for each mode.
 
 ### Updating SROs created by arango_cti_processor on subsequent runs
 
