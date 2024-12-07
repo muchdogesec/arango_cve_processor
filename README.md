@@ -2,7 +2,7 @@
 
 ![](docs/arango_cve_processor.png)
 
-A small script that creates relationships between common CVEs to other sources STIX 2.1 format.
+A small script that enriches CVEs to other sources with all data stored as STIX 2.1 objects.
 
 ## tl;dr
 
@@ -10,15 +10,15 @@ A small script that creates relationships between common CVEs to other sources S
 
 ## Overview
 
-Here at DOGESEC we have many repositories that generate STIX objects for different knowledge-bases. Many of these knowledgebases often have some link to another.
+Here at DOGESEC we work with a lot of CVE data across our products. [cve2stix](https://github.com/muchdogesec/cve2stix) generates core STIX 2.1 Vulnerability objects from CVE data.
 
-We first built [ArangoDB CTI Processor](https://github.com/muchdogesec/arango_cve_processor/) that deals with external knowledgbases.
+However, we have lots of other sources (EPSS, KEV, ATT&CK...) that we want to enrich this data with.
 
-As we started working with CVE data, we realised we'd need a similar solution for Vulnerability data.
+We built Arango CVE Processor to handle the generation and maintenance of these enrichments.
 
-ArangoDB CVE Processor is a script that;
+In short, Arango CVE Processor is a script that;
 
-1. reads the ingested CVE/CPE data in ArangoDB
+1. reads the ingested CVE STIX data in ArangoDB
 2. creates STIX objects to represent the relationships between CVE/CPEs and other datasets
 
 ## Usage
@@ -56,12 +56,14 @@ python3 arango_cve_processor.py \
     --relationship RELATIONSHIP \
     --ignore_embedded_relationships BOOLEAN \
     --stix2arango_note STRING \
-    --modified_min DATETIME
+    --modified_min DATETIME \
+    --cve_id CVE-NNNN-NNNN CVE-NNNN-NNNN
+
 ```
 
 Where;
 
-* `--database` (required): the arangoDB database name where the objects you want to link are found. It must contain the collections required for the `--relationship` option(s) selected
+* `--database` (required): the arangoDB database name where the objects you want to link are found. It must contain the collections `nvd_cve_vertex_collection` and `nvd_cve_edge_collection`
 * `--relationship` (optional, dictionary): you can apply updates to certain relationships at run time. Default is all. Note, you should ensure your `database` contains all the required seeded data. User can select from;
   * `cve-cpe`
   * `cve-cwe`
@@ -71,11 +73,12 @@ Where;
   * `cve-kev`
 * `--ignore_embedded_relationships` (optional, boolean). Default is false. if `true` passed, this will stop any embedded relationships from being generated. This is a stix2arango feature where STIX SROs will also be created for `_ref` and `_refs` properties inside each object (e.g. if `_ref` property = `identity--1234` and SRO between the object with the `_ref` property and `identity--1234` will be created). See stix2arango docs for more detail if required, essentially this a wrapper for the same `--ignore_embedded_relationships` setting implemented by stix2arango
 * `--stix2arango_note` (optional, string): will be used as a value for `_stix2arango_note` for all objects created by arango_cve_processor
-* `--modified_min` (optional, date). By default arango_cve_processor will consider all objects in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is most useful in CVE modes, where a high volume of CVEs are published daily.
-
-On each run, only the `_is_latest==true` version of objects will be considered by the script.
+* `--modified_min` (optional, date). By default arango_cve_processor will consider all CVEs in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is useful when you don't want to process data for very old CVEs in the database.
+* `--cve_id` (optional, lists of CVE IDs): will only process the relationships for the CVEs passed, otherwise all CVEs will be considered. Separate each CVE with a white space character (e.g. `CVE-NNNN-NNNN CVE-NNNN-NNNN`)
 
 ### Examples
+
+Process CVE -> CWE relationships for all CVEs modified after 2023-01-01
 
 ```shell
 python3 arango_cve_processor.py \
