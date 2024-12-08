@@ -17,3 +17,12 @@ python3 -m unittest tests/test_01_00_cve_cwe.py
 ```
 
 No
+
+
+## TEST 5.0 Validate CVE -> KEV relationship (`cve-kev`)
+
+Both documents in the following test have KEV references...
+
+```shell
+python3 -m unittest tests/test_05_00_cve_kev.py
+```
