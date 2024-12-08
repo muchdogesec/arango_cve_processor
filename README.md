@@ -58,14 +58,12 @@ python3 arango_cve_processor.py \
     --stix2arango_note STRING \
     --modified_min DATETIME \
     --cve_id CVE-NNNN-NNNN CVE-NNNN-NNNN
-
 ```
 
 Where;
 
 * `--database` (required): the arangoDB database name where the objects you want to link are found. It must contain the collections `nvd_cve_vertex_collection` and `nvd_cve_edge_collection`
 * `--relationship` (optional, dictionary): you can apply updates to certain relationships at run time. Default is all. Note, you should ensure your `database` contains all the required seeded data. User can select from;
-  * `cve-cpe`
   * `cve-cwe`
   * `cve-capec`
   * `cve-attack`
