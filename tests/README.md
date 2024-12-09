@@ -28,6 +28,12 @@ python3 -m unittest tests/test_03_00_cve_attack.py
 
 Contains 14 CAPEC refs.
 
+## TEST 3.0 Validate CVE -> EPSS relationship (`cve-epss`)
+
+```shell
+python3 -m unittest tests/test_04_00_cve_epss.py
+```
+
 
 ## TEST 5.0 Validate CVE -> KEV relationship (`cve-kev`)
 
