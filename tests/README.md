@@ -11,12 +11,12 @@ Contains 3 CWE refs.
 
 
 
-## TEST 2.0 Validate CVE -> CAPEC relationship (`cve-cwe`)
+## TEST 2.0 Validate CVE -> CAPEC relationship (`cve-capec`)
 
-First run test 1.
+TEST 1.0 ONLY MUST BE RUN -- RERUN IT BEFORE STARTING THIS TEST!
 
 ```shell
-python3 -m unittest tests/test_01_00_cve_cwe.py
+python3 -m unittest tests/test_02_00_cve_capec.py
 ```
 
 No
