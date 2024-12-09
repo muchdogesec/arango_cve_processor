@@ -5,7 +5,6 @@ import logging
 from stix2arango.services.arangodb_service import ArangoDBService
 from arango_cve_processor import config
 from arango_cve_processor.tools.epss import EPSSManager
-from arango_cve_processor.tools.cpe_match import fetch_cpe_matches
 from arango_cve_processor.tools.utils import stix2dict
 from .base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
