@@ -12,6 +12,9 @@ from stix2 import Vulnerability, Report
 class CveEpssManager(STIXRelationManager, relationship_note='cve-epss'):
     edge_collection = 'nvd_cve_edge_collection'
     vertex_collection = 'nvd_cve_vertex_collection'
+    default_objects = [
+        "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/properties/report-epss-scoring.json"
+    ]
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -60,7 +63,6 @@ RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_r
 
 def parse_cve_epss_report(vulnerability: Vulnerability):
     try:
-        
         cve_id = vulnerability.get('name')
         epss_data = EPSSManager.get_data_for_cve(cve_id)
         content = f"EPSS Scores: {cve_id}"
@@ -75,7 +77,7 @@ def parse_cve_epss_report(vulnerability: Vulnerability):
             modified = datetime.strptime(epss_data[-1]["date"], "%Y-%m-%d").date()
 
         return Report(
-            id=vulnerability['id'].replace("vulnerability", "report"),
+            # id=vulnerability['id'].replace("vulnerability", "report"),
             created=modified,
             modified=modified,
             published=modified,

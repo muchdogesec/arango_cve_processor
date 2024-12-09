@@ -1,4 +1,5 @@
 import argparse
+import itertools
 from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
@@ -55,8 +56,9 @@ def parse_arguments():
 
 def run_all(database=None, modes: list[str]=None, **kwargs):
     processor = ArangoDBService(database, [], [], host_url=config.ARANGODB_HOST_URL, username=config.ARANGODB_USERNAME, password=config.ARANGODB_PASSWORD)
-    import_default_objects(processor)
     validate_collections(processor.db)
+    
+    import_default_objects(processor, default_objects=itertools.chain(*[RELATION_MANAGERS[mode].default_objects for mode in modes]))
     manager_klasses = sorted([RELATION_MANAGERS[mode] for mode in modes], key=lambda manager: manager.priority)
     for manager_klass in manager_klasses:
         relation_manager = manager_klass(processor, **kwargs)

@@ -31,6 +31,7 @@ class STIXRelationManager:
     edge_collection : str = None
     containing_collection : str = None
     relationship_note = 'stix-relation-manager'
+    default_objects = []
 
     priority = 10 # used to determine order of running, for example cve_cwe must run before cve_capec, lower => run earlier
 

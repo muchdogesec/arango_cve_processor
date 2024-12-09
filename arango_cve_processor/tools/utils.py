@@ -28,13 +28,18 @@ def validate_collections(db: 'StandardDatabase'):
         raise Exception(f"The following collections are missing. Please add them to continue. \n {missing_collections}")
     
 
-def import_default_objects(processor: ArangoDBService):
+def import_default_objects(processor: ArangoDBService, default_objects: list = None):
+    default_objects = list(default_objects or []) + config.DEFAULT_OBJECT_URL
     object_list = []
-    for obj_url in config.DEFAULT_OBJECT_URL:
-        obj = json.loads(load_file_from_url(obj_url))
+    for obj_url in default_objects:
+        if isinstance(obj_url, str):
+            obj = json.loads(load_file_from_url(obj_url))
+        else:
+            obj = obj_url
         obj['_arango_cve_processor_note'] = "automatically imported object at script runtime"
         obj['_record_md5_hash'] = generate_md5(obj)
         object_list.append(obj)
+
 
     collection_name = 'nvd_cve_vertex_collection'
     inserted_ids, _ = processor.insert_several_objects(object_list, collection_name)
