@@ -15,7 +15,7 @@ ARANGODB_USERNAME = os.getenv("ARANGODB_USERNAME")
 ARANGODB_PASSWORD = os.getenv("ARANGODB_PASSWORD")
 
 
-namespace = UUID("2e51a631-99d8-52a5-95a6-8314d3f4fbf3")
+namespace = UUID("152ecfe1-5015-522b-97e4-86b60c57036d")
 
 DEFAULT_OBJECT_URL = [
     "https://github.com/muchdogesec/stix4doge/raw/main/objects/marking-definition/arango_cve_processor.json", # this is arango_cve_processor marking-definition

@@ -6,6 +6,9 @@
 python3 -m unittest tests/test_01_00_cve_cwe.py
 ```
 
+Contains 3 CWE refs.
+
+
 
 
 ## TEST 2.0 Validate CVE -> CAPEC relationship (`cve-cwe`)
