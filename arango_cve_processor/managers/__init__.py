@@ -4,3 +4,4 @@ from .cve_capec import CveCapec
 from .cve_cpe import CveCpeManager
 from .cve_cwe import CveCwe
 from .cve_epss import CveEpssManager
+from .cve_kev import CveKevManager

@@ -34,7 +34,7 @@ class TestArangoDB(unittest.TestCase):
             "python3", "arango_cve_processor.py",
             "--database", TESTS_DATABASE,
             "--relationship", TEST_MODE,
-            "--stix2arango_note", STIX2ARANGO_NOTE,
+            # "--stix2arango_note", STIX2ARANGO_NOTE,
             "--ignore_embedded_relationships", IGNORE_EMBEDDED_RELATIONSHIPS
         ], check=True)
         print(f'======arango_cve_processor run successfully======')
@@ -68,7 +68,6 @@ class TestArangoDB(unittest.TestCase):
         RETURN COUNT(
           FOR doc IN nvd_cve_vertex_collection
           FILTER doc._arango_cve_processor_note == "cve-kev"
-          AND doc._is_ref == false
             RETURN doc
         )
         """

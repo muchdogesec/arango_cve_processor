@@ -4,6 +4,7 @@ import logging
 from arango.database import StandardDatabase
 import requests
 from stix2arango.services import ArangoDBService
+import stix2
 
 from arango_cve_processor import config
 
@@ -55,3 +56,6 @@ def load_file_from_url(url):
     except requests.exceptions.RequestException as e:
         logging.error(f"Error loading JSON from {url}: {e}")
         raise Exception("Load default objects error")
+    
+def stix2dict(obj: 'stix2.base._STIXBase'):
+    return json.loads(obj.serialize())

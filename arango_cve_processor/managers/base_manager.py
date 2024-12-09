@@ -27,8 +27,9 @@ class STIXRelationManager:
         RELATION_MANAGERS[relationship_note] = cls
 
     relation_type: RelationType = RelationType.RELATE_SEQUENTIAL
-    vertex_collection : str = None
-    edge_collection : str = None
+    vertex_collection : str = 'nvd_cve_vertex_collection'
+    edge_collection : str = 'nvd_cve_edge_collection'
+
     containing_collection : str = None
     relationship_note = 'stix-relation-manager'
     default_objects = []

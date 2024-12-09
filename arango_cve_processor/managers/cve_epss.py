@@ -5,6 +5,7 @@ import logging
 from stix2arango.services.arangodb_service import ArangoDBService
 from arango_cve_processor.tools.epss import EPSSManager
 from arango_cve_processor.tools.cpe_match import fetch_cpe_matches
+from arango_cve_processor.tools.utils import stix2dict
 from .base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
@@ -50,7 +51,7 @@ RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_r
                 })
             return []
         else:
-            return [json.loads(todays_report.serialize())]
+            return [stix2dict(todays_report)]
     
     def upload_vertex_data(self, objects):
         logging.info("updating %d existing reports", len(self.update_objects))
@@ -91,8 +92,11 @@ def parse_cve_epss_report(vulnerability: Vulnerability):
                     "extension_type": "toplevel-property-extension"
                 }
             },
-            object_marking_refs=vulnerability['object_marking_refs'],
-            created_by_ref=vulnerability['created_by_ref'],
+            object_marking_refs=[
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d"
+            ],
+            created_by_ref="identity--152ecfe1-5015-522b-97e4-86b60c57036d",
             external_references=vulnerability['external_references'][:1],
             labels=['epss'],
 
