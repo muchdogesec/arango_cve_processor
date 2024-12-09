@@ -38,8 +38,6 @@ python3 -m unittest tests/test_02_00_cve_capec.py
 
 Contains 14 CAPEC refs.
 
-
-
 ## TEST 3.0 Validate CVE -> ATT&CK relationship (`cve-attack`)
 
 TEST 1.0 AND TEST 2.0 ONLY MUST BE RUN -- RERUN THEM BEFORE STARTING THIS TEST!

@@ -89,7 +89,7 @@ class TestArangoDB(unittest.TestCase):
         cursor = self.db.aql.execute(query)
         result_count = [count for count in cursor]
 
-        self.assertEqual(result_count, [2], f"Expected 2 documents, but found {result_count}.")
+        self.assertEqual(result_count, [5], f"Expected 5 documents, but found {result_count}.")
 
 if __name__ == '__main__':
     unittest.main()
