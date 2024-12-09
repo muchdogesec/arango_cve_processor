@@ -19,7 +19,7 @@ We built Arango CVE Processor to handle the generation and maintenance of these 
 In short, Arango CVE Processor is a script that;
 
 1. reads the ingested CVE STIX data in ArangoDB
-2. creates STIX objects to represent the relationships between CVE/CPEs and other datasets
+2. creates STIX objects to represent the relationships between CVE and other datasets
 
 ## Usage
 

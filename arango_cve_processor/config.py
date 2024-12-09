@@ -28,5 +28,4 @@ OBJECT_MARKING_REFS=[
 ]
 IDENTITY_REF = "identity--152ecfe1-5015-522b-97e4-86b60c57036d"
 
-CPEMATCH_API_ENDPOINT = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
 EPSS_API_ENDPOINT = "https://api.first.org/data/v1/epss"

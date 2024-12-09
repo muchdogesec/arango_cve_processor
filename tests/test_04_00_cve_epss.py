@@ -60,7 +60,7 @@ class TestArangoDB(unittest.TestCase):
 
         self.assertEqual(result_count, expected_ids, f"Expected {expected_ids}, but found {result_count}.")
 
-    # test 2 checks all objects generated correctly 10 ATT&CK refs
+    # test 2 checks all objects generated correctly -- 2 cve objects / 2 epss scores
 
     def test_02_arango_cve_processor_note(self):
         query = """
@@ -78,9 +78,8 @@ class TestArangoDB(unittest.TestCase):
     # check id generation matches expectation
     def test_03_check_object_id_generation(self):
         query = """
-        FOR doc IN nvd_cve_edge_collection
-        FILTER doc._arango_cve_processor_note == "cve-attack"
-        AND doc._is_ref == false
+        FOR doc IN nvd_cve_vertex_collection
+        FILTER doc._arango_cve_processor_note == "cve-epss"
         SORT doc.id DESC
             RETURN doc.id
         """
@@ -88,43 +87,9 @@ class TestArangoDB(unittest.TestCase):
         result_count = [doc for doc in cursor]
 
         expected_ids = [
-          "relationship--cdda99ee-f355-5f49-b67b-a79e88c7d655",
-          "relationship--b733f59b-57ee-5ab0-9a4f-2c7a98c710cb",
-          "relationship--97f9b3c5-105b-5912-8203-2e0aaa10e938",
-          "relationship--872704fc-e7df-553a-b146-4d850ae4ede6",
-          "relationship--680dc718-ff53-52fb-8ffe-571d17a5bcdc",
-          "relationship--4e520ae3-86a0-576a-adc2-2f0f6866909f",
-          "relationship--39f3aece-2009-563c-a7cd-f62d8ca5d428",
-          "relationship--3779e5df-2ace-5d8d-815e-80392843a23e",
-          "relationship--19445fc3-a28a-5f90-918b-0919e6cb7d6e",
-          "relationship--0d894e86-f8bf-58ad-bfc9-6ab229bb2b6f"
-        ]
-
-        self.assertEqual(result_count, expected_ids, f"Expected {expected_ids}, but found {result_count}.")
-
-    # check description
-    def test_03_check_object_id_generation(self):
-        query = """
-        FOR doc IN nvd_cve_edge_collection
-        FILTER doc._arango_cve_processor_note == "cve-attack"
-        AND doc._is_ref == false
-        SORT doc.description DESC
-            RETURN doc.description
-        """
-        cursor = self.db.aql.execute(query)
-        result_count = [doc for doc in cursor]
-
-        expected_ids = [
-          "CVE-2019-16278 is exploited using T1558.003",
-          "CVE-2019-16278 is exploited using T1133",
-          "CVE-2019-16278 is exploited using T1114.002",
-          "CVE-2019-16278 is exploited using T1110.003",
-          "CVE-2019-16278 is exploited using T1110.002",
-          "CVE-2019-16278 is exploited using T1110.001",
-          "CVE-2019-16278 is exploited using T1110",
-          "CVE-2019-16278 is exploited using T1078.001",
-          "CVE-2019-16278 is exploited using T1021.002",
-          "CVE-2019-16278 is exploited using T1021"
+            "report--d23cdf04-913f-5cc7-b44d-c91298b6427d",
+            "report--db752d0b-6d0b-54d8-a5bc-bf8c78293ef4"
+          
         ]
 
         self.assertEqual(result_count, expected_ids, f"Expected {expected_ids}, but found {result_count}.")
