@@ -20,7 +20,7 @@ class CveCapec(CveCwe, relationship_note = 'cve-capec'):
         query = """
 LET cve_cwe_map = MERGE(
     FOR doc IN @@edge_collection
-    FILTER doc._arango_cve_processor_note == @cve_cwe_note AND doc._is_latest
+    FILTER doc._arango_cve_processor_note == @cve_cwe_note AND doc._is_latest AND doc._is_ref != true
     COLLECT source_ref = doc.source_ref INTO cve_cwe
     FILTER LENGTH(cve_cwe[*].doc.target_ref) != 0
     RETURN {[source_ref]: cve_cwe[*].doc.target_ref}
@@ -33,10 +33,10 @@ LET cwe_capec_map = MERGE(
 )
 
 FOR doc IN @@vertex_collection
-    FILTER doc.id IN KEYS(cve_cwe_map) AND doc._is_latest
+    FILTER doc.id IN KEYS(cve_cwe_map) AND doc._is_latest  AND doc.created >= @created_min AND doc.modified >= @modified_min 
     LET capec_ids = FLATTEN(FOR cwe_id IN cve_cwe_map[doc.id] RETURN cwe_capec_map[cwe_id])
     FILTER LENGTH(capec_ids) != 0
     RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'created', 'modified'), {external_references: capec_ids})
 """
-        return self.arango.execute_raw_query(query, bind_vars={"@vertex_collection": self.collection, "@edge_collection": self.edge_collection, "cve_cwe_note": self.prev_note, 'source_name': self.source_name})
+        return self.arango.execute_raw_query(query, bind_vars={"@vertex_collection": self.collection, "@edge_collection": self.edge_collection, "cve_cwe_note": self.prev_note, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min})
  

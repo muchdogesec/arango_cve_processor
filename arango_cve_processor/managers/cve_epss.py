@@ -26,10 +26,10 @@ LET cve_epss_map = MERGE(
   RETURN {[cve_name]: KEEP(doc, '_key', 'x_epss')}
 )
 FOR doc IN @@collection
-FILTER doc._is_latest AND doc.type == 'vulnerability'
+FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min 
 RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_ref', 'external_references'), {epss: cve_epss_map[doc.name]})
         """
-        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
+        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection, 'created_min': self.created_min, 'modified_min': self.modified_min})
     
     def relate_single(self, object):
         todays_report = parse_cve_epss_report(object)

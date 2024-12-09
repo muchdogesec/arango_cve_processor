@@ -20,6 +20,8 @@ class RelationType(StrEnum):
 RELATION_MANAGERS: dict[str, 'type[STIXRelationManager]'] = {}
 
 class STIXRelationManager:
+    MIN_DATE_STR = "1970-01-01"
+
     def __init_subclass__(cls,/, relationship_note) -> None:
         cls.relationship_note = relationship_note
         RELATION_MANAGERS[relationship_note] = cls
@@ -32,9 +34,12 @@ class STIXRelationManager:
 
     priority = 10 # used to determine order of running, for example cve_cwe must run before cve_capec, lower => run earlier
 
-    def __init__(self, processor: ArangoDBService, *args, modified_min=None, created_min=None, **kwargs) -> None:
+    def __init__(self, processor: ArangoDBService, *args, modified_min=None, created_min=None, cve_ids=None, **kwargs) -> None:
         self.arango = processor
         self.client = self.arango._client
+        self.cve_ids = cve_ids or []
+        self.created_min = created_min or self.MIN_DATE_STR
+        self.modified_min = modified_min or self.MIN_DATE_STR
 
     @property
     def collection(self):
@@ -49,7 +54,7 @@ class STIXRelationManager:
         return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
     
     @classmethod
-    def create_relationship(cls, source, target_ref, relationship_type, description, relationship_id=None):
+    def create_relationship(cls, source, target_ref, relationship_type, description, relationship_id=None, is_ref=False):
         if not relationship_id:
             relationship_id = "relationship--" + str(
                 uuid.uuid5(
@@ -71,6 +76,7 @@ class STIXRelationManager:
             description=description,
             _arango_cve_processor_note=cls.relationship_note,
             _from=source.get('_id'),
+            _is_ref=is_ref,
         )
     
     def import_external_data(self, objects) -> dict[str, dict]:
@@ -125,11 +131,24 @@ class STIXRelationManager:
     def relate_multiple(self, objects):
         raise NotImplementedError('must be subclassed')
     
+    def _filter_cve_ids(self, objects: list[dict]):
+        logging.info("filtering with --cve_ids")
+        if not self.cve_ids:
+            return objects
+        retval = []
+        for i, obj in enumerate(objects):
+            if obj['name'].upper() in self.cve_ids:
+                retval.append(obj)
+        logging.info("filter --cve_ids: %d objects", len(retval))
+        return retval
+    
+
     
     def process(self, **kwargs):
         logging.info("getting objects")
         objects = self.get_objects(**kwargs)
         logging.info("got %d objects", len(objects))
+        objects = self._filter_cve_ids(objects)
         uploads = []
         match self.relation_type:
             case RelationType.RELATE_SEQUENTIAL:

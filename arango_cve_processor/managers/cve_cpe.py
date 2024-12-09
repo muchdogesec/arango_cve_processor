@@ -11,7 +11,7 @@ class CveCpeManager(STIXRelationManager, relationship_note='cve-cpe'):
         query = """
         FOR doc IN @@collection
         FILTER doc._is_latest AND doc.type == 'indicator'
-        RETURN KEEP(doc, '_id', 'id', 'x_cpe', 'name')
+        RETURN KEEP(doc, '_id', 'id', 'x_cpes', 'name')
         """
         return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
     
