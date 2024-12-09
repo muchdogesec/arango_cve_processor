@@ -85,7 +85,6 @@ class TestArangoDB(unittest.TestCase):
         AND doc._is_ref == false
         SORT doc.id DESC
             RETURN doc.id
-
         """
         cursor = self.db.aql.execute(query)
         result_count = [doc for doc in cursor]
@@ -106,7 +105,6 @@ class TestArangoDB(unittest.TestCase):
         AND doc._is_ref == false
         SORT doc.description DESC
             RETURN doc.description
-
         """
         cursor = self.db.aql.execute(query)
         result_count = [doc for doc in cursor]
