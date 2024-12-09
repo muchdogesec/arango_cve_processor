@@ -54,6 +54,10 @@ Contains 14 CAPEC refs.
 python3 -m unittest tests/test_04_00_cve_epss.py
 ```
 
+## TEST 4.1 Validate CVE -> EPSS relationship updates (`cve-epss`)
+
+Running test 4.0 again, 24 hours later, should update the object with another EPSS score for the date run
+
 ## TEST 5.0 Validate CVE -> KEV relationship (`cve-kev`)
 
 Both documents in the following test have KEV references...
@@ -73,7 +77,7 @@ Runs with `cve-cwe` mode.
 ## TEST 6.1 Test `cve-id` cli arg
 
 ```shell
-python3 -m unittest tests/test_06_01_cve_cli_arg_cve_capec.py
+python3 -m unittest tests/test_06_01_cve_cli_arg_cve_kev.py
 ```
 
-Runs with `cve-capec` mode.
+Runs with `cve-kev` mode.
