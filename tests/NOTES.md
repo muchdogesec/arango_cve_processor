@@ -473,5 +473,219 @@ FOR doc IN mitre_cwe_vertex_collection
 
 No CAPEC refs
 
-# base_cves_update.json
+# base_cves_update_1.json
 
+CWE 404
+
+```json
+[
+  {
+    "_key": "weakness--704addb5-ab44-52cf-8dd5-4c6b641fce89+2024-12-07T11:48:20.953848Z",
+    "_id": "mitre_cwe_vertex_collection/weakness--704addb5-ab44-52cf-8dd5-4c6b641fce89+2024-12-07T11:48:20.953848Z",
+    "_rev": "_i4BxHeG--A",
+    "type": "weakness",
+    "spec_version": "2.1",
+    "id": "weakness--704addb5-ab44-52cf-8dd5-4c6b641fce89",
+    "created_by_ref": "identity--d91de5c9-2d85-5cc9-97c0-c5ec8deb1a4b",
+    "created": "2006-07-19T00:00:00.000Z",
+    "modified": "2023-10-26T00:00:00.000Z",
+    "name": "Improper Resource Shutdown or Release",
+    "description": "The product does not release or incorrectly releases a resource before it is made available for re-use.\nWhen a resource is created or allocated, the developer is responsible for properly releasing the resource as well as accounting for all potential paths of expiration or invalidation, such as a set period of time or revocation.",
+    "modes_of_introduction": [
+      "Implementation"
+    ],
+    "likelihood_of_exploit": [
+      "Medium"
+    ],
+    "common_consequences": [
+      "Availability",
+      "Other",
+      "Confidentiality"
+    ],
+    "detection_methods": [
+      "Automated Dynamic Analysis",
+      "Manual Dynamic Analysis",
+      "Automated Static Analysis"
+    ],
+    "external_references": [
+      {
+        "source_name": "cwe",
+        "url": "http://cwe.mitre.org/data/definitions/404.html",
+        "external_id": "CWE-404"
+      },
+      {
+        "source_name": "Michael Howard, David LeBlanc, John Viega",
+        "description": "24 Deadly Sins of Software Security",
+        "external_id": "REF-44"
+      },
+      {
+        "source_name": "PLOVER",
+        "description": "Improper resource shutdown or release"
+      },
+      {
+        "source_name": "7 Pernicious Kingdoms",
+        "description": "Unreleased Resource"
+      },
+      {
+        "source_name": "OWASP Top Ten 2004",
+        "description": "Denial of Service",
+        "external_id": "A9"
+      },
+      {
+        "source_name": "CERT C Secure Coding",
+        "description": "Close files when they are no longer needed",
+        "external_id": "FIO42-C"
+      },
+      {
+        "source_name": "CERT C Secure Coding",
+        "description": "Free dynamically allocated memory when no longer needed",
+        "external_id": "MEM31-C"
+      },
+      {
+        "source_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+        "description": "Release resources when they are no longer needed",
+        "external_id": "FIO04-J"
+      },
+      {
+        "source_name": "Software Fault Patterns",
+        "description": "Failure to release resource",
+        "external_id": "SFP14"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/125.html",
+        "external_id": "CAPEC-125"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/130.html",
+        "external_id": "CAPEC-130"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/131.html",
+        "external_id": "CAPEC-131"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/494.html",
+        "external_id": "CAPEC-494"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/495.html",
+        "external_id": "CAPEC-495"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/496.html",
+        "external_id": "CAPEC-496"
+      },
+      {
+        "source_name": "capec",
+        "url": "https://capec.mitre.org/data/definitions/666.html",
+        "external_id": "CAPEC-666"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--d91de5c9-2d85-5cc9-97c0-c5ec8deb1a4b"
+    ],
+    "extensions": {
+      "extension-definition--31725edc-7d81-5db7-908a-9134f322284a": {
+        "extension_type": "new-sdo"
+      }
+    },
+    "_bundle_id": "bundle--9d6b7dd3-b320-563d-8ece-46f9902ca88a",
+    "_file_name": "cwe-bundle-v4_16.json",
+    "_stix2arango_note": "version=4_16",
+    "_record_md5_hash": "0577540f0192497089d06b7bd76f67c0",
+    "_is_latest": true,
+    "_record_created": "2024-12-07T11:48:20.953848Z",
+    "_record_modified": "2024-12-07T11:48:20.953848Z"
+  }
+]
+```
+
+
+```sql
+FOR doc IN mitre_capec_vertex_collection
+    FILTER doc.external_references != null AND LENGTH(doc.external_references) > 0
+    AND doc.x_mitre_deprecated != true
+    AND doc.revoked != true
+    FOR ref IN doc.external_references
+        FILTER (ref.source_name == "capec" AND ref.external_id == "CAPEC-125") OR (ref.source_name == "capec" AND ref.external_id == "CAPEC-130") OR (ref.source_name == "capec" AND ref.external_id == "CAPEC-131") OR (ref.source_name == "capec" AND ref.external_id == "CAPEC-494") OR (ref.source_name == "capec" AND ref.external_id == "CAPEC-495") OR (ref.source_name == "capec" AND ref.external_id == "CAPEC-496") OR (ref.source_name == "capec" AND ref.external_id == "CAPEC-666")
+        RETURN {
+            external_id: ref.external_id,
+            document: doc.id
+        }
+```
+
+```json
+[
+  {
+    "external_id": "CAPEC-125",
+    "document": "attack-pattern--6854fe89-0829-429f-a95c-89e77ab6c8ed"
+  },
+  {
+    "external_id": "CAPEC-130",
+    "document": "attack-pattern--e171fd74-3ea6-4ad5-b0ff-71bb311c8024"
+  },
+  {
+    "external_id": "CAPEC-131",
+    "document": "attack-pattern--01d5c7e7-1c74-4b20-9e43-548c5f4de113"
+  },
+  {
+    "external_id": "CAPEC-494",
+    "document": "attack-pattern--753614f7-f574-4a2f-9cc4-481c62c25c32"
+  },
+  {
+    "external_id": "CAPEC-495",
+    "document": "attack-pattern--428d5dc6-c2be-4a2a-aed1-1e794518b101"
+  },
+  {
+    "external_id": "CAPEC-496",
+    "document": "attack-pattern--fbdcbfab-769d-4d52-8ec2-7fd1e4c212de"
+  },
+  {
+    "external_id": "CAPEC-666",
+    "document": "attack-pattern--c3ce7043-a2cc-4686-945c-cf3b605b7c90"
+  }
+]
+```
+
+Note, T1498.001 and T1499 are referenced in two capecs
+
+```sql
+FOR doc IN mitre_attack_enterprise_vertex_collection
+    FILTER doc.external_references != null AND LENGTH(doc.external_references) > 0
+    AND doc.x_mitre_deprecated != true
+    AND doc.revoked != true
+    FOR ref IN doc.external_references
+        FILTER (ref.source_name == "mitre-attack" AND ref.external_id == "T1498.001") OR (ref.source_name == "mitre-attack" AND ref.external_id == "T1499") OR (ref.source_name == "mitre-attack" AND ref.external_id == "T1499.001") OR (ref.source_name == "mitre-attack" AND ref.external_id == "T1499.003")
+        RETURN {
+            external_id: ref.external_id,
+            document: doc.id
+        }
+```
+
+```json
+[
+  {
+    "external_id": "T1498.001",
+    "document": "attack-pattern--0bda01d5-4c1d-4062-8ee2-6872334383c3"
+  },
+  {
+    "external_id": "T1499.001",
+    "document": "attack-pattern--0df05477-c572-4ed6-88a9-47c581f548f7"
+  },
+  {
+    "external_id": "T1499.003",
+    "document": "attack-pattern--18cffc21-3260-437e-80e4-4ab8bf2ba5e9"
+  },
+  {
+    "external_id": "T1499",
+    "document": "attack-pattern--c675646d-e204-4aa8-978d-e3d6d65885c4"
+  }
+]
+```

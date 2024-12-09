@@ -1,4 +1,4 @@
-
+# Tests
 
 ## TEST 1.0 Validate CVE -> CWE relationship (`cve-cwe`)
 
@@ -7,6 +7,26 @@ python3 -m unittest tests/test_01_00_cve_cwe.py
 ```
 
 Contains 3 CWE refs.
+
+## TEST 1.1 Validate CVE -> CWE relationship (`cve-cwe`)
+
+Test 1.0 must be run.
+
+CVE-2019-16278 has CWE-404 added to it
+
+```shell
+python3 -m unittest tests/test_01_01_cve_cwe_update_1.py
+```
+
+## TEST 1.2 Validate CVE -> CWE relationship (`cve-cwe`)
+
+Test 1.1 must be run.
+
+All CWE references are removed from CVE-2019-16278
+
+```shell
+python3 -m unittest tests/test_01_02_cve_cwe_update_2.py
+```
 
 ## TEST 2.0 Validate CVE -> CAPEC relationship (`cve-capec`)
 
@@ -17,6 +37,8 @@ python3 -m unittest tests/test_02_00_cve_capec.py
 ```
 
 Contains 14 CAPEC refs.
+
+
 
 ## TEST 3.0 Validate CVE -> ATT&CK relationship (`cve-attack`)
 
