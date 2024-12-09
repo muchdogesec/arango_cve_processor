@@ -1,3 +1,5 @@
+# base_cves.json
+
 ## CWE-22 (in test object `vulnerability--3ec69180-baec-5bed-817a-b687139f56d8`)
 
 ```sql
@@ -471,4 +473,5 @@ FOR doc IN mitre_cwe_vertex_collection
 
 No CAPEC refs
 
+# base_cves_update.json
 

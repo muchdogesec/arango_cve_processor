@@ -28,12 +28,11 @@ python3 -m unittest tests/test_03_00_cve_attack.py
 
 Contains 14 CAPEC refs.
 
-## TEST 3.0 Validate CVE -> EPSS relationship (`cve-epss`)
+## TEST 4.0 Validate CVE -> EPSS relationship (`cve-epss`)
 
 ```shell
 python3 -m unittest tests/test_04_00_cve_epss.py
 ```
-
 
 ## TEST 5.0 Validate CVE -> KEV relationship (`cve-kev`)
 
@@ -42,3 +41,19 @@ Both documents in the following test have KEV references...
 ```shell
 python3 -m unittest tests/test_05_00_cve_kev.py
 ```
+
+## TEST 6.0 Test `cve-id` cli arg
+
+```shell
+python3 -m unittest tests/test_06_00_cve_cli_arg_cve_cwe.py
+```
+
+Runs with `cve-cwe` mode.
+
+## TEST 6.1 Test `cve-id` cli arg
+
+```shell
+python3 -m unittest tests/test_06_01_cve_cli_arg_cve_capec.py
+```
+
+Runs with `cve-capec` mode.

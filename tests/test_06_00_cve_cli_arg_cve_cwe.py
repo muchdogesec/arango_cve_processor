@@ -33,7 +33,8 @@ class TestArangoDB(unittest.TestCase):
             "python3", "arango_cve_processor.py",
             "--database", TESTS_DATABASE,
             "--relationship", TEST_MODE,
-            "--ignore_embedded_relationships", IGNORE_EMBEDDED_RELATIONSHIPS
+            "--ignore_embedded_relationships", IGNORE_EMBEDDED_RELATIONSHIPS,
+            "--cve_id", "CVE-2019-16278"
         ], check=True)
         print(f'======arango_cve_processor run successfully======')
         
@@ -73,7 +74,7 @@ class TestArangoDB(unittest.TestCase):
         cursor = self.db.aql.execute(query)
         result_count = [count for count in cursor]
 
-        self.assertEqual(result_count, [3], f"Expected 3 documents, but found {result_count}.")
+        self.assertEqual(result_count, [2], f"Expected 2 documents, but found {result_count}.")
 
     # check id generation matches expectation
     def test_03_check_object_id_generation(self):
@@ -88,7 +89,6 @@ class TestArangoDB(unittest.TestCase):
         result_count = [doc for doc in cursor]
 
         expected_ids = [
-            "relationship--ecff88f7-7a64-5592-bfb0-e68515928269",
             "relationship--e34bee9b-f667-5b4b-8bc2-5625c76a4387",
             "relationship--36a15bdd-c642-5059-af7f-e7614c19d743"
         ]
@@ -108,7 +108,6 @@ class TestArangoDB(unittest.TestCase):
         result_count = [doc for doc in cursor]
 
         expected_ids = [
-          "CVE-2024-7262 is exploited using CWE-22",
           "CVE-2019-16278 is exploited using CWE-521",
           "CVE-2019-16278 is exploited using CWE-1004"
         ]
