@@ -2,6 +2,7 @@ import logging
 from typing import Any
 import requests
 
+from arango_cve_processor import config
 from arango_cve_processor.tools.utils import stix2dict
 from stix2 import Report
 from .base_manager import STIXRelationManager, RelationType
@@ -33,7 +34,7 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
             cisa_obj: dict[str, Any] = kev_map.get(cve_id)
             if not cisa_obj:
                 continue
-            
+
             more_external_refs = [
                 {
                     "source_name": "cve",
@@ -58,11 +59,8 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
                         object_refs=[cve["id"]],
                         labels=["kev"],
                         external_references=more_external_refs,
-                        object_marking_refs=[
-                            "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                            "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
-                        ],
-                        created_by_ref="identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+                        object_marking_refs=config.OBJECT_MARKING_REFS,
+                        created_by_ref=config.IDENTITY_REF,
                     )
                 )
             )
