@@ -91,7 +91,7 @@ class STIXRelationManager:
             obj['_record_md5_hash'] = generate_md5(obj)
             
         inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(objects, self.vertex_collection)
-        self.arango.update_is_latest_several_chunked(inserted_ids, self.vertex_collection)
+        self.arango.update_is_latest_several_chunked(inserted_ids, self.vertex_collection, self.edge_collection)
 
     
     def upload_edge_data(self, objects: list[dict]):
@@ -110,7 +110,7 @@ class STIXRelationManager:
 
 
         inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(objects, self.edge_collection)
-        self.arango.update_is_latest_several_chunked(inserted_ids, self.edge_collection)
+        self.arango.update_is_latest_several_chunked(inserted_ids, self.edge_collection, self.edge_collection)
 
     def get_edge_ids(self, object_ids, collection=None) -> dict[str, str]:
         """
