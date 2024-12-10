@@ -66,7 +66,7 @@ Both documents in the following test have KEV references...
 python3 -m unittest tests/test_05_00_cve_kev.py
 ```
 
-## TEST 6.0 Test `cve-id` cli arg
+## TEST 6.0 Test `cve_id` cli arg
 
 ```shell
 python3 -m unittest tests/test_06_00_cve_cli_arg_cve_cwe.py
@@ -74,10 +74,27 @@ python3 -m unittest tests/test_06_00_cve_cli_arg_cve_cwe.py
 
 Runs with `cve-cwe` mode.
 
-## TEST 6.1 Test `cve-id` cli arg
+## TEST 6.1 Test `cve_id` cli arg
 
 ```shell
 python3 -m unittest tests/test_06_01_cve_cli_arg_cve_kev.py
 ```
 
 Runs with `cve-kev` mode.
+
+## TEST 7.0 Test `modified_min` cli arg
+
+```shell
+python3 -m unittest tests/test_07_00_modified_min.py
+```
+
+modified min is 2022-01-01, should import only 1 object -- CVE-2024-7262 w/ 1 CWE
+
+
+## TEST 8.0 Test `created_min` cli arg
+
+```shell
+python3 -m unittest tests/test_08_00_created_min.py
+```
+
+created min is 2022-01-01, should import only 1 object -- CVE-2024-7262 w/ 1 CWE
