@@ -104,7 +104,7 @@ def parse_cve_epss_report(vulnerability: Vulnerability):
             modified = datetime.strptime(epss_data[-1]["date"], "%Y-%m-%d").date()
 
         return Report(
-            id="report--"+uuid.uuid5(config.UUID, content),
+            id="report--"+str(uuid.uuid5(config.namespace, content)),
             created=modified,
             modified=modified,
             published=modified,

@@ -86,8 +86,8 @@ class TestArangoDB(unittest.TestCase):
         result_count = [doc for doc in cursor]
 
         expected_ids = [
+            "report--9ccc9e22-8282-53c8-921c-972d09c0308f",
             "report--7f8bbe5d-8a69-519c-8814-d4ebc8f71d9b",
-            "report--9ccc9e22-8282-53c8-921c-972d09c0308f" 
         ]
 
         self.assertEqual(result_count, expected_ids, f"Expected {expected_ids}, but found {result_count}.")

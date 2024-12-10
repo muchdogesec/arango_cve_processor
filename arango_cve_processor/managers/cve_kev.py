@@ -51,7 +51,7 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
             retval.append(
                 stix2dict(
                     Report(
-                        id="report--"+uuid.uuid5(config.UUID, content),
+                        id="report--"+str(uuid.uuid5(config.namespace, content)),
                         type="report",
                         spec_version="2.1",
                         created=cve["created"],
