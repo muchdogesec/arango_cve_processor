@@ -1,5 +1,6 @@
 import json, hashlib
 import logging
+import re
 
 from arango.database import StandardDatabase
 import requests
@@ -59,3 +60,24 @@ def load_file_from_url(url):
     
 def stix2dict(obj: 'stix2.base._STIXBase'):
     return json.loads(obj.serialize())
+
+EMBEDDED_RELATIONSHIP_RE = re.compile(r"([a-z_]+)_refs{0,1}")
+
+def get_embedded_refs(object: list|dict, xpath: list = []):
+    embedded_refs = []
+    if isinstance(object, dict):
+        for key, value in object.items():
+            if key in ["source_ref", "target_ref"]:
+                continue
+            if match := EMBEDDED_RELATIONSHIP_RE.fullmatch(key):
+                relationship_type = "-".join(xpath + match.group(1).split('_'))
+                targets = value if isinstance(value, list) else [value]
+                for target in targets:
+                    embedded_refs.append((relationship_type, target))
+            elif isinstance(value, list):
+                embedded_refs.extend(get_embedded_refs(value, xpath + [key]))
+    elif isinstance(object, list):
+        for obj in object:
+            if isinstance(obj, dict):
+                embedded_refs.extend(get_embedded_refs(obj, xpath))
+    return embedded_refs

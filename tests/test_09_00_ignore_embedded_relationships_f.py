@@ -59,7 +59,8 @@ class TestArangoDB(unittest.TestCase):
 
         self.assertEqual(result_count, expected_ids, f"Expected {expected_ids}, but found {result_count}.")
 
-    # each cve has 3 ref values
+    # CVE-2024-7262 -> CWE-22, CVE-2019-16278 -> CWE-1004, CWE-521
+    # 3 objects generated, each object with 3 embedded_refs, 9 embedded refs expected
 
     def test_02_arango_cve_processor_note(self):
         query = """
@@ -73,7 +74,7 @@ class TestArangoDB(unittest.TestCase):
         cursor = self.db.aql.execute(query)
         result_count = [count for count in cursor]
 
-        self.assertEqual(result_count, [6], f"Expected 6 documents, but found {result_count}.")
+        self.assertEqual(result_count, [9], f"Expected 6 documents, but found {result_count}.")
 
 if __name__ == '__main__':
     unittest.main()
