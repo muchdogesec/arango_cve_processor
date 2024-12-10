@@ -98,3 +98,15 @@ python3 -m unittest tests/test_08_00_created_min.py
 ```
 
 created min is 2022-01-01, should import only 1 object -- CVE-2024-7262 w/ 1 CWE
+
+## TEST 9.0 Check ignore embedded relationships = false
+
+```shell
+python3 -m unittest tests/test_09_00_ignore_embedded_relationships_f.py
+```
+
+## TEST 10.0 Check ignore embedded relationships = true
+
+```shell
+python3 -m unittest tests/test_10_00_ignore_embedded_relationships_t.py
+```
