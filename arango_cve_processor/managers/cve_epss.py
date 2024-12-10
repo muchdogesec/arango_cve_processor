@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import json
 import logging
+import uuid
 
 from stix2arango.services.arangodb_service import ArangoDBService
 from arango_cve_processor import config
@@ -103,7 +104,7 @@ def parse_cve_epss_report(vulnerability: Vulnerability):
             modified = datetime.strptime(epss_data[-1]["date"], "%Y-%m-%d").date()
 
         return Report(
-            # id=vulnerability['id'].replace("vulnerability", "report"),
+            id="report--"+uuid.uuid5(config.UUID, content),
             created=modified,
             modified=modified,
             published=modified,

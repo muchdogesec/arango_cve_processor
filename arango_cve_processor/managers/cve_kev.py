@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+import uuid
 import requests
 
 from arango_cve_processor import config
@@ -46,15 +47,17 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
             for note in cisa_obj["notes"].split(" ; ")[:-1]:
                 more_external_refs.append(dict(source_name="cisa_note", url=note))
 
+            content = f"CISA KEV: {cve_id}"
             retval.append(
                 stix2dict(
                     Report(
+                        id="report--"+uuid.uuid5(config.UUID, content),
                         type="report",
                         spec_version="2.1",
                         created=cve["created"],
                         modified=cve["modified"],
                         published=cve["created"],
-                        name=f"CISA KEV: {cve_id}",
+                        name=content,
                         description=f"{cisa_obj['vulnerabilityName']}\n\n{cisa_obj['shortDescription']}\n\nRequired action: {cisa_obj['requiredAction']}\n\nAction due by: {cisa_obj['dueDate']}",
                         object_refs=[cve["id"]],
                         labels=["kev"],
