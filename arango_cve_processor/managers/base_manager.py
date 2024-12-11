@@ -126,7 +126,6 @@ class STIXRelationManager:
         for collection in collections:
             edge_ids.update(self.get_edge_ids(ref_ids, collection))
 
-        print(ref_ids, edge_ids)
         embedded_relationships = []
         for obj in objects:
             for ref, target_id in obj_targets_map.get(obj['id'], []):
@@ -139,8 +138,6 @@ class STIXRelationManager:
                 rel['_record_md5_hash'] = generate_md5(rel)
                 embedded_relationships.append(rel)
 
-        print(embedded_relationships)
-        print(objects[0])
         inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(embedded_relationships, self.edge_collection)
         self.arango.update_is_latest_several_chunked(inserted_ids, self.edge_collection, self.edge_collection)
         return embedded_relationships
