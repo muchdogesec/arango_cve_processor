@@ -17,3 +17,9 @@ class CveAttack(CveCapec, relationship_note='cve-attack'):
             self.ctibutler_path = f'attack-{matrix}'
             retval.extend(super().relate_multiple(objects))
         return retval
+
+    def get_external_references(self, cve_id, attack_id):
+        return [
+            dict(source_name='cve', external_id=cve_id, url="https://nvd.nist.gov/vuln/detail/"+cve_id),
+            dict(source_name='mitre-attack', external_id=attack_id), # url="https://attack.mitre.org/techniques/"+attack_id),
+        ]

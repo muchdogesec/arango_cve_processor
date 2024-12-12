@@ -47,5 +47,12 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
                         cwe_object['id'],
                         relationship_type="exploited-using",
                         description=f"{cve_id} is exploited using {cwe_id}",
+                        external_references=self.get_external_references(cve_id, cwe_id),
                     ))
         return retval
+    
+    def get_external_references(self, cve_id, cwe_id: str):
+        return [
+            dict(source_name='cve', external_id=cve_id, url="https://nvd.nist.gov/vuln/detail/"+cve_id),
+            dict(source_name='cwe', external_id=cwe_id, url=f"http://cwe.mitre.org/data/definitions/{cwe_id.split('-', 1)[-1]}.html"),
+        ]

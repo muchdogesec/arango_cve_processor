@@ -58,7 +58,7 @@ class STIXRelationManager:
         return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
     
     @classmethod
-    def create_relationship(cls, source, target_ref, relationship_type, description, relationship_id=None, is_ref=False):
+    def create_relationship(cls, source, target_ref, relationship_type, description, relationship_id=None, is_ref=False, external_references=None):
         if not relationship_id:
             relationship_id = "relationship--" + str(
                 uuid.uuid5(
@@ -66,8 +66,8 @@ class STIXRelationManager:
                     f"{relationship_type}+{source['id']}+{target_ref}",
                 )
             )
-
-        return dict(
+            
+        retval = dict(
             id=relationship_id,
             type="relationship",
             created=source.get("created"),
@@ -82,6 +82,9 @@ class STIXRelationManager:
             _from=source.get('_id'),
             _is_ref=is_ref,
         )
+        if external_references:
+            retval['external_references'] = external_references
+        return retval
     
     def import_external_data(self, objects) -> dict[str, dict]:
         pass

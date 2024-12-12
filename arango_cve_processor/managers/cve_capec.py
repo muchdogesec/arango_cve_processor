@@ -39,4 +39,9 @@ FOR doc IN @@vertex_collection
     RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'created', 'modified'), {external_references: capec_ids})
 """
         return self.arango.execute_raw_query(query, bind_vars={"@vertex_collection": self.collection, "@edge_collection": self.edge_collection, "cve_cwe_note": self.prev_note, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min})
- 
+
+    def get_external_references(self, cve_id: str, capec_id: str):
+        return [
+            dict(source_name='cve', external_id=cve_id, url="https://nvd.nist.gov/vuln/detail/"+cve_id),
+            dict(source_name='capec', external_id=capec_id, url=f"https://capec.mitre.org/data/definitions/{capec_id.split('-', 1)[-1]}.html"),
+        ]
