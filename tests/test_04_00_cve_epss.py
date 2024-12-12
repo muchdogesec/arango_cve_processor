@@ -80,7 +80,7 @@ class TestArangoDB(unittest.TestCase):
         query = """
         FOR doc IN nvd_cve_vertex_collection
         FILTER doc._arango_cve_processor_note == "cve-epss"
-        SORT doc.id DESC
+        SORT doc.id ASC
             RETURN doc.id
         """
         cursor = self.db.aql.execute(query)

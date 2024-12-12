@@ -1,13 +1,14 @@
 from dataclasses import dataclass
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timedelta
 import io
 import logging
 import requests
 import gzip
 import csv
+from pytz import timezone
+from functools import lru_cache
 
 logging.basicConfig(level=logging.INFO)
-
 @dataclass
 class EPSS:
     cve: str = ""
@@ -22,11 +23,23 @@ class EPSSManager:
     @classmethod
     def data(cls):
         if not cls._epss_data:
-            cls.get_epss_data(datetime.now(timezone.utc))
+            cls.get_epss_data(cls.datenow())
         return cls._epss_data
     
+    @staticmethod
+    def datenow():
+        TIMEZONE = timezone('US/Pacific')
+        return datetime.now(TIMEZONE) - timedelta(hours=1, minutes=30)
+    
     @classmethod
-    def get_epss_data(cls, d: date):
+    def get_epss_data(cls, d: date|datetime):
+        if isinstance(d, datetime):
+            d = d.date()
+        return cls._get_epss_date(d)
+    
+    @classmethod
+    @lru_cache(maxsize=30)
+    def _get_epss_date(cls, d: date):
         if isinstance(d, datetime):
             d = d.date()
         if d in cls._epss_data:
@@ -52,6 +65,9 @@ class EPSSManager:
     @classmethod
     def get_data_for_cve(cls, cve, date=None):
         if not date:
-            date = datetime.now(timezone.utc)
-        data = cls.get_epss_data(date)
+            date = cls.datenow()
+        try:
+            data = cls.get_epss_data(date)
+        except:
+            return cls.get_data_for_cve(cve, date - timedelta(days=1))
         return data.get(cve)
