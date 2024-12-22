@@ -55,7 +55,6 @@ python3 arango_cve_processor.py \
     --database DATABASE \
     --relationship RELATIONSHIP \
     --ignore_embedded_relationships BOOLEAN \
-    --stix2arango_note STRING \
     --modified_min DATETIME \
     --cve_id CVE-NNNN-NNNN CVE-NNNN-NNNN
 ```
