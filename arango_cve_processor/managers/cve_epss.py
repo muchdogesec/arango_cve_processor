@@ -32,6 +32,7 @@ LET cve_epss_map = MERGE(
 )
 FOR doc IN @@collection
 FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min 
+        AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
 RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_ref', 'external_references'), {epss: cve_epss_map[doc.name]})
         """
         return self.arango.execute_raw_query(
@@ -40,6 +41,7 @@ RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_r
                 "@collection": self.collection,
                 "created_min": self.created_min,
                 "modified_min": self.modified_min,
+                'cve_ids': self.cve_ids or None,
             },
         )
 

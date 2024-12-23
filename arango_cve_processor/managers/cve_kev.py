@@ -16,6 +16,7 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
         query = """
         FOR doc IN @@collection
         FILTER doc.type == 'vulnerability' AND doc._is_latest AND doc.created >= @created_min AND doc.modified >= @modified_min 
+                AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
         return self.arango.execute_raw_query(
@@ -24,6 +25,7 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 "@collection": self.collection,
                 "created_min": self.created_min,
                 "modified_min": self.modified_min,
+                'cve_ids': self.cve_ids or None,
             },
         )
 

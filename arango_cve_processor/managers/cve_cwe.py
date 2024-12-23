@@ -20,10 +20,11 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
     def get_objects(self, **kwargs):
         query = """
         FOR doc IN @@collection
-        FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name]
+        FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name] 
+                AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'external_references', 'name', 'created', 'modified')
         """
-        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min})
+        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min, 'cve_ids': self.cve_ids or None})
     
     def relate_multiple(self, objects):
         logging.info("relating %s (%s)", self.relationship_note, self.ctibutler_path)
