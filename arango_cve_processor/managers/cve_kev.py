@@ -27,6 +27,7 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 "modified_min": self.modified_min,
                 'cve_ids': self.cve_ids or None,
             },
+            batch_size=self.BATCH_SIZE,
         )
 
     def relate_multiple(self, objects):

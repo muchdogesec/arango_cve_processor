@@ -85,6 +85,7 @@ RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_r
                 "@collection": self.vertex_collection,
                 "objects": self.update_objects,
             },
+            batch_size=self.BATCH_SIZE,
         )
 
         return super().upload_vertex_data(objects)

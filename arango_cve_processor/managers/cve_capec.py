@@ -42,7 +42,7 @@ FOR doc IN @@vertex_collection
 """
         binds = {"@vertex_collection": self.collection, "@edge_collection": self.edge_collection, "cve_cwe_note": self.prev_note, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min, 'cve_ids': self.cve_ids or None}
         
-        return self.arango.execute_raw_query(query, bind_vars=binds)
+        return self.arango.execute_raw_query(query, bind_vars=binds, batch_size=self.BATCH_SIZE)
 
     def get_external_references(self, cve_id: str, capec_id: str):
         return [
