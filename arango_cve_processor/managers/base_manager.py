@@ -22,6 +22,7 @@ RELATION_MANAGERS: dict[str, 'type[STIXRelationManager]'] = {}
 
 class STIXRelationManager:
     MIN_DATE_STR = "1970-01-01"
+    BATCH_SIZE = 1000
 
     def __init_subclass__(cls,/, relationship_note) -> None:
         cls.relationship_note = relationship_note
@@ -44,6 +45,7 @@ class STIXRelationManager:
         self.created_min = created_min or self.MIN_DATE_STR
         self.modified_min = modified_min or self.MIN_DATE_STR
         self.ignore_embedded_relationships = ignore_embedded_relationships
+        self.kwargs = kwargs
 
     @property
     def collection(self):
@@ -166,24 +168,10 @@ class STIXRelationManager:
     def relate_multiple(self, objects):
         raise NotImplementedError('must be subclassed')
     
-    def _filter_cve_ids(self, objects: list[dict]):
-        logging.info("filtering with --cve_ids")
-        if not self.cve_ids:
-            return objects
-        retval = []
-        for i, obj in enumerate(objects):
-            if obj['name'].upper() in self.cve_ids:
-                retval.append(obj)
-        logging.info("filter --cve_ids: %d objects", len(retval))
-        return retval
-    
-
-    
     def process(self, **kwargs):
         logging.info("getting objects")
         objects = self.get_objects(**kwargs)
         logging.info("got %d objects", len(objects))
-        objects = self._filter_cve_ids(objects)
         uploads = []
         match self.relation_type:
             case RelationType.RELATE_SEQUENTIAL:
