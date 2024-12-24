@@ -6,7 +6,9 @@ A small script that enriches CVEs to other sources with all data stored as STIX 
 
 ## tl;dr
 
+[![arango_cve_processor](https://img.youtube.com/vi/J_LbAzoUpd4/0.jpg)](https://www.youtube.com/watch?v=J_LbAzoUpd4)
 
+[Watch the demo](https://www.youtube.com/watch?v=J_LbAzoUpd4).
 
 ## Overview
 
@@ -71,7 +73,7 @@ Where;
 * `--ignore_embedded_relationships` (optional, boolean). Default is false. if `true` passed, this will stop any embedded relationships from being generated. This is a stix2arango feature where STIX SROs will also be created for `_ref` and `_refs` properties inside each object (e.g. if `_ref` property = `identity--1234` and SRO between the object with the `_ref` property and `identity--1234` will be created). See stix2arango docs for more detail if required, essentially this a wrapper for the same `--ignore_embedded_relationships` setting implemented by stix2arango
 * `--modified_min` (optional, date). By default arango_cve_processor will consider all CVEs in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is useful when you don't want to process data for very old CVEs in the database.
 * `--created_min` (optional, date). Same as `modified_min` but considers `created` date.
-* `--cve_id` (optional, lists of CVE IDs): will only process the relationships for the CVEs passed, otherwise all CVEs will be considered. Separate each CVE with a white space character (e.g. `CVE-NNNN-NNNN CVE-NNNN-NNNN`)
+* `--cve_id` (optional, CVE ID): will only process the relationships for the CVE passed, otherwise all CVEs will be considered.
 
 ### Examples
 

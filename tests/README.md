@@ -110,3 +110,18 @@ python3 -m unittest tests/test_09_00_ignore_embedded_relationships_f.py
 ```shell
 python3 -m unittest tests/test_10_00_ignore_embedded_relationships_t.py
 ```
+
+## TEST 11.0 Check cve_id flag = CVE-2024-7262 in cve-cwe mode (has CWE-22)
+
+```shell
+python3 -m unittest tests/test_11_00_cve_id_flag.py
+```
+
+## TEST 11.1 Check cve_id flag where multiple CVE IDs passed
+
+All CVE IDs in bundle are passed;
+
+```shell
+python3 -m unittest tests/test_11_01_cve_id_multi_flag.py
+```
+
