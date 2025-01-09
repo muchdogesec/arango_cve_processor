@@ -3,6 +3,7 @@ import itertools
 import logging
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
 from .base_manager import RelationType, STIXRelationManager
+from arango_cve_processor.tools.utils import chunked_tqdm
   
 
 
@@ -24,7 +25,8 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'external_references', 'name', 'created', 'modified')
         """
-        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min, 'cve_ids': self.cve_ids or None}, batch_size=self.BATCH_SIZE)
+        bindings = {'@collection': self.collection, 'source_name': self.source_name, 'created_min': self.created_min, 'modified_min': self.modified_min, 'cve_ids': self.cve_ids or None}
+        return self.arango.execute_raw_query(query, bind_vars=bindings, batch_size=self.BATCH_SIZE)
     
     def relate_multiple(self, objects):
         logging.info("relating %s (%s)", self.relationship_note, self.ctibutler_path)
@@ -57,3 +59,10 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
             dict(source_name='cve', external_id=cve_id, url="https://nvd.nist.gov/vuln/detail/"+cve_id),
             dict(source_name='cwe', external_id=cwe_id, url=f"http://cwe.mitre.org/data/definitions/{cwe_id.split('-', 1)[-1]}.html"),
         ]
+
+    def process(self, **kwargs):
+        logging.info("getting objects - %s", self.relationship_note)
+        objects = self.get_objects(**kwargs)
+        logging.info("got %d objects - %s", len(objects), self.relationship_note)
+        for chunk in chunked_tqdm(objects, n=self.CHUNK_SIZE, description=f"{self.relationship_note} chunked_processing"):
+            self.do_process(chunk)

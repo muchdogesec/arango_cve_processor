@@ -1,5 +1,6 @@
 import argparse
 import itertools
+import logging
 from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
@@ -61,6 +62,7 @@ def run_all(database=None, modes: list[str]=None, **kwargs):
     import_default_objects(processor, default_objects=itertools.chain(*[RELATION_MANAGERS[mode].default_objects for mode in modes]))
     manager_klasses = sorted([RELATION_MANAGERS[mode] for mode in modes], key=lambda manager: manager.priority)
     for manager_klass in manager_klasses:
+        logging.info("Running Process For %s", manager_klass.relationship_note)
         relation_manager = manager_klass(processor, **kwargs)
         relation_manager.process()
 
