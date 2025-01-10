@@ -23,6 +23,7 @@ RELATION_MANAGERS: dict[str, 'type[STIXRelationManager]'] = {}
 class STIXRelationManager:
     MIN_DATE_STR = "1970-01-01"
     BATCH_SIZE = 1000
+    CHUNK_SIZE = BATCH_SIZE
 
     def __init_subclass__(cls,/, relationship_note) -> None:
         cls.relationship_note = relationship_note
@@ -169,9 +170,13 @@ class STIXRelationManager:
         raise NotImplementedError('must be subclassed')
     
     def process(self, **kwargs):
-        logging.info("getting objects")
+        logging.info("getting objects - %s", self.relationship_note)
         objects = self.get_objects(**kwargs)
-        logging.info("got %d objects", len(objects))
+        logging.info("got %d objects - %s", len(objects), self.relationship_note)
+        return self.do_process(objects)
+    
+    def do_process(self, objects):
+        logging.info("working on %d objects - %s", len(objects), self.relationship_note)
         uploads = []
         match self.relation_type:
             case RelationType.RELATE_SEQUENTIAL:

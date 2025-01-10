@@ -6,6 +6,7 @@ from arango.database import StandardDatabase
 import requests
 from stix2arango.services import ArangoDBService
 import stix2
+from tqdm import tqdm
 
 from arango_cve_processor import config
 
@@ -81,3 +82,14 @@ def get_embedded_refs(object: list|dict, xpath: list = []):
             if isinstance(obj, dict):
                 embedded_refs.extend(get_embedded_refs(obj, xpath))
     return embedded_refs
+
+
+
+def chunked_tqdm(iterable, n, description=None):
+    if not iterable:
+        return []
+    iterator = tqdm(range(0, len(iterable), n), total=len(iterable), desc=description)
+    for i in iterator:
+        chunk = iterable[i : i + n]
+        yield chunk
+        iterator.update(len(chunk))
