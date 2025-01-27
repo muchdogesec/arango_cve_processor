@@ -11,11 +11,15 @@ from .base_manager import STIXRelationManager, RelationType
 
 class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
     relation_type = RelationType.RELATE_PARALLEL
+    KEV_URLS = [
+        "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+        "https://raw.githubusercontent.com/aboutcode-org/aboutcode-mirror-kev/main/known_exploited_vulnerabilities.json",
+    ]
 
     def get_objects(self, **kwargs):
         query = """
         FOR doc IN @@collection
-        FILTER doc.type == 'vulnerability' AND doc._is_latest AND doc.created >= @created_min AND doc.modified >= @modified_min 
+        FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
@@ -73,12 +77,17 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
         return retval
 
     def retrieve_kevs(self):
-        resp = requests.get(
-            "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-        ).json()
-        kev_map: dict[dict[str, Any]] = {}
-        for vulnerability in resp["vulnerabilities"]:
-            kev_map[vulnerability["cveID"]] = vulnerability
+        for kev_url in self.KEV_URLS:
+            try:
+                resp = requests.get(
+                    kev_url
+                ).json()
+                kev_map: dict[dict[str, Any]] = {}
+                for vulnerability in resp["vulnerabilities"]:
+                    kev_map[vulnerability["cveID"]] = vulnerability
 
-        logging.info("CISA endpoint returns %d known vulnerabilities", len(kev_map))
-        return kev_map
+                logging.info("CISA endpoint returns %d known vulnerabilities", len(kev_map))
+                return kev_map
+            except Exception as e:
+                logging.error("failed to retrieve known exploited vulnerabilities from `%s`", kev_url)
+        raise Exception("failed to retrieve known exploited vulnerabilities")
