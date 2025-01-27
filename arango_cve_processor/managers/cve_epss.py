@@ -26,12 +26,12 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         query = """
 LET cve_epss_map = MERGE(
   FOR doc IN @@collection
-  FILTER doc._is_latest AND doc.type == 'report' AND doc.x_epss != NULL
+  FILTER doc._is_latest == TRUE AND doc.type == 'report' AND doc.labels[0] == 'epss'
   LET cve_name = doc.external_references[0].external_id
   RETURN {[cve_name]: KEEP(doc, '_key', 'x_epss')}
 )
 FOR doc IN @@collection
-FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min
+FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min
         AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
 RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_ref', 'external_references'), {epss: cve_epss_map[doc.name]})
         """

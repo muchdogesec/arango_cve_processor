@@ -21,7 +21,7 @@ class CveCwe(STIXRelationManager, relationship_note='cve-cwe'):
     def get_objects(self, **kwargs):
         query = """
         FOR doc IN @@collection
-        FILTER doc._is_latest AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name] 
+        FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name] 
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'external_references', 'name', 'created', 'modified')
         """

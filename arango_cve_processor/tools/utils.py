@@ -93,3 +93,12 @@ def chunked_tqdm(iterable, n, description=None):
         chunk = iterable[i : i + n]
         yield chunk
         iterator.update(len(chunk))
+
+
+def create_indexes(db : StandardDatabase):
+    logging.info("start creating indexes")
+    vertex_collection = db.collection('nvd_cve_vertex_collection')
+    edge_collection = db.collection('nvd_cve_edge_collection')
+    vertex_collection.add_index(dict(type='persistent', fields=["_arango_cve_processor_note", "type"], storedValues=["created", "modified"], inBackground=True, name=f"acvep_imports-type", sparse=True))
+    edge_collection.add_index(dict(type='persistent', fields=["_arango_cve_processor_note"], storedValues=["id", "_is_ref", "_is_latest"], inBackground=True, name=f"acvep_imports-type", sparse=True))
+    logging.info("finished creating indexes")
