@@ -17,25 +17,27 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
     ]
 
     def get_objects(self, **kwargs):
+        self.kev_map = self.retrieve_kevs()
         query = """
         FOR doc IN @@collection
         FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
+        cve_ids = set(self.cve_ids).intersection(self.kev_map) if self.cve_ids else self.kev_map
         return self.arango.execute_raw_query(
             query,
             bind_vars={
                 "@collection": self.collection,
                 "created_min": self.created_min,
                 "modified_min": self.modified_min,
-                'cve_ids': self.cve_ids or None,
+                'cve_ids': list(cve_ids),
             },
             batch_size=self.BATCH_SIZE,
         )
 
     def relate_multiple(self, objects):
-        kev_map = self.retrieve_kevs()
+        kev_map = self.kev_map
         retval = []
         for cve in objects:
             cve_id = cve["name"]
