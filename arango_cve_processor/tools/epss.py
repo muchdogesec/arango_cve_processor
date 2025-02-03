@@ -32,7 +32,9 @@ class EPSSManager:
         return datetime.now(TIMEZONE) - timedelta(hours=1, minutes=30)
     
     @classmethod
-    def get_epss_data(cls, d: date|datetime):
+    def get_epss_data(cls, d: date|datetime=None):
+        if not d:
+            d = cls.datenow()
         if isinstance(d, datetime):
             d = d.date()
         return cls._get_epss_date(d)

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import json
 import logging
+import time
 import uuid
 
 from stix2arango.services.arangodb_service import ArangoDBService
@@ -23,28 +24,65 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         self.update_objects = []
 
     def get_objects(self, **kwargs):
+        limit = 20_000
         query = """
-LET cve_epss_map = MERGE(
   FOR doc IN @@collection
-  FILTER doc._is_latest == TRUE AND doc.type == 'report' AND doc.labels[0] == 'epss'
+  FILTER doc._is_latest == TRUE AND doc.type == 'report' AND doc.labels[0] == 'epss' && doc._record_created >= @record_created
   LET cve_name = doc.external_references[0].external_id
-  RETURN {[cve_name]: KEEP(doc, '_key', 'x_epss')}
-)
-FOR doc IN @@collection
-FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' AND doc.created >= @created_min AND doc.modified >= @modified_min
-        AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
-RETURN MERGE(KEEP(doc, '_id', 'id', 'name', 'object_marking_refs', 'created_by_ref', 'external_references'), {epss: cve_epss_map[doc.name]})
+  FILTER (NOT @cve_ids OR cve_name IN @cve_ids)
+  LIMIT @limit
+  RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
         """
-        return self.arango.execute_raw_query(
-            query,
-            bind_vars={
-                "@collection": self.collection,
-                "created_min": self.created_min,
-                "modified_min": self.modified_min,
-                'cve_ids': self.cve_ids or None,
-            },
-        )
+        objects = []
+        record_created = ""
 
+        t0 = time.time()
+        while True:
+            t = time.time()
+            ret = self.arango.execute_raw_query(
+                query,
+                bind_vars={
+                    "@collection": self.collection,
+                    # "created_min": self.created_min,
+                    # "modified_min": self.modified_min,
+                    'cve_ids': self.cve_ids or None,
+                    'record_created': record_created,
+                    'limit': limit,
+                },
+            )
+            objects.extend(ret)
+            if len(ret) < limit:
+                break
+            record_created = ret[-1][1]['_record_created']
+            logging.info(f'retrieving... len = {len(objects)}, t = {time.time() - t}, total_time = {time.time() - t0}')
+        return objects
+
+    def pre_process(self, objects):
+        todays_epss_all = EPSSManager.get_epss_data()
+        cve_ids = set(todays_epss_all)
+        if self.cve_ids:
+            cve_ids = cve_ids.intersection(self.cve_ids)
+
+        epss_objects = {}
+        for cve_name, report_obj in objects:
+            epss_objects[cve_name] = dict(name=cve_name, id=self.get_cve_id(cve_name), epss=report_obj)
+
+        for epss in todays_epss_all.values():
+            cve_name = epss["cve"]
+            if cve_name in epss_objects or cve_name not in cve_ids:
+                continue
+            epss_objects[cve_name] = dict(name=cve_name, id=self.get_cve_id(cve_name), epss=None)
+        return [epss for epss in epss_objects.values()]
+    
+    def do_process(self, objects):
+        objects = self.pre_process(objects)
+        return super().do_process(objects)
+    
+    @staticmethod
+    def get_cve_id(name):
+        cve2stix_namespace = uuid.UUID("562918ee-d5da-5579-b6a1-fae50cc6bad3")
+        return "vulnerability--" + str(uuid.uuid5(cve2stix_namespace, name))
+    
     def relate_single(self, object):
         todays_report = parse_cve_epss_report(object)
         if not todays_report:
