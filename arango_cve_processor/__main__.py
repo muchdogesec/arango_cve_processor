@@ -28,21 +28,21 @@ def parse_arguments():
         required=False,
         help="This will stop any embedded relationships from being generated.",
         type=parse_bool,
-        default=True,
+        default=False,
     )
     parser.add_argument(
         "--ignore_embedded_relationships_sro",
         required=False,
         help="Ignore Embedded Relationship for imported SROs.",
         type=parse_bool,
-        default=True,
+        default=False,
     )
     parser.add_argument(
         "--ignore_embedded_relationships_smo",
         required=False,
         help="Ignore Embedded Relationship for imported SMOs.",
         type=parse_bool,
-        default=True,
+        default=False,
     )
     
     parser.add_argument(
