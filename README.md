@@ -1,10 +1,14 @@
 # Arango CVE Processor
 
+## Before you get started
+
+Arango CVE Processor is built into [Vulmatch](https://github.com/muchdogesec/vulmatch) which also handles the download of CVE objects (what you need for ACVEP to work). As such, [Vulmatch](https://github.com/muchdogesec/vulmatch) is probably better suited to what you're looking for.
+
+## tl;dr
+
 ![](docs/arango_cve_processor.png)
 
 A small script that enriches CVEs to other sources with all data stored as STIX 2.1 objects.
-
-## tl;dr
 
 [![arango_cve_processor](https://img.youtube.com/vi/J_LbAzoUpd4/0.jpg)](https://www.youtube.com/watch?v=J_LbAzoUpd4)
 
@@ -70,21 +74,36 @@ Where;
   * `cve-attack`
   * `cve-epss`
   * `cve-kev`
-* `--ignore_embedded_relationships` (optional, boolean). Default is false. if `true` passed, this will stop any embedded relationships from being generated. This is a stix2arango feature where STIX SROs will also be created for `_ref` and `_refs` properties inside each object (e.g. if `_ref` property = `identity--1234` and SRO between the object with the `_ref` property and `identity--1234` will be created). See stix2arango docs for more detail if required, essentially this a wrapper for the same `--ignore_embedded_relationships` setting implemented by stix2arango
+* `--ignore_embedded_relationships` (optional, boolean). Default is `false`. if `true` passed, this will stop any embedded relationships from being generated. This is a stix2arango feature where STIX SROs will also be created for `_ref` and `_refs` properties inside each object (e.g. if `_ref` property = `identity--1234` and SRO between the object with the `_ref` property and `identity--1234` will be created). See stix2arango docs for more detail if required, essentially this a wrapper for the same `--ignore_embedded_relationships` setting implemented by stix2arango
+* `--ignore_embedded_relationships_sro` (optional): boolean, if `true` passed, will stop any embedded relationships from being generated from SRO objects (`type` = `relationship`). Default is `false`
+* `--ignore_embedded_relationships_smo` (optional): boolean, if `true` passed, will stop any embedded relationships from being generated from SMO objects (`type` = `marking-definition`, `extension-definition`, `language-content`). Default is `false`
 * `--modified_min` (optional, date in format `YYYY-MM-DD`). By default arango_cve_processor will consider all CVEs in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is useful when you don't want to process data for very old CVEs in the database.
 * `--created_min` (optional, date in format `YYYY-MM-DD`). Same as `modified_min` but considers `created` date.
 * `--cve_id` (optional, CVE ID): will only process the relationships for the CVE passed, otherwise all CVEs will be considered.
 
 ### Examples
 
-Process CVE -> CWE relationships for all CVEs modified after 2023-01-01
+Process CVE -> CWE relationships for all CVEs modified after 2023-01-01 and only created embedded relationships from SDOs and SCOs...
 
 ```shell
 python3 arango_cve_processor.py \
   --database arango_cve_processor_standard_tests_database \
   --relationship cve-cwe \
-  --modified_min 2023-01-01 \
-  --ignore_embedded_relationships true
+  --modified_min 2024-02-01 \
+  --ignore_embedded_relationships true \
+  --ignore_embedded_relationships_sro true \
+  --ignore_embedded_relationships_smo true
+```
+
+Get all EPSS scores for CVEs
+
+```shell
+python3 arango_cve_processor.py \
+  --database arango_cve_processor_standard_tests_database \
+  --relationship cve-epss \
+  --ignore_embedded_relationships false \
+  --ignore_embedded_relationships_sro true \
+  --ignore_embedded_relationships_smo true
 ```
 
 ## Backfilling data

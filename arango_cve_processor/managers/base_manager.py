@@ -17,7 +17,7 @@ class RelationType(StrEnum):
     RELATE_SEQUENTIAL = "sequential"
     RELATE_PARALLEL = "parallel"
 
-
+SMO_TYPES = ["marking-definition", "extension-definition", "language-content"]
 RELATION_MANAGERS: dict[str, 'type[STIXRelationManager]'] = {}
 
 class STIXRelationManager:
@@ -39,7 +39,7 @@ class STIXRelationManager:
 
     priority = 10 # used to determine order of running, for example cve_cwe must run before cve_capec, lower => run earlier
 
-    def __init__(self, processor: ArangoDBService, *args, modified_min=None, created_min=None, cve_ids=None, ignore_embedded_relationships=True, **kwargs) -> None:
+    def __init__(self, processor: ArangoDBService, *args, modified_min=None, created_min=None, cve_ids=None, ignore_embedded_relationships=True, ignore_embedded_relationships_smo=True, ignore_embedded_relationships_sro=True, **kwargs) -> None:
         self.arango = processor
         self.client = self.arango._client
         self.cve_ids = cve_ids or []
@@ -47,6 +47,8 @@ class STIXRelationManager:
         self.modified_min = modified_min or self.MIN_DATE_STR
         self.ignore_embedded_relationships = ignore_embedded_relationships
         self.kwargs = kwargs
+        self.ignore_embedded_relationships_smo = ignore_embedded_relationships_smo
+        self.ignore_embedded_relationships_sro = ignore_embedded_relationships_sro
 
     @property
     def collection(self):
@@ -134,6 +136,13 @@ class STIXRelationManager:
 
         embedded_relationships = []
         for obj in objects:
+            if (
+                self.ignore_embedded_relationships_smo and obj['type'] in SMO_TYPES
+            ) or (
+                self.ignore_embedded_relationships_sro and obj['type'] == 'relationship'
+            ):
+                continue
+
             for ref, target_id in obj_targets_map.get(obj['id'], []):
                 _from, _to = edge_ids.get(obj['id']), edge_ids.get(target_id)
                 if not (_to and _from):
