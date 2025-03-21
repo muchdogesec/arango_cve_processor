@@ -25,11 +25,7 @@ class EPSSManager:
         if not cls._epss_data:
             cls.get_epss_data(cls.datenow())
         return cls._epss_data
-    
-    @staticmethod
-    def datenow():
-        TIMEZONE = timezone('US/Pacific')
-        return datetime.now(TIMEZONE) - timedelta(hours=1, minutes=30)
+
     
     @classmethod
     def get_epss_data(cls, d: date|datetime=None):
@@ -48,6 +44,7 @@ class EPSSManager:
             return cls._epss_data[d]
         d_str = d.strftime('%Y-%m-%d')
         url = "https://epss.cyentia.com/epss_scores-{}.csv.gz".format(d_str)
+        logging.info(f'retrieving epss from {url}')
         resp = requests.get(url)
         csv_data = gzip.decompress(resp.content).decode()
         if not cls.keep_old_data:
@@ -61,6 +58,8 @@ class EPSSManager:
     def parse_csv(csv_data, date_str):
         data = csv.DictReader(io.StringIO(csv_data), ["cve","epss","percentile"])
         for d in data:
+            if not d['cve'].startswith('CVE-'):
+                continue
             d.update(date=date_str)
             yield d['cve'], d
 
@@ -73,3 +72,8 @@ class EPSSManager:
         except:
             return cls.get_data_for_cve(cve, date - timedelta(days=1))
         return data.get(cve)
+    
+    @classmethod
+    def datenow(cls):
+        resp = requests.get('https://api.first.org/data/v1/epss?limit=1')
+        return datetime.strptime(resp.json()['data'][0]['date'], '%Y-%m-%d')
