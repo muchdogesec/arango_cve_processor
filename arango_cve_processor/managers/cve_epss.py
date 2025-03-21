@@ -22,6 +22,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.update_objects = []
+        self.epss_date = EPSSManager.datenow()
 
     def get_objects(self, **kwargs):
         limit = 20_000
@@ -33,6 +34,24 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
   LIMIT @limit
   RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
         """
+        reports = dict(self.get_objects_from_db(query, limit))
+        cve_query = query = """
+  FOR doc IN @@collection
+  FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' AND doc._record_created >= @record_created
+  LET cve_name = doc.name
+  FILTER (NOT @cve_ids OR cve_name IN @cve_ids)
+  LIMIT @limit
+  RETURN [cve_name, KEEP(doc, 'id', '_record_created')]
+        """
+        cves: list[tuple[str, dict]] = self.get_objects_from_db(cve_query, limit)
+
+        objects = []
+        for cve_name, cve in cves:
+            cve.update(name=cve_name, epss=reports.get(cve_name))
+            objects.append(cve)
+        return objects
+    
+    def get_objects_from_db(self, query, limit):
         objects = []
         record_created = ""
 
@@ -56,35 +75,9 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
             record_created = ret[-1][1]['_record_created']
             logging.info(f'retrieving... len = {len(objects)}, t = {time.time() - t}, total_time = {time.time() - t0}')
         return objects
-
-    def pre_process(self, objects):
-        todays_epss_all = EPSSManager.get_epss_data()
-        cve_ids = set(todays_epss_all)
-        if self.cve_ids:
-            cve_ids = cve_ids.intersection(self.cve_ids)
-
-        epss_objects = {}
-        for cve_name, report_obj in objects:
-            epss_objects[cve_name] = dict(name=cve_name, id=self.get_cve_id(cve_name), epss=report_obj)
-
-        for epss in todays_epss_all.values():
-            cve_name = epss["cve"]
-            if cve_name in epss_objects or cve_name not in cve_ids:
-                continue
-            epss_objects[cve_name] = dict(name=cve_name, id=self.get_cve_id(cve_name), epss=None)
-        return [epss for epss in epss_objects.values()]
-    
-    def do_process(self, objects):
-        objects = self.pre_process(objects)
-        return super().do_process(objects)
-    
-    @staticmethod
-    def get_cve_id(name):
-        cve2stix_namespace = uuid.UUID("562918ee-d5da-5579-b6a1-fae50cc6bad3")
-        return "vulnerability--" + str(uuid.uuid5(cve2stix_namespace, name))
     
     def relate_single(self, object):
-        todays_report = parse_cve_epss_report(object)
+        todays_report = parse_cve_epss_report(object, self.epss_date)
         if not todays_report:
             return []
         if object["epss"]:
@@ -129,10 +122,10 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         return super().upload_vertex_data(objects)
 
 
-def parse_cve_epss_report(vulnerability: Vulnerability):
+def parse_cve_epss_report(vulnerability: Vulnerability, epss_date=None):
     try:
         cve_id = vulnerability.get("name")
-        epss_data = EPSSManager.get_data_for_cve(cve_id)
+        epss_data = EPSSManager.get_data_for_cve(cve_id, date=epss_date)
         content = f"EPSS Scores: {cve_id}"
 
         if epss_data:
