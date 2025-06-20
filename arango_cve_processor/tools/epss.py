@@ -60,7 +60,7 @@ class EPSSManager:
         for d in data:
             if not d['cve'].startswith('CVE-'):
                 continue
-            d.update(date=date_str)
+            d.update(date=date_str, epss=float(d['epss']), percentile=float(d['percentile']))
             yield d['cve'], d
 
     @classmethod
