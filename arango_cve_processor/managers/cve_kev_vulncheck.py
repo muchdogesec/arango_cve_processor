@@ -29,10 +29,12 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
         if resp.status_code != 200:
             raise ValueError(f'Bad API KEY for vulncheck: {resp.content}')
 
-    def get_all_kevs(self, startDate=None):
+    def get_all_kevs(self):
         params = dict(limit=1500)
-        if startDate:
-            params.update(lastModStartDate=startDate)
+        if self.modified_min:
+            params.update(lastModStartDate=self.modified_min[:10])
+        if self.created_min:
+            params.update(pubStartDate=self.created_min[:10])
         page = 1
         iterator = tqdm(total=1, desc="retrieve kev from vulncheck")
         while True:
