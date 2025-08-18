@@ -9,7 +9,7 @@ from stix2 import Report
 from .base_manager import STIXRelationManager, RelationType
 
 
-class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
+class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
     relation_type = RelationType.RELATE_PARALLEL
     KEV_URLS = [
         "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
@@ -70,6 +70,7 @@ class CveKevManager(STIXRelationManager, relationship_note="cve-kev"):
                         description=f"{cisa_obj['vulnerabilityName']}\n\n{cisa_obj['shortDescription']}\n\nRequired action: {cisa_obj['requiredAction']}\n\nAction due by: {cisa_obj['dueDate']}",
                         object_refs=[cve["id"]],
                         labels=["kev"],
+                        report_types=["vulnerability"],
                         external_references=more_external_refs,
                         object_marking_refs=config.OBJECT_MARKING_REFS,
                         created_by_ref=config.IDENTITY_REF,
