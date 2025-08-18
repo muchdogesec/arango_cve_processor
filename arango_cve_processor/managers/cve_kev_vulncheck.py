@@ -105,6 +105,8 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             cwe_stix_ids.append(cwe['id'])
             references.append(cwe['external_references'][0])
 
+        exploit_objects = self.parse_exploits(object, kev_object['vulncheck_xdb'])
+
 
         content = f"KEV: {cve_id}"
         report = {
@@ -122,6 +124,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             "object_refs": [
                 object["id"],
                 *cwe_stix_ids,
+                *[exploit['id'] for exploit in exploit_objects]
             ],
             "labels": ["kev"],
             "report_types": ["vulnerability"],
@@ -131,7 +134,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
         }
-        return [report, *self.parse_exploits(object, kev_object['vulncheck_xdb']), *cwe_objects]
+        return [report, *exploit_objects, *cwe_objects]
 
     def parse_exploits(self, object, xdbs: list[dict]):
         cve_id = object["name"]
