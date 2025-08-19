@@ -12,7 +12,7 @@ from arango_cve_processor import config
 
 def generate_md5(obj: dict):
     obj_copy = {k: v for k, v in obj.items() if not k.startswith("_")}
-    for k in ['_from', '_to', '_arango_cve_processor_note']:
+    for k in ['_from', '_to']:
         if v := obj.get(k):
             obj_copy[k] = v
     json_str = json.dumps(obj_copy, sort_keys=True, default=str).encode("utf-8")
