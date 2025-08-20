@@ -25,7 +25,7 @@ class STIXObjectRetriever:
         ids = list(set(ids))
 
         for chunked_ids in chunked(ids, 100):
-            objects = self._retrieve_objects(urljoin(self.api_root, f"v1/{type}/objects/?{query_filter}={','.join(chunked_ids)}"), key)
+            objects = self._retrieve_objects(urljoin(self.api_root, f"v1/{type}/objects/?{query_filter}={','.join(chunked_ids)}&sort={query_filter}_ascending"), key)
             for obj in objects:
                 object_id = obj['external_references'][0]['external_id']
                 arr = objects_map.setdefault(object_id, [])
