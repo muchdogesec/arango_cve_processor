@@ -93,6 +93,10 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 "external_id": cve_id,
                 "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
             },
+            {
+                "source_name": "known_ransomware",
+                "description": kev_object["knownRansomwareCampaignUse"],
+            },
         ]
         for reported in kev_object["vulncheck_reported_exploitation"]:
             ref = dict(
