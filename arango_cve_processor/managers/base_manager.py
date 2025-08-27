@@ -10,7 +10,7 @@ from arango_cve_processor import config
 from enum import IntEnum, StrEnum
 from stix2arango.services.arangodb_service import ArangoDBService
 
-from arango_cve_processor.tools.utils import generate_md5, get_embedded_refs
+from arango_cve_processor.tools.utils import generate_md5, genrate_relationship_id, get_embedded_refs
 
 
 class RelationType(StrEnum):
@@ -64,14 +64,7 @@ class STIXRelationManager:
     
     @classmethod
     def create_relationship(cls, source, target_ref, relationship_type, description, relationship_id=None, is_ref=False, external_references=None):
-        if not relationship_id:
-            relationship_id = "relationship--" + str(
-                uuid.uuid5(
-                    config.namespace,
-                    f"{relationship_type}+{source['id']}+{target_ref}",
-                )
-            )
-            
+        relationship_id = relationship_id or genrate_relationship_id(source['id'], target_ref, relationship_type)
         retval = dict(
             id=relationship_id,
             type="relationship",
@@ -89,7 +82,7 @@ class STIXRelationManager:
         )
         if external_references:
             retval['external_references'] = external_references
-        return retval
+        return retval    
     
     def import_external_data(self, objects) -> dict[str, dict]:
         pass
@@ -184,9 +177,9 @@ class STIXRelationManager:
         logging.info("got %d objects - %s", len(objects), self.relationship_note)
         return self.do_process(objects)
     
-    def do_process(self, objects):
+    def do_process(self, objects, extra_uploads=[]):
         logging.info("working on %d objects - %s", len(objects), self.relationship_note)
-        uploads = []
+        uploads = [*extra_uploads]
         match self.relation_type:
             case RelationType.RELATE_SEQUENTIAL:
                 for obj in tqdm(objects, desc=f'{self.relationship_note} - {self.relation_type}'):
@@ -194,13 +187,17 @@ class STIXRelationManager:
             case RelationType.RELATE_PARALLEL:
                 uploads.extend(self.relate_multiple(objects))
         
+        added = set()
         edges, vertices = [], []
         for obj in uploads:
+            if obj['id'] in added:
+                continue
             if obj['type'] == 'relationship':
                 edges.append(obj)
             else:
                 vertices.append(obj)
+            added.add(obj['id'])
 
         self.upload_vertex_data(vertices)
         self.upload_edge_data(edges)
- 
+        
