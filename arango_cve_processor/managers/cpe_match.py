@@ -74,7 +74,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
                     "Got ConnectionError. Backing off for %d seconds.", backoff_time
                 )
                 time.sleep(backoff_time)
-                backoff_time *= 1.5
+                backoff_time = min(backoff_time * 1.5, RATE_LIMIT_WINDOW*20)
                 continue
 
             backoff_time = RATE_LIMIT_WINDOW / 2
