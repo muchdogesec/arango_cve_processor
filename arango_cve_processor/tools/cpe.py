@@ -94,7 +94,7 @@ def relate_indicator(grouping: Grouping, indicator):
         relationships.append(
             dict(
                 id=genrate_relationship_id(
-                    indicator["id"], grouping["id"], "pattern-match-string"
+                    indicator["id"], grouping["id"], "vulnerable-match-string"
                 ),
                 type="relationship",
                 spec_version="2.1",

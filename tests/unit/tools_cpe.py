@@ -415,7 +415,7 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
             ],
         },
         {
-            "id": "relationship--ba421ce6-50f5-5e15-af63-9076afe3f766",
+            "id": "relationship--9dca1714-1fe6-5a0d-9151-225fedb7d13e",
             "type": "relationship",
             "spec_version": "2.1",
             "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
