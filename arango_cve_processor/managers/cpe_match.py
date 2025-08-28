@@ -35,6 +35,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             self.requests_per_window = 50
         if not self.modified_min:
             raise ValueError("modified_min is required for this mode")
+        self.ignore_embedded_relationships = True
 
     def get_updated_cpematches(self):
         total_results = math.inf
@@ -101,7 +102,6 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             self.groupings = groupings
             self.grouping_objects = []
             self.do_process(objects)
-            self.create_embedded_relationships(json.loads(serialize(self.grouping_objects)), self.vertex_collection, self.edge_collection)
 
     def get_objects(self, criteria_ids):
         query = """
