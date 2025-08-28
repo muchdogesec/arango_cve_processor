@@ -13,39 +13,47 @@ def parse_cpematch_date(d):
     return pytz.utc.localize(datetime.strptime(d, "%Y-%m-%dT%H:%M:%S.%f"))
 
 
-def parse_objects_for_criteria(match_data):
-    match_data = match_data["matchString"]
+def parse_objects_for_criteria(match_data: dict):
     criteria_id: str = match_data["matchCriteriaId"]
     cpes = []
     for cpe in match_data.get("matches", []):
         cpes.append((cpe["cpeName"], cpe["cpeNameId"]))
     softwares = parse_softwares(cpes)
+    more_refs = [
+        dict(source_name=k, external_id=v)
+        for k, v in match_data.items()
+        if k.startswith("version")
+    ]
     grouping = {
         "type": "grouping",
         "spec_version": "2.1",
-        "id": "grouping--"
-        + str(
-            uuid.uuid5(
-                config.namespace,
-                criteria_id,
-            )
-        ),
+        "id": generate_grouping_id(criteria_id),
         "created_by_ref": config.IDENTITY_REF,
         "created": parse_cpematch_date(match_data["created"]),
         "modified": parse_cpematch_date(match_data["lastModified"]),
-        "name": match_data["matchCriteriaId"],
+        "name": match_data["criteria"],
         "revoked": match_data["status"] == "Inactive",
         "context": "unspecified",
         "object_refs": [software["id"] for software in softwares],
         "external_references": [
-            dict(source_name="pattern", external_id=match_data["criteria"]),
             dict(
                 source_name="matchCriteriaId", external_id=match_data["matchCriteriaId"]
             ),
+            dict(source_name="pattern", external_id=match_data["criteria"]),
+            *more_refs,
         ],
         "object_marking_refs": config.OBJECT_MARKING_REFS,
     }
     return [grouping, *softwares]
+
+
+def generate_grouping_id(criteria_id):
+    return "grouping--" + str(
+        uuid.uuid5(
+            config.namespace,
+            criteria_id,
+        )
+    )
 
 
 def parse_softwares(softwares):
@@ -53,14 +61,15 @@ def parse_softwares(softwares):
 
 
 def relate_indicator(grouping: Grouping, indicator):
-    criteria_id, cve_name = grouping["name"], indicator["name"]
+    group_name, cve_name = grouping["name"], indicator["name"]
+    criteria_id = grouping["external_references"][0]["external_id"]
     vulnerable_criteria_ids = []
     for vv in indicator["x_cpes"].get("vulnerable", []):
         vulnerable_criteria_ids.append(vv["matchCriteriaId"])
     relationships = []
     ext_refs = [
         indicator["external_references"][0],
-        *grouping["external_references"],
+        *grouping["external_references"][:2],
     ]
 
     relationships.append(
@@ -75,7 +84,7 @@ def relate_indicator(grouping: Grouping, indicator):
             created=indicator["created"],
             modified=indicator["modified"],
             relationship_type="pattern-match-string",
-            description=f"{criteria_id} pattern matches {cve_name}",
+            description=f"{group_name} pattern matches {cve_name}",
             created_by_ref=config.IDENTITY_REF,
             object_marking_refs=config.OBJECT_MARKING_REFS,
             external_references=ext_refs,
@@ -94,7 +103,7 @@ def relate_indicator(grouping: Grouping, indicator):
                 created=indicator["created"],
                 modified=indicator["modified"],
                 relationship_type="vulnerable-match-string",
-                description=f"{criteria_id} is vulnerable to {cve_name}",
+                description=f"{group_name} is vulnerable to {cve_name}",
                 created_by_ref=config.IDENTITY_REF,
                 object_marking_refs=config.OBJECT_MARKING_REFS,
                 external_references=ext_refs,

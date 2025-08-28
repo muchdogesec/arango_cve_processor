@@ -81,8 +81,8 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             content = response.json()
             total_results = content["totalResults"]
             logging.info(f"Total Results {total_results}")
-            groups = {
-                group["matchString"]["matchCriteriaId"]: group
+            groups: dict[str, dict] = {
+                group["matchString"]["matchCriteriaId"]: group["matchString"]
                 for group in content["matchStrings"]
             }
             iterator.total = total_results
