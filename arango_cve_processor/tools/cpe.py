@@ -2,12 +2,11 @@ from datetime import datetime
 import re
 import uuid
 import pytz
-from stix2 import Grouping, Software, Relationship
+from stix2 import Grouping, Software
 from stix2extensions._extensions import software_cpe_properties_ExtensionDefinitionSMO
 
 from arango_cve_processor import config
-from arango_cve_processor.tools.utils import genrate_relationship_id
-
+from arango_cve_processor.tools import utils
 
 def parse_cpematch_date(d):
     return pytz.utc.localize(datetime.strptime(d, "%Y-%m-%dT%H:%M:%S.%f"))
@@ -44,6 +43,9 @@ def parse_objects_for_criteria(match_data: dict):
         ],
         "object_marking_refs": config.OBJECT_MARKING_REFS,
     }
+    if not softwares:
+        grouping['object_refs'] = ["software--11111111-1111-4111-8111-111111111111"]
+        grouping['description'] = "This grouping contains no CPEs, a null software object has been added in object_refs"
     return [grouping, *softwares]
 
 
@@ -72,41 +74,26 @@ def relate_indicator(grouping: Grouping, indicator):
         *grouping["external_references"][:2],
     ]
 
-    relationships.append(
-        dict(
-            id=genrate_relationship_id(
-                indicator["id"], grouping["id"], "pattern-match-string"
-            ),
-            spec_version="2.1",
-            type="relationship",
-            source_ref=indicator["id"],
-            target_ref=grouping["id"],
-            created=indicator["created"],
-            modified=indicator["modified"],
-            relationship_type="pattern-match-string",
-            description=f"{group_name} pattern matches {cve_name}",
-            created_by_ref=config.IDENTITY_REF,
-            object_marking_refs=config.OBJECT_MARKING_REFS,
-            external_references=ext_refs,
-        )
-    )
     if criteria_id in vulnerable_criteria_ids:
         relationships.append(
-            dict(
-                id=genrate_relationship_id(
-                    indicator["id"], grouping["id"], "vulnerable-match-string"
-                ),
-                type="relationship",
-                spec_version="2.1",
-                source_ref=indicator["id"],
-                target_ref=grouping["id"],
-                created=indicator["created"],
-                modified=indicator["modified"],
-                relationship_type="vulnerable-match-string",
-                description=f"{group_name} is vulnerable to {cve_name}",
-                created_by_ref=config.IDENTITY_REF,
-                object_marking_refs=config.OBJECT_MARKING_REFS,
+            utils.create_relationship(
+                indicator,
+                grouping["id"],
+                "x-cpes-vulnerable",
+                f"{criteria_id} ({group_name}) is vulnerable to {cve_name}",
                 external_references=ext_refs,
+                add_arango_props=False,
+            )
+        )
+    else:
+        relationships.append(
+            utils.create_relationship(
+                indicator,
+                grouping["id"],
+                "x-cpes-not-vulnerable",
+                f"{criteria_id} ({group_name}) is not vulnerable to {cve_name}",
+                external_references=ext_refs,
+                add_arango_props=False,
             )
         )
     return relationships

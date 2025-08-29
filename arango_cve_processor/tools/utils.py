@@ -103,6 +103,44 @@ def get_embedded_refs(object: list | dict, xpath: list = []):
     return embedded_refs
 
 
+def create_relationship(
+    source,
+    target_ref,
+    relationship_type,
+    description,
+    relationship_id=None,
+    is_ref=False,
+    external_references=None,
+    relationship_note=None,
+    add_arango_props=True,
+):
+    relationship_id = relationship_id or genrate_relationship_id(
+        source["id"], target_ref, relationship_type
+    )
+    retval = dict(
+        spec_version="2.1",
+        id=relationship_id,
+        type="relationship",
+        created=source.get("created"),
+        modified=source.get("modified"),
+        relationship_type=relationship_type,
+        source_ref=source.get("id"),
+        target_ref=target_ref,
+        created_by_ref=config.IDENTITY_REF,
+        object_marking_refs=config.OBJECT_MARKING_REFS,
+        description=description,
+    )
+    if external_references:
+        retval["external_references"] = external_references
+    if add_arango_props:
+        retval.update(
+            _arango_cve_processor_note=relationship_note,
+            _from=source.get("_id"),
+            _is_ref=is_ref,
+        )
+    return retval
+
+
 def chunked_tqdm(iterable, n, description=None):
     if not iterable:
         return []

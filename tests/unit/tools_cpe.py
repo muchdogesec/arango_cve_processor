@@ -342,20 +342,20 @@ def test_relate_indicator__not_vulnerable(indicator_with_cpes, cpematch):
     )
     assert relationships == [
         {
-            "id": "relationship--09166ab8-e9d0-5c94-9127-4a9bd89e57f7",
             "spec_version": "2.1",
+            "id": "relationship--4148fc82-05e7-59ba-89e3-b10d3e94a377",
             "type": "relationship",
-            "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
-            "target_ref": "grouping--3143de40-745c-5251-aa25-aedea6a0756e",
             "created": "2010-04-01T22:30:00.360Z",
             "modified": "2025-04-11T00:51:21.963Z",
-            "relationship_type": "pattern-match-string",
-            "description": "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:*:* pattern matches CVE-2010-1226",
+            "relationship_type": "x-cpes-not-vulnerable",
+            "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
+            "target_ref": "grouping--3143de40-745c-5251-aa25-aedea6a0756e",
             "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
+            "description": "A2572D17-1DE6-457B-99CC-64AFD54487EA (cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:*:*) is not vulnerable to CVE-2010-1226",
             "external_references": [
                 {
                     "source_name": "cve",
@@ -375,6 +375,27 @@ def test_relate_indicator__not_vulnerable(indicator_with_cpes, cpematch):
     ]
 
 
+def test_parse_objects__null_matchdata():
+    from stix2 import parse
+
+    null_match = {
+        "matchCriteriaId": "BBBF5AF2-7910-4D1D-9BAD-2E5D243CE02F",
+        "criteria": "cpe:2.3:a:ultrapress:unseen_blog:*:*:*:*:*:wordpress:*:*",
+        "versionEndIncluding": "1.0.0",
+        "lastModified": "2024-11-08T21:29:12.073",
+        "cpeLastModified": "2024-11-08T21:29:12.073",
+        "created": "2024-11-08T21:29:12.073",
+        "status": "Active",
+    }
+    grouping, *softwares = cpe_match.parse_objects_for_criteria(null_match)
+    grouping = parse(grouping)
+    assert len(softwares) == 0
+    assert grouping.object_refs == [
+        "software--11111111-1111-4111-8111-111111111111"
+    ], "must have exactly one software with null id"
+    assert grouping.description
+
+
 def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
     grouping, *softwares = cpe_match.parse_objects_for_criteria(
         cpematch["matchStrings"][1]["matchString"]
@@ -384,46 +405,15 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
     )
     assert relationships == [
         {
-            "id": "relationship--ba421ce6-50f5-5e15-af63-9076afe3f766",
-            "spec_version": "2.1",
-            "type": "relationship",
-            "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
-            "target_ref": "grouping--48a6e763-650c-589e-9fba-2b87e78a2125",
-            "created": "2010-04-01T22:30:00.360Z",
-            "modified": "2025-04-11T00:51:21.963Z",
-            "relationship_type": "pattern-match-string",
-            "description": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:* pattern matches CVE-2010-1226",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
-            "object_marking_refs": [
-                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
-            ],
-            "external_references": [
-                {
-                    "source_name": "cve",
-                    "url": "https://nvd.nist.gov/vuln/detail/CVE-2010-1226",
-                    "external_id": "CVE-2010-1226",
-                },
-                {
-                    "source_name": "matchCriteriaId",
-                    "external_id": "703AF700-7A70-47E2-BC3A-7FD03B3CA9C1",
-                },
-                {
-                    "source_name": "pattern",
-                    "external_id": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
-                },
-            ],
-        },
-        {
-            "id": "relationship--9dca1714-1fe6-5a0d-9151-225fedb7d13e",
+            "id": "relationship--b72c5225-b258-5b1b-8855-c69878151c04",
             "type": "relationship",
             "spec_version": "2.1",
             "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
             "target_ref": "grouping--48a6e763-650c-589e-9fba-2b87e78a2125",
             "created": "2010-04-01T22:30:00.360Z",
             "modified": "2025-04-11T00:51:21.963Z",
-            "relationship_type": "vulnerable-match-string",
-            "description": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:* is vulnerable to CVE-2010-1226",
+            "relationship_type": "x-cpes-vulnerable",
+            "description": "703AF700-7A70-47E2-BC3A-7FD03B3CA9C1 (cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*) is vulnerable to CVE-2010-1226",
             "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",

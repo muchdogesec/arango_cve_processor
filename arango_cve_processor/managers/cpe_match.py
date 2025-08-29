@@ -113,7 +113,6 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         return self.arango.execute_raw_query(
             query,
             bind_vars={
-                # "@collection": self.collection,
                 "criteria_ids": list(criteria_ids),
             },
         )
