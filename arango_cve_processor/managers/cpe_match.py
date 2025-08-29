@@ -15,7 +15,7 @@ from stix2.serialization import serialize
 from arango_cve_processor import config
 from arango_cve_processor.managers.base_manager import RelationType
 from arango_cve_processor.tools import cpe
-from arango_cve_processor.tools.retriever import STIXObjectRetriever
+from arango_cve_processor.tools.retriever import STIXObjectRetriever, chunked
 from arango_cve_processor.tools.utils import stix2python
 from .cve_kev import CISAKevManager
 from .base_manager import STIXRelationManager
@@ -100,8 +100,8 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
                 continue
             objects = self.get_objects(groupings)
             self.groupings = groupings
-            self.grouping_objects = []
-            self.do_process(objects)
+            for objects_chunk in chunked(objects, 200):
+                self.do_process(objects_chunk)
 
     def get_objects(self, criteria_ids):
         query = """
@@ -125,7 +125,6 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             if match_data := self.groupings.get(x_cpe_item['matchCriteriaId']):
                 objects = cpe.parse_objects_for_criteria(match_data)
                 grouping_object = objects[0]
-                self.grouping_objects.append(grouping_object)
                 relationships = cpe.relate_indicator(grouping_object, indicator)
                 for r in relationships:
                     r['_from'] = indicator['_id']
