@@ -38,7 +38,7 @@ def parse_objects_for_criteria(match_data: dict):
             dict(
                 source_name="matchCriteriaId", external_id=match_data["matchCriteriaId"]
             ),
-            dict(source_name="pattern", external_id=match_data["criteria"]),
+            dict(source_name="matchstring", external_id=match_data["criteria"]),
             *more_refs,
         ],
         "object_marking_refs": config.OBJECT_MARKING_REFS,

@@ -258,7 +258,7 @@ def test_parse_objects_for_criteria(matchString):
         },
         {
             "external_id": "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:*:*",
-            "source_name": "pattern",
+            "source_name": "matchstring",
         },
         {"external_id": "138.0.7204.183", "source_name": "versionEndExcluding"},
     ]
@@ -367,7 +367,7 @@ def test_relate_indicator__not_vulnerable(indicator_with_cpes, cpematch):
                     "external_id": "A2572D17-1DE6-457B-99CC-64AFD54487EA",
                 },
                 {
-                    "source_name": "pattern",
+                    "source_name": "matchstring",
                     "external_id": "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:*:*",
                 },
             ],
@@ -430,7 +430,7 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
                     "external_id": "703AF700-7A70-47E2-BC3A-7FD03B3CA9C1",
                 },
                 {
-                    "source_name": "pattern",
+                    "source_name": "matchstring",
                     "external_id": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
                 },
             ],
