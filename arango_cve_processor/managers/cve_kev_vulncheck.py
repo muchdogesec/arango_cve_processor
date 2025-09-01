@@ -23,7 +23,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             "Authorization": os.environ.get('VULNCHECK_API_KEY')
         }
         self.verify_auth()
-        
+
     def verify_auth(self):
         resp = self.session.get('https://api.vulncheck.com/v3/index')
         if resp.status_code != 200:
@@ -81,7 +81,6 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
         for k, v in STIXObjectRetriever('ctibutler').get_objects_by_external_ids(cwe_ids, 'cwe', query_filter='cwe_id').items():
             cwe_objects[k] = v[0]
         return cwe_objects
-        
 
     def relate_single(self, object):
         cve_id = object["name"]
@@ -93,6 +92,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 "external_id": cve_id,
                 "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
             },
+            {"source_name": "arango_cve_processor", "external_id": "cve-vulncheck-kev"},
             {
                 "source_name": "known_ransomware",
                 "description": kev_object["knownRansomwareCampaignUse"],
@@ -112,7 +112,6 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             references.append(cwe['external_references'][0])
 
         exploit_objects = self.parse_exploits(object, kev_object['vulncheck_xdb'])
-
 
         content = f"KEV: {cve_id}"
         report = {
