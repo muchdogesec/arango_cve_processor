@@ -7,7 +7,7 @@ import uuid
 from stix2arango.services.arangodb_service import ArangoDBService
 from arango_cve_processor import config
 from arango_cve_processor.tools.epss import EPSSManager
-from arango_cve_processor.tools.utils import stix2dict
+from arango_cve_processor.tools.utils import stix2python
 from .base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
@@ -103,7 +103,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
                 )
             return []
         else:
-            return [stix2dict(todays_report)]
+            return [stix2python(todays_report)]
 
     def upload_vertex_data(self, objects):
         logging.info("updating %d existing reports", len(self.update_objects))

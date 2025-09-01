@@ -1,5 +1,3 @@
-
-
 import itertools
 import logging
 from types import SimpleNamespace
@@ -10,7 +8,8 @@ from arango_cve_processor import config
 from enum import IntEnum, StrEnum
 from stix2arango.services.arangodb_service import ArangoDBService
 
-from arango_cve_processor.tools.utils import generate_md5, get_embedded_refs
+from arango_cve_processor.tools import utils
+from arango_cve_processor.tools.utils import generate_md5, genrate_relationship_id, get_embedded_refs
 
 
 class RelationType(StrEnum):
@@ -61,36 +60,29 @@ class STIXRelationManager:
         RETURN doc
         """
         return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
-    
+
     @classmethod
-    def create_relationship(cls, source, target_ref, relationship_type, description, relationship_id=None, is_ref=False, external_references=None):
-        if not relationship_id:
-            relationship_id = "relationship--" + str(
-                uuid.uuid5(
-                    config.namespace,
-                    f"{relationship_type}+{source['id']}+{target_ref}",
-                )
-            )
-            
-        retval = dict(
-            id=relationship_id,
-            type="relationship",
-            created=source.get("created"),
-            modified=source.get("modified"),
-            relationship_type=relationship_type,
-            source_ref=source.get("id"),
-            target_ref=target_ref,
-            created_by_ref=config.IDENTITY_REF,
-            object_marking_refs=config.OBJECT_MARKING_REFS,
-            description=description,
-            _arango_cve_processor_note=cls.relationship_note,
-            _from=source.get('_id'),
-            _is_ref=is_ref,
+    def create_relationship(
+        cls,
+        source,
+        target_ref,
+        relationship_type,
+        description,
+        relationship_id=None,
+        is_ref=False,
+        external_references=None,
+    ):
+        return utils.create_relationship(
+            source,
+            target_ref,
+            relationship_type,
+            description,
+            relationship_id=relationship_id,
+            is_ref=is_ref,
+            external_references=external_references,
+            relationship_note=cls.relationship_note,
         )
-        if external_references:
-            retval['external_references'] = external_references
-        return retval
-    
+
     def import_external_data(self, objects) -> dict[str, dict]:
         pass
 
@@ -99,11 +91,10 @@ class STIXRelationManager:
         for obj in objects:
             obj['_arango_cve_processor_note'] = self.relationship_note
             obj['_record_md5_hash'] = generate_md5(obj)
-            
+
         inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(objects, self.vertex_collection)
         self.arango.update_is_latest_several_chunked(inserted_ids, self.vertex_collection, self.edge_collection)
 
-    
     def upload_edge_data(self, objects: list[dict]):
         logging.info("uploading %d edges", len(objects))
 
@@ -117,7 +108,6 @@ class STIXRelationManager:
             edge.setdefault('_from', edge_id_map.get(edge['source_ref'], edge['source_ref']))
             edge.setdefault('_to', edge_id_map.get(edge['target_ref'], edge['target_ref']))
             edge['_record_md5_hash'] = generate_md5(edge)
-
 
         inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(objects, self.edge_collection)
         self.arango.update_is_latest_several_chunked(inserted_ids, self.edge_collection, self.edge_collection)
@@ -171,36 +161,41 @@ class STIXRelationManager:
         """
         result = self.arango.execute_raw_query(query, bind_vars={'@collection': collection, 'object_ids': list(set(object_ids))})
         return dict(result)
-        
+
     def relate_single(self, object):
         raise NotImplementedError('must be subclassed')
-    
+
     def relate_multiple(self, objects):
         raise NotImplementedError('must be subclassed')
-    
+
     def process(self, **kwargs):
         logging.info("getting objects - %s", self.relationship_note)
         objects = self.get_objects(**kwargs)
         logging.info("got %d objects - %s", len(objects), self.relationship_note)
         return self.do_process(objects)
-    
-    def do_process(self, objects):
+
+    def do_process(self, objects, extra_uploads=[]):
         logging.info("working on %d objects - %s", len(objects), self.relationship_note)
-        uploads = []
+        uploads = [*extra_uploads]
         match self.relation_type:
             case RelationType.RELATE_SEQUENTIAL:
-                for obj in tqdm(objects, desc=f'{self.relationship_note} - {self.relation_type}'):
+                for obj in tqdm(
+                    objects, desc=f"{self.relationship_note} - {self.relation_type}"
+                ):
                     uploads.extend(self.relate_single(obj))
             case RelationType.RELATE_PARALLEL:
                 uploads.extend(self.relate_multiple(objects))
-        
+
+        added = set()
         edges, vertices = [], []
         for obj in uploads:
+            if obj['id'] in added:
+                continue
             if obj['type'] == 'relationship':
                 edges.append(obj)
             else:
                 vertices.append(obj)
+            added.add(obj['id'])
 
         self.upload_vertex_data(vertices)
         self.upload_edge_data(edges)
- 

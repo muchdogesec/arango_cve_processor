@@ -4,7 +4,7 @@ import uuid
 import requests
 
 from arango_cve_processor import config
-from arango_cve_processor.tools.utils import stix2dict
+from arango_cve_processor.tools.utils import stix2python
 from stix2 import Report
 from .base_manager import STIXRelationManager, RelationType
 
@@ -59,7 +59,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
 
             content = f"CISA KEV: {cve_id}"
             retval.append(
-                stix2dict(
+                stix2python(
                     Report(
                         id="report--"+str(uuid.uuid5(config.namespace, content)),
                         type="report",
