@@ -138,7 +138,7 @@ def parse_cve_epss_report(vulnerability: Vulnerability, epss_date=None):
             modified = datetime.strptime(epss_data[-1]["date"], "%Y-%m-%d").date()
 
         return Report(
-            id="report--"+str(uuid.uuid5(config.namespace, content)),
+            id="report--" + str(uuid.uuid5(config.namespace, content)),
             created=modified,
             modified=modified,
             published=modified,
@@ -159,7 +159,11 @@ def parse_cve_epss_report(vulnerability: Vulnerability, epss_date=None):
                     "source_name": "cve",
                     "external_id": cve_id,
                     "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
-                }
+                },
+                {
+                    "source_name": "arango_cve_processor",
+                    "external_id": "cve-epss",
+                },
             ],
             labels=["epss"],
         )
