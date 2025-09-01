@@ -74,12 +74,17 @@ Where;
   * `cve-attack`
   * `cve-epss`
   * `cve-kev`
+  * `cve-vulncheck-kev`
+  * `cpematch`
 * `--ignore_embedded_relationships` (optional, boolean). Default is `false`. if `true` passed, this will stop any embedded relationships from being generated. This is a stix2arango feature where STIX SROs will also be created for `_ref` and `_refs` properties inside each object (e.g. if `_ref` property = `identity--1234` and SRO between the object with the `_ref` property and `identity--1234` will be created). See stix2arango docs for more detail if required, essentially this a wrapper for the same `--ignore_embedded_relationships` setting implemented by stix2arango
 * `--ignore_embedded_relationships_sro` (optional): boolean, if `true` passed, will stop any embedded relationships from being generated from SRO objects (`type` = `relationship`). Default is `false`
 * `--ignore_embedded_relationships_smo` (optional): boolean, if `true` passed, will stop any embedded relationships from being generated from SMO objects (`type` = `marking-definition`, `extension-definition`, `language-content`). Default is `false`
 * `--modified_min` (optional, date in format `YYYY-MM-DD`). By default arango_cve_processor will consider all CVEs in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is useful when you don't want to process data for very old CVEs in the database.
+  * NOTE: for `cpematch`, this is the `modified` time reported by the CPE Match API (it has nothing to do with CVE)
 * `--created_min` (optional, date in format `YYYY-MM-DD`). Same as `modified_min` but considers `created` date.
+  * NOTE: this does not work with `cpematch`
 * `--cve_id` (optional, CVE ID): will only process the relationships for the CVE passed, otherwise all CVEs will be considered.
+  * NOTE: this does not work with `cpematch`
 
 ### Examples
 
@@ -101,6 +106,18 @@ Get all EPSS scores for CVEs
 python3 arango_cve_processor.py \
   --database arango_cve_processor_standard_tests_database \
   --relationship cve-epss \
+  --ignore_embedded_relationships false \
+  --ignore_embedded_relationships_sro true \
+  --ignore_embedded_relationships_smo true
+```
+
+Update all CPE Matches modified after `2024-02-01`
+
+```shell
+python3 arango_cve_processor.py \
+  --database arango_cve_processor_standard_tests_database \
+  --relationship cpematch \
+  --modified_min 2024-02-01 \
   --ignore_embedded_relationships false \
   --ignore_embedded_relationships_sro true \
   --ignore_embedded_relationships_smo true
