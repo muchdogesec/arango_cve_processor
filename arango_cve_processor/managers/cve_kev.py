@@ -55,15 +55,12 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                     "external_id": cve_id,
                     "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
                 },
-<<<<<<< HEAD
                 {
                     "source_name": "action_required",
                     "description": cisa_obj["requiredAction"],
                 },
                 {"source_name": "action_due", "description": cisa_obj["dueDate"]},
-=======
                 {"source_name": "arango_cve_processor", "external_id": "cve-kev"},
->>>>>>> main
             ]
 
             for note in cisa_obj["notes"].split(" ; ")[:-1]:
