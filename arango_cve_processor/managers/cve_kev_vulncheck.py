@@ -1,4 +1,3 @@
-import itertools
 import logging
 import os
 from typing import Any
@@ -10,7 +9,7 @@ from tqdm import tqdm
 from arango_cve_processor import config
 from arango_cve_processor.managers.base_manager import RelationType
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
-from .cve_kev import CISAKevManager
+from arango_cve_processor.managers.cve_kev import CISAKevManager
 
 
 class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev"):
@@ -19,15 +18,13 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.session = requests.Session()
-        self.session.headers = {
-            "Authorization": os.environ.get('VULNCHECK_API_KEY')
-        }
+        self.session.headers = {"Authorization": os.environ.get("VULNCHECK_API_KEY")}
         self.verify_auth()
 
     def verify_auth(self):
-        resp = self.session.get('https://api.vulncheck.com/v3/index')
+        resp = self.session.get("https://api.vulncheck.com/v3/index")
         if resp.status_code != 200:
-            raise ValueError(f'Bad API KEY for vulncheck: {resp.content}')
+            raise ValueError(f"Bad API KEY for vulncheck: {resp.content}")
 
     def get_all_kevs(self):
         params = dict(limit=1500)
@@ -76,9 +73,13 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
     def get_all_cwes(self, objects):
         cwe_ids = []
         for obj in objects:
-            cwe_ids.extend(self.kev_map[obj['name']]['cwes'])
+            cwe_ids.extend(self.kev_map[obj["name"]]["cwes"])
         cwe_objects = {}
-        for k, v in STIXObjectRetriever('ctibutler').get_objects_by_external_ids(cwe_ids, 'cwe', query_filter='cwe_id').items():
+        for k, v in (
+            STIXObjectRetriever("ctibutler")
+            .get_objects_by_external_ids(cwe_ids, "cwe", query_filter="cwe_id")
+            .items()
+        ):
             cwe_objects[k] = v[0]
         return cwe_objects
 
@@ -97,6 +98,11 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 "source_name": "known_ransomware",
                 "description": kev_object["knownRansomwareCampaignUse"],
             },
+            {
+                "source_name": "action_required",
+                "description": kev_object["required_action"],
+            },
+            {"source_name": "action_due", "description": kev_object["dueDate"]},
         ]
         for reported in kev_object["vulncheck_reported_exploitation"]:
             ref = dict(
@@ -105,15 +111,15 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 source_name=urlparse(reported["url"]).hostname,
             )
             references.append(ref)
-        cwe_objects = [self.cwe_objects[cwe_id] for cwe_id in kev_object['cwes']]
+        cwe_objects = [self.cwe_objects[cwe_id] for cwe_id in kev_object["cwes"]]
         cwe_stix_ids = []
         for cwe in cwe_objects:
-            cwe_stix_ids.append(cwe['id'])
-            references.append(cwe['external_references'][0])
+            cwe_stix_ids.append(cwe["id"])
+            references.append(cwe["external_references"][0])
 
-        exploit_objects = self.parse_exploits(object, kev_object['vulncheck_xdb'])
+        exploit_objects = self.parse_exploits(object, kev_object["vulncheck_xdb"])
 
-        content = f"KEV: {cve_id}"
+        content = f"Vulncheck KEV: {cve_id}"
         report = {
             "type": "report",
             "spec_version": "2.1",
@@ -123,13 +129,11 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             "modified": kev_object["_timestamp"],
             "published": kev_object["date_added"],
             "name": content,
-            "description": "{vulnerabilityName}\n\n{shortDescription}\n\n* <strong>Required action:</strong> {required_action}\n\n* <strong>Action due by:</strong> {dueDate}".format_map(
-                kev_object
-            ),
+            "description": kev_object["shortDescription"],
             "object_refs": [
                 object["id"],
                 *cwe_stix_ids,
-                *[exploit['id'] for exploit in exploit_objects]
+                *[exploit["id"] for exploit in exploit_objects],
             ],
             "labels": ["kev"],
             "report_types": ["vulnerability"],
@@ -148,7 +152,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             exp = {
                 "type": "exploit",
                 "spec_version": "2.1",
-                "id": "exploit--" + str(uuid.uuid5(config.namespace, xdb['xdb_id'])),
+                "id": "exploit--" + str(uuid.uuid5(config.namespace, xdb["xdb_id"])),
                 "created_by_ref": "identity--e1db4e59-c7f9-5ec0-bd55-10004728a167",
                 "created": xdb["date_added"],
                 "modified": xdb["date_added"],
@@ -164,8 +168,8 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                     },
                     {
                         "source_name": "vulncheck_xdb",
-                        "external_id": xdb['xdb_id'],
-                        "url": xdb['xdb_url'],
+                        "external_id": xdb["xdb_id"],
+                        "url": xdb["xdb_url"],
                     },
                 ],
                 "object_marking_refs": [

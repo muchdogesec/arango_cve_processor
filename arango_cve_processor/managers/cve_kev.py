@@ -6,7 +6,7 @@ import requests
 from arango_cve_processor import config
 from arango_cve_processor.tools.utils import stix2python
 from stix2 import Report
-from .base_manager import STIXRelationManager, RelationType
+from arango_cve_processor.managers.base_manager import STIXRelationManager, RelationType
 
 
 class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
@@ -24,14 +24,18 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
-        cve_ids = set(self.cve_ids).intersection(self.kev_map) if self.cve_ids else self.kev_map
+        cve_ids = (
+            set(self.cve_ids).intersection(self.kev_map)
+            if self.cve_ids
+            else self.kev_map
+        )
         return self.arango.execute_raw_query(
             query,
             bind_vars={
                 "@collection": self.collection,
                 "created_min": self.created_min,
                 "modified_min": self.modified_min,
-                'cve_ids': list(cve_ids),
+                "cve_ids": list(cve_ids),
             },
             batch_size=self.BATCH_SIZE,
         )
@@ -51,7 +55,15 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                     "external_id": cve_id,
                     "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
                 },
+<<<<<<< HEAD
+                {
+                    "source_name": "action_required",
+                    "description": cisa_obj["requiredAction"],
+                },
+                {"source_name": "action_due", "description": cisa_obj["dueDate"]},
+=======
                 {"source_name": "arango_cve_processor", "external_id": "cve-kev"},
+>>>>>>> main
             ]
 
             for note in cisa_obj["notes"].split(" ; ")[:-1]:
@@ -61,14 +73,14 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             retval.append(
                 stix2python(
                     Report(
-                        id="report--"+str(uuid.uuid5(config.namespace, content)),
+                        id="report--" + str(uuid.uuid5(config.namespace, content)),
                         type="report",
                         spec_version="2.1",
                         created=cve["created"],
                         modified=cve["modified"],
                         published=cve["created"],
                         name=content,
-                        description=f"{cisa_obj['vulnerabilityName']}\n\n{cisa_obj['shortDescription']}\n\nRequired action: {cisa_obj['requiredAction']}\n\nAction due by: {cisa_obj['dueDate']}",
+                        description=cisa_obj["shortDescription"],
                         object_refs=[cve["id"]],
                         labels=["kev"],
                         report_types=["vulnerability"],
@@ -83,15 +95,18 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
     def retrieve_kevs(self):
         for kev_url in self.KEV_URLS:
             try:
-                resp = requests.get(
-                    kev_url
-                ).json()
+                resp = requests.get(kev_url).json()
                 kev_map: dict[dict[str, Any]] = {}
                 for vulnerability in resp["vulnerabilities"]:
                     kev_map[vulnerability["cveID"]] = vulnerability
 
-                logging.info("CISA endpoint returns %d known vulnerabilities", len(kev_map))
+                logging.info(
+                    "CISA endpoint returns %d known vulnerabilities", len(kev_map)
+                )
                 return kev_map
             except Exception as e:
-                logging.error("failed to retrieve known exploited vulnerabilities from `%s`", kev_url)
+                logging.error(
+                    "failed to retrieve known exploited vulnerabilities from `%s`",
+                    kev_url,
+                )
         raise Exception("failed to retrieve known exploited vulnerabilities")
