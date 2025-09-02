@@ -4,7 +4,7 @@ import uuid
 import requests
 
 from arango_cve_processor import config
-from arango_cve_processor.tools.utils import stix2dict
+from arango_cve_processor.tools.utils import stix2python
 from stix2 import Report
 from arango_cve_processor.managers.base_manager import STIXRelationManager, RelationType
 
@@ -55,11 +55,15 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                     "external_id": cve_id,
                     "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
                 },
+<<<<<<< HEAD
                 {
                     "source_name": "action_required",
                     "description": cisa_obj["requiredAction"],
                 },
                 {"source_name": "action_due", "description": cisa_obj["dueDate"]},
+=======
+                {"source_name": "arango_cve_processor", "external_id": "cve-kev"},
+>>>>>>> main
             ]
 
             for note in cisa_obj["notes"].split(" ; ")[:-1]:
@@ -67,7 +71,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
 
             content = f"CISA KEV: {cve_id}"
             retval.append(
-                stix2dict(
+                stix2python(
                     Report(
                         id="report--" + str(uuid.uuid5(config.namespace, content)),
                         type="report",
