@@ -27,6 +27,7 @@ dependencies = [
     "requests>=2.32.4; python_version >= '3.7'",
     "arango-cve-processor",
     "stix2arango",
+    "stix2extensions",
   ]
 
 [project.urls]
