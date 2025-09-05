@@ -111,7 +111,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 source_name=urlparse(reported["url"]).hostname,
             )
             references.append(ref)
-        cwe_objects = [self.cwe_objects[cwe_id] for cwe_id in kev_object["cwes"]]
+        cwe_objects = [self.cwe_objects[cwe_id] for cwe_id in kev_object["cwes"] if cwe_id in self.cwe_objects]
         cwe_stix_ids = []
         for cwe in cwe_objects:
             cwe_stix_ids.append(cwe["id"])
