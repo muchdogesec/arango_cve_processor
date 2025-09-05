@@ -1,4 +1,5 @@
 import argparse
+from datetime import UTC, datetime
 import itertools
 import logging
 from arango_cve_processor.managers import RELATION_MANAGERS
@@ -9,6 +10,16 @@ from arango_cve_processor.tools.utils import create_indexes, import_default_obje
 def parse_bool(value: str):
     value = value.lower()
     return value in ["yes", "y", "true", "1"]
+
+def parse_date(datetime_str):
+    if 'T' in datetime_str:
+        fmt = "%Y-%m-%dT%H:%M:%S"
+    else:
+        fmt = "%Y-%m-%d"
+    naive_dt = datetime.strptime(datetime_str, fmt).replace(tzinfo=UTC)
+    return naive_dt.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]+'Z'
+
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Import STIX JSON into ArangoDB")
@@ -51,12 +62,14 @@ def parse_arguments():
         help="the arangoDB database name where the objects you want to link are found. It must contain the collections required for the `--relationship` option(s) selected")
     parser.add_argument(
         "--modified_min",
-        metavar="YYYY-MM-DD[Thh:mm:dd]",
+        metavar="YYYY-MM-DD[Thh:mm:ss]",
+        type=parse_date,
         required=False,
         help="By default arango_cve_processor will consider all objects in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is most useful in CVE modes, where a high volume of CVEs are published daily.")
     parser.add_argument(
         "--created_min",
-        metavar="YYYY-MM-DD[Thh:mm:dd]",
+        metavar="YYYY-MM-DD[Thh:mm:ss]",
+        type=parse_date,
         required=False,
         help="By default arango_cve_processor will consider all objects in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a created time value will further filter the results processed by arango_cve_processor to STIX objects with a `created` time >= to the value specified. This is most useful in CVE modes, where a high volume of CVEs are published daily.")
     parser.add_argument(
