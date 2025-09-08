@@ -58,12 +58,7 @@ def import_default_objects(processor: ArangoDBService, default_objects: list = N
 
 
 def genrate_relationship_id(source_ref, target_ref, relationship_type):
-    return "relationship--" + str(
-        uuid.uuid5(
-            config.namespace,
-            f"{relationship_type}+{source_ref}+{target_ref}",
-        )
-    )
+    return make_stix_id('relationship', f"{relationship_type}+{source_ref}+{target_ref}")
 
 
 def load_file_from_url(url):
@@ -114,9 +109,7 @@ def create_relationship(
     relationship_note=None,
     add_arango_props=True,
 ):
-    relationship_id = relationship_id or genrate_relationship_id(
-        source["id"], target_ref, relationship_type
-    )
+    relationship_id = relationship_id or make_stix_id('relationship', f"{relationship_type}+{source["id"]}+{target_ref}")
     retval = dict(
         spec_version="2.1",
         id=relationship_id,
@@ -193,3 +186,8 @@ def create_indexes(db: StandardDatabase):
         )
     )
     logging.info("finished creating indexes")
+
+
+def make_stix_id(type_part: str, content: str):
+    id_part = uuid.uuid5(config.namespace, content)
+    return type_part + "--" + str(id_part)

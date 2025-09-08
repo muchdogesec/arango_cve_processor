@@ -7,7 +7,7 @@ import uuid
 from stix2arango.services.arangodb_service import ArangoDBService
 from arango_cve_processor import config
 from arango_cve_processor.tools.epss import EPSSManager
-from arango_cve_processor.tools.utils import stix2python
+from arango_cve_processor.tools.utils import make_stix_id, stix2python
 from .base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
@@ -35,7 +35,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
   RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
         """
         reports = dict(self.get_objects_from_db(query, limit))
-        cve_query = query = """
+        cve_query = """
   FOR doc IN @@collection
   FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' AND doc._record_created >= @record_created
   LET cve_name = doc.name
@@ -50,7 +50,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
             cve.update(name=cve_name, epss=reports.get(cve_name))
             objects.append(cve)
         return objects
-    
+
     def get_objects_from_db(self, query, limit):
         objects = []
         record_created = ""
@@ -64,18 +64,20 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
                     "@collection": self.collection,
                     # "created_min": self.created_min,
                     # "modified_min": self.modified_min,
-                    'cve_ids': self.cve_ids or None,
-                    'record_created': record_created,
-                    'limit': limit,
+                    "cve_ids": self.cve_ids or None,
+                    "record_created": record_created,
+                    "limit": limit,
                 },
             )
             objects.extend(ret)
             if len(ret) < limit:
                 break
-            record_created = ret[-1][1]['_record_created']
-            logging.info(f'retrieving... len = {len(objects)}, t = {time.time() - t}, total_time = {time.time() - t0}')
+            record_created = ret[-1][1]["_record_created"]
+            logging.info(
+                f"retrieving... len = {len(objects)}, t = {time.time() - t}, total_time = {time.time() - t0}"
+            )
         return objects
-    
+
     def relate_single(self, object):
         todays_report = parse_cve_epss_report(object, self.epss_date)
         if not todays_report:
@@ -138,7 +140,7 @@ def parse_cve_epss_report(vulnerability: Vulnerability, epss_date=None):
             modified = datetime.strptime(epss_data[-1]["date"], "%Y-%m-%d").date()
 
         return Report(
-            id="report--" + str(uuid.uuid5(config.namespace, content)),
+            id=make_stix_id("report", content),
             created=modified,
             modified=modified,
             published=modified,

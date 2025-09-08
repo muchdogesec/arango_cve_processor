@@ -10,6 +10,7 @@ from arango_cve_processor import config
 from arango_cve_processor.managers.base_manager import RelationType
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
 from arango_cve_processor.managers.cve_kev import CISAKevManager
+from arango_cve_processor.tools.utils import make_stix_id
 
 
 class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev"):
@@ -111,24 +112,27 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 source_name=urlparse(reported["url"]).hostname,
             )
             references.append(ref)
-        cwe_objects = [self.cwe_objects[cwe_id] for cwe_id in kev_object["cwes"] if cwe_id in self.cwe_objects]
+        cwe_objects = [
+            self.cwe_objects[cwe_id]
+            for cwe_id in kev_object["cwes"]
+            if cwe_id in self.cwe_objects
+        ]
         cwe_stix_ids = []
         for cwe in cwe_objects:
             cwe_stix_ids.append(cwe["id"])
             references.append(cwe["external_references"][0])
 
         exploit_objects = self.parse_exploits(object, kev_object["vulncheck_xdb"])
-
         content = f"Vulncheck KEV: {cve_id}"
         report = {
             "type": "report",
             "spec_version": "2.1",
-            "id": "report--" + str(uuid.uuid5(config.namespace, content)),
+            "id": make_stix_id("report", content),
             "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
             "created": kev_object["date_added"],
             "modified": kev_object["_timestamp"],
             "published": kev_object["date_added"],
-            "name": content,
+            "name": f'[{cve_id}] {kev_object['vulnerabilityName']}',
             "description": kev_object["shortDescription"],
             "object_refs": [
                 object["id"],
