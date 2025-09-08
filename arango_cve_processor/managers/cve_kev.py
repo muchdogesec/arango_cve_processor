@@ -45,8 +45,8 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         retval = []
         for cve in objects:
             cve_id = cve["name"]
-            cisa_obj: dict[str, Any] = kev_map.get(cve_id)
-            if not cisa_obj:
+            kev_obj: dict[str, Any] = kev_map.get(cve_id)
+            if not kev_obj:
                 continue
 
             more_external_refs = [
@@ -56,14 +56,18 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                     "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
                 },
                 {
-                    "source_name": "action_required",
-                    "description": cisa_obj["requiredAction"],
+                    "source_name": "vulnerabilityName",
+                    "description": kev_obj["vulnerabilityName"],
                 },
-                {"source_name": "action_due", "description": cisa_obj["dueDate"]},
+                {
+                    "source_name": "action_required",
+                    "description": kev_obj["requiredAction"],
+                },
+                {"source_name": "action_due", "description": kev_obj["dueDate"]},
                 {"source_name": "arango_cve_processor", "external_id": "cve-kev"},
             ]
 
-            for note in cisa_obj["notes"].split(" ; ")[:-1]:
+            for note in kev_obj["notes"].split(" ; ")[:-1]:
                 more_external_refs.append(dict(source_name="cisa_note", url=note))
 
             content = f"CISA KEV: {cve_id}"
@@ -76,8 +80,8 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                         created=cve["created"],
                         modified=cve["modified"],
                         published=cve["created"],
-                        name=f'[{cve_id}] {cisa_obj['vulnerabilityName']}',
-                        description=cisa_obj["shortDescription"],
+                        name=content,
+                        description=f'[[ {kev_obj["vulnerabilityName"]} ]] {kev_obj["shortDescription"]}',
                         object_refs=[cve["id"]],
                         labels=["kev"],
                         report_types=["vulnerability"],

@@ -86,26 +86,30 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
 
     def relate_single(self, object):
         cve_id = object["name"]
-        kev_object = self.kev_map[cve_id]
-        kev_object.setdefault("dueDate", "N/A")
+        kev_obj = self.kev_map[cve_id]
+        kev_obj.setdefault("dueDate", "N/A")
         references = [
             {
                 "source_name": "cve",
                 "external_id": cve_id,
                 "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
             },
+            {
+                "source_name": 'vulnerabilityName',
+                'description': kev_obj['vulnerabilityName'],
+            },
             {"source_name": "arango_cve_processor", "external_id": "cve-vulncheck-kev"},
             {
                 "source_name": "known_ransomware",
-                "description": kev_object["knownRansomwareCampaignUse"],
+                "description": kev_obj["knownRansomwareCampaignUse"],
             },
             {
                 "source_name": "action_required",
-                "description": kev_object["required_action"],
+                "description": kev_obj["required_action"],
             },
-            {"source_name": "action_due", "description": kev_object["dueDate"]},
+            {"source_name": "action_due", "description": kev_obj["dueDate"]},
         ]
-        for reported in kev_object["vulncheck_reported_exploitation"]:
+        for reported in kev_obj["vulncheck_reported_exploitation"]:
             ref = dict(
                 url=reported["url"],
                 description=f"Added on: {reported['date_added']}",
@@ -114,7 +118,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             references.append(ref)
         cwe_objects = [
             self.cwe_objects[cwe_id]
-            for cwe_id in kev_object["cwes"]
+            for cwe_id in kev_obj["cwes"]
             if cwe_id in self.cwe_objects
         ]
         cwe_stix_ids = []
@@ -122,18 +126,18 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             cwe_stix_ids.append(cwe["id"])
             references.append(cwe["external_references"][0])
 
-        exploit_objects = self.parse_exploits(object, kev_object["vulncheck_xdb"])
+        exploit_objects = self.parse_exploits(object, kev_obj["vulncheck_xdb"])
         content = f"Vulncheck KEV: {cve_id}"
         report = {
             "type": "report",
             "spec_version": "2.1",
             "id": make_stix_id("report", content),
             "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
-            "created": kev_object["date_added"],
-            "modified": kev_object["_timestamp"],
-            "published": kev_object["date_added"],
-            "name": f'[{cve_id}] {kev_object['vulnerabilityName']}',
-            "description": kev_object["shortDescription"],
+            "created": kev_obj["date_added"],
+            "modified": kev_obj["_timestamp"],
+            "published": kev_obj["date_added"],
+            "name": content,
+            "description": f'[[ {kev_obj["vulnerabilityName"]} ]] {kev_obj["shortDescription"]}',
             "object_refs": [
                 object["id"],
                 *cwe_stix_ids,
