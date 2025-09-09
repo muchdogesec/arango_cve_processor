@@ -95,8 +95,8 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 "url": "https://nvd.nist.gov/vuln/detail/" + cve_id,
             },
             {
-                "source_name": 'vulnerabilityName',
-                'description': kev_obj['vulnerabilityName'],
+                "source_name": "vulnerabilityName",
+                "description": kev_obj["vulnerabilityName"],
             },
             {"source_name": "arango_cve_processor", "external_id": "cve-vulncheck-kev"},
             {
@@ -137,7 +137,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             "modified": kev_obj["_timestamp"],
             "published": kev_obj["date_added"],
             "name": content,
-            "description": f'[[ {kev_obj["vulnerabilityName"]} ]] {kev_obj["shortDescription"]}',
+            "description": kev_obj["shortDescription"],
             "object_refs": [
                 object["id"],
                 *cwe_stix_ids,
