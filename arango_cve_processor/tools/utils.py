@@ -192,4 +192,14 @@ def create_indexes(db: StandardDatabase):
             sparse=True,
         )
     )
+    edge_collection.add_index(
+        dict(
+            type="persistent",
+            fields=["_arango_cve_processor_note", "source_ref"],
+            storedValues=["id", "_is_ref", "_is_latest"],
+            inBackground=True,
+            name=f"acvep-capec_attack",
+            sparse=True,
+        )
+    )
     logging.info("finished creating indexes")
