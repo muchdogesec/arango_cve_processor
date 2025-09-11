@@ -56,10 +56,10 @@ class EPSSManager:
     def parse_csv(csv_data, date_str):
         data = csv.DictReader(io.StringIO(csv_data), ["cve","epss","percentile"])
         for d in data:
-            if not d['cve'].startswith('CVE-'):
+            cve_name = d['cve']
+            if not cve_name.startswith('CVE-'):
                 continue
-            d.update(date=date_str, epss=float(d['epss']), percentile=float(d['percentile']))
-            yield d['cve'], d
+            yield cve_name, dict(date=date_str, epss=float(d['epss']), percentile=float(d['percentile']))
 
     @classmethod
     def get_data_for_cve(cls, cve, date=None):
