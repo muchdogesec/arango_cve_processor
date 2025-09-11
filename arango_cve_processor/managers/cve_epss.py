@@ -108,7 +108,6 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
                 cve_object["epss"]["x_epss"]
             ):
                 latest_epss: dict = all_epss[0].copy()
-                latest_epss.pop('cve', None)
                 self.update_objects.append(
                     {
                         **cve_object["epss"],
