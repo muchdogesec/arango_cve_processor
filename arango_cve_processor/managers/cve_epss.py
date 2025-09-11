@@ -94,28 +94,34 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         logging.debug(f"total_time = {time.time() - t0}")
         return objects
 
-    def relate_single(self, object):
-        todays_report = parse_cve_epss_report(object, self.epss_date)
+    def relate_single(self, cve_object):
+        todays_report = parse_cve_epss_report(cve_object, self.epss_date)
         if not todays_report:
             return []
-        if object["epss"]:
+        if cve_object["epss"]:
             all_epss = sorted(
-                object["epss"]["x_epss"] + todays_report["x_epss"],
+                cve_object["epss"]["x_epss"] + todays_report["x_epss"],
                 key=lambda x: x["date"],
                 reverse=True,
             )
             if len(set(map(lambda x: x["date"], all_epss))) != len(
-                object["epss"]["x_epss"]
+                cve_object["epss"]["x_epss"]
             ):
+                latest_epss: dict = all_epss[0].copy()
+                latest_epss.pop('cve', None)
                 self.update_objects.append(
                     {
-                        **object["epss"],
+                        **cve_object["epss"],
                         "x_epss": all_epss,
                         "_record_modified": datetime.now(timezone.utc).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         ),
-                        "modified": all_epss[0]["date"] + "T00:00:00.000Z",
+                        "modified": latest_epss["date"] + "T00:00:00.000Z",
                         "_arango_cve_processor_note": self.relationship_note,
+                    },
+                    {
+                        '_key': cve_object['_key'],
+                        '_acvep_epss': latest_epss,
                     }
                 )
             return []
