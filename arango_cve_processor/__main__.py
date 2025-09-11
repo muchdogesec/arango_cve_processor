@@ -102,7 +102,7 @@ def parse_arguments():
     )
 
     parser = argparse.ArgumentParser(description="Arango CVE Processor is a tool for enriching vulmatch data on ArangoDB.")
-    subparser = parser.add_subparsers(title="mode", dest="mode")
+    subparser = parser.add_subparsers(title="mode", dest="mode", required=True)
     for mode in RELATION_MANAGERS.values():
         p = subparser.add_parser(mode.relationship_note, description=mode.DESCRIPTION)
         for k, action in actions.items():
