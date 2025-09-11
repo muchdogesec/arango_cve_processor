@@ -18,6 +18,11 @@ def generate_md5(obj: dict):
     for k in ["_from", "_to"]:
         if v := obj.get(k):
             obj_copy[k] = v
+    if obj_copy.get('labels') == ['epss']:
+        # don't include these volatile parts in epss digest
+        del obj_copy['modified']
+        del obj_copy['x_epss']
+
     json_str = json.dumps(obj_copy, sort_keys=True, default=str).encode("utf-8")
     return hashlib.md5(json_str).hexdigest()
 
@@ -149,6 +154,7 @@ def chunked_tqdm(iterable, n, description=None):
         chunk = iterable[i : i + n]
         yield chunk
         iterator.update(len(chunk))
+    iterator.close()
 
 
 def create_indexes(db: StandardDatabase):
@@ -166,6 +172,16 @@ def create_indexes(db: StandardDatabase):
         )
     )
     vertex_collection.add_index(
+        dict(
+            type="persistent",
+            fields=["id"],
+            storedValues=["external_references"],
+            inBackground=True,
+            name=f"acvep_id",
+            sparse=True,
+        )
+    )
+    vertex_collection.add_index(
         {
             "analyzer": "identity",
             "features": ["frequency", "norm"],
@@ -175,10 +191,28 @@ def create_indexes(db: StandardDatabase):
                 {"name": "_is_latest"},
                 {"name": "type"},
             ],
-            "name": "acvep_cpematch",
+            "name": "acvep_type_sorted",
             "primarySort": {"fields": [], "compression": "lz4"},
             "sparse": True,
             "storedValues": [{"fields": [], "compression": "lz4"}],
+            "type": "inverted",
+        }
+    )
+
+    vertex_collection.add_index(
+        {
+            "analyzer": "identity",
+            "features": ["frequency", "norm"],
+            "fields": [
+                {"name": "_arango_cve_processor_note"},
+                {"name": "name"},
+                {"name": "_is_latest"},
+                {"name": "type"},
+            ],
+            "name": "acvep_search",
+            "primarySort": {"fields": [], "compression": "lz4"},
+            "sparse": True,
+            "storedValues": [{"fields": ["created", "modified"], "compression": "lz4"}],
             "type": "inverted",
         }
     )

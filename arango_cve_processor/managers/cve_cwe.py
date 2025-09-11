@@ -18,12 +18,12 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
 
     def get_objects_chunk(self, start, batch_size):
         query = """
-        FOR doc IN @@collection
+        FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
         FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' 
             AND doc.created >= @created_min 
             AND doc.modified >= @modified_min
             AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
-            AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name] 
+            AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name]
         LIMIT @start, @batch_size
         RETURN KEEP(doc, '_id', 'id', 'external_references', 'name', 'created', 'modified')
         """

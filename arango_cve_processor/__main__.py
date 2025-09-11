@@ -5,19 +5,27 @@ import logging
 from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
+from arango_cve_processor.managers.cve_epss import CveEpssBackfillManager
 from arango_cve_processor.tools.utils import create_indexes, import_default_objects, validate_collections
 
 def parse_bool(value: str):
     value = value.lower()
     return value in ["yes", "y", "true", "1"]
 
-def parse_date(datetime_str):
+def parse_datetime(datetime_str):
     if 'T' in datetime_str:
         fmt = "%Y-%m-%dT%H:%M:%S"
     else:
         fmt = "%Y-%m-%d"
-    naive_dt = datetime.strptime(datetime_str, fmt).replace(tzinfo=UTC)
-    return naive_dt.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]+'Z'
+    return datetime.strptime(datetime_str, fmt).replace(tzinfo=UTC)
+    
+
+def parse_date_to_str(datetime_str):
+    return parse_datetime(datetime_str).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]+'Z'
+
+def parse_date_to_date(datetime_str):
+    return parse_datetime(datetime_str).date()
+
 
 
 
@@ -63,15 +71,27 @@ def parse_arguments():
     parser.add_argument(
         "--modified_min",
         metavar="YYYY-MM-DD[Thh:mm:ss]",
-        type=parse_date,
+        type=parse_date_to_str,
         required=False,
         help="By default arango_cve_processor will consider all objects in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a modified time value will further filter the results processed by arango_cve_processor to STIX objects with a `modified` time >= to the value specified. This is most useful in CVE modes, where a high volume of CVEs are published daily.")
     parser.add_argument(
         "--created_min",
         metavar="YYYY-MM-DD[Thh:mm:ss]",
-        type=parse_date,
+        type=parse_date_to_str,
         required=False,
         help="By default arango_cve_processor will consider all objects in the database specified with the property `_is_latest==true` (that is; the latest version of the object). Using this flag with a created time value will further filter the results processed by arango_cve_processor to STIX objects with a `created` time >= to the value specified. This is most useful in CVE modes, where a high volume of CVEs are published daily.")
+    parser.add_argument(
+        "--start_date",
+        metavar="YYYY-MM-DD",
+        type=parse_date_to_date,
+        required=False,
+        help="Date to start backfilling epss from, only applies to `cve-epss-backfill` mode")
+    parser.add_argument(
+        "--end_date",
+        metavar="YYYY-MM-DD",
+        type=parse_date_to_date,
+        required=False,
+        help="Date to end backfilling epss at, only applies to `cve-epss-backfill` mode")
     parser.add_argument(
         "--cve_ids",
         required=False,
@@ -80,8 +100,12 @@ def parse_arguments():
         metavar="CVE-YYYY-NNNN",
         type=str.upper,
     )
+
+    args = parser.parse_args()
+    if CveEpssBackfillManager.relationship_note in args.modes:
+        args.start_date or parser.error(f"--start_date is required for mode {CveEpssBackfillManager.relationship_note}")
     
-    return parser.parse_args()
+    return args
 
 def run_all(database=None, modes: list[str]=None, **kwargs):
     processor = ArangoDBService(database, [], [], host_url=config.ARANGODB_HOST_URL, username=config.ARANGODB_USERNAME, password=config.ARANGODB_PASSWORD)

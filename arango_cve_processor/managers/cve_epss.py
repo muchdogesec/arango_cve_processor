@@ -1,14 +1,12 @@
-from datetime import datetime, timezone
-import json
+from datetime import datetime, timedelta, timezone, date
 import logging
 import time
 import uuid
 
-from stix2arango.services.arangodb_service import ArangoDBService
 from arango_cve_processor import config
 from arango_cve_processor.tools.epss import EPSSManager
-from arango_cve_processor.tools.utils import stix2python
-from .base_manager import STIXRelationManager
+from arango_cve_processor.tools.utils import chunked_tqdm, stix2python
+from arango_cve_processor.managers.base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
 
@@ -27,55 +25,75 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
     def get_objects(self, **kwargs):
         limit = 20_000
         query = """
-  FOR doc IN @@collection
-  FILTER doc._is_latest == TRUE AND doc.type == 'report' AND doc.labels[0] == 'epss' && doc._record_created >= @record_created
+  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+  FILTER doc._arango_cve_processor_note == @relationship_note
+  FILTER doc.name IN @cve_ids AND doc._is_latest == TRUE
   LET cve_name = doc.external_references[0].external_id
-  FILTER (NOT @cve_ids OR cve_name IN @cve_ids)
-  LIMIT @limit
   RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
         """
-        reports = dict(self.get_objects_from_db(query, limit))
-        cve_query = query = """
-  FOR doc IN @@collection
-  FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' AND doc._record_created >= @record_created
-  LET cve_name = doc.name
-  FILTER (NOT @cve_ids OR cve_name IN @cve_ids)
-  LIMIT @limit
-  RETURN [cve_name, KEEP(doc, 'id', '_record_created')]
+        reports = dict(
+            self.get_objects_from_db(
+                query,
+                limit,
+                dict(
+                    relationship_note=self.relationship_note,
+                    cve_ids=[f"EPSS Scores: {cve_id}" for cve_id in self.cve_ids],
+                ),
+            )
+        )
+        cve_query = (
+            query
+        ) = """
+  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+  FILTER doc.type == 'vulnerability'
+  FILTER doc.name IN @cve_ids
+  FILTER doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
+  RETURN [doc.name, KEEP(doc, 'id', '_record_created', 'created', '_key')]
         """
-        cves: list[tuple[str, dict]] = self.get_objects_from_db(cve_query, limit)
+        cves: list[tuple[str, dict]] = self.get_objects_from_db(
+            cve_query,
+            limit,
+            dict(
+                cve_ids=self.cve_ids,
+                created_min=self.created_min,
+                modified_min=self.modified_min,
+            ),
+        )
 
         objects = []
         for cve_name, cve in cves:
             cve.update(name=cve_name, epss=reports.get(cve_name))
             objects.append(cve)
         return objects
-    
-    def get_objects_from_db(self, query, limit):
-        objects = []
-        record_created = ""
 
+    def process(self, **kwargs):
+        self.epss_data_source = EPSSManager.get_epss_data(self.epss_date)
+        if self.cve_ids:
+            self.cve_ids = list(set(self.epss_data_source).intersection(self.cve_ids))
+        else:
+            self.cve_ids = list(self.epss_data_source)
+        return super().process(**kwargs)
+
+    def get_objects_from_db(self, query, limit, binds={}):
+        objects = []
         t0 = time.time()
-        while True:
+        for cve_ids_chunk in chunked_tqdm(
+            binds.pop("cve_ids", []), limit, "get-cve-and-existing-epss-reports"
+        ):
             t = time.time()
             ret = self.arango.execute_raw_query(
                 query,
                 bind_vars={
                     "@collection": self.collection,
-                    # "created_min": self.created_min,
-                    # "modified_min": self.modified_min,
-                    'cve_ids': self.cve_ids or None,
-                    'record_created': record_created,
-                    'limit': limit,
+                    "cve_ids": cve_ids_chunk,
+                    **binds,
                 },
+                memory_limit=100 * 1024**2,
             )
             objects.extend(ret)
-            if len(ret) < limit:
-                break
-            record_created = ret[-1][1]['_record_created']
-            logging.info(f'retrieving... len = {len(objects)}, t = {time.time() - t}, total_time = {time.time() - t0}')
+        logging.debug(f"total_time = {time.time() - t0}")
         return objects
-    
+
     def relate_single(self, object):
         todays_report = parse_cve_epss_report(object, self.epss_date)
         if not todays_report:
@@ -84,6 +102,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
             all_epss = sorted(
                 object["epss"]["x_epss"] + todays_report["x_epss"],
                 key=lambda x: x["date"],
+                reverse=True,
             )
             if len(set(map(lambda x: x["date"], all_epss))) != len(
                 object["epss"]["x_epss"]
@@ -95,9 +114,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
                         "_record_modified": datetime.now(timezone.utc).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         ),
-                        "modified": datetime.strptime(all_epss[0]["date"], "%Y-%m-%d")
-                        .date()
-                        .strftime("%Y-%m-%dT00:00:00.000Z"),
+                        "modified": all_epss[0]["date"] + "T00:00:00.000Z",
                         "_arango_cve_processor_note": self.relationship_note,
                     }
                 )
@@ -107,19 +124,38 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
 
     def upload_vertex_data(self, objects):
         logging.info("updating %d existing reports", len(self.update_objects))
-        self.arango.execute_raw_query(
-            """
-        FOR obj IN @objects
-        UPDATE obj IN @@collection
-        """,
-            bind_vars={
-                "@collection": self.vertex_collection,
-                "objects": self.update_objects,
-            },
-            batch_size=self.BATCH_SIZE,
+        self.arango.db.collection(self.vertex_collection).update_many(
+            self.update_objects
         )
-
         return super().upload_vertex_data(objects)
+
+
+class CveEpssBackfillManager(CveEpssManager, relationship_note="cve-epss-backfill"):
+    def __init__(self, processor, start_date, end_date, *args, **kwargs):
+        self.processor = processor
+        self.args = args
+        self.kwargs = kwargs
+        self.start_date = start_date
+        self.end_date = end_date
+
+    def process(self, **kwargs):
+        start_date = self.start_date
+        end_date = self.end_date or EPSSManager.datenow()
+        for day, date in date_range(start_date, end_date):
+            logging.info(
+                f"Running CVE <-> EPSS Backfill for day {day}, date: {date.isoformat()}"
+            )
+            logging.info("================================")
+            rmanager = CveEpssManager(self.processor, *self.args, **self.kwargs)
+            rmanager.epss_date = date
+            rmanager.process(**kwargs)
+
+
+def date_range(start_date: date, end_date: date):
+    """Yield dates from start_date to end_date inclusive."""
+    total_days = (end_date - start_date).days + 1
+    for n in range(total_days):
+        yield f"{n+1} of {total_days}", (start_date + timedelta(days=n))
 
 
 def parse_cve_epss_report(vulnerability: Vulnerability, epss_date=None):
@@ -139,9 +175,9 @@ def parse_cve_epss_report(vulnerability: Vulnerability, epss_date=None):
 
         return Report(
             id="report--" + str(uuid.uuid5(config.namespace, content)),
-            created=modified,
+            created=vulnerability["created"],
             modified=modified,
-            published=modified,
+            published=vulnerability["created"],
             name=content,
             x_epss=epss_data,
             object_refs=[
