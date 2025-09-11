@@ -10,6 +10,9 @@ from arango_cve_processor.managers.base_manager import STIXRelationManager, Rela
 
 
 class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
+    DESCRIPTION = """
+    Creates KEV report objects for CVEs, Source: CISA
+    """
     relation_type = RelationType.RELATE_PARALLEL
     KEV_URLS = [
         "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
@@ -62,9 +65,6 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 {"source_name": "action_due", "description": cisa_obj["dueDate"]},
                 {"source_name": "arango_cve_processor", "external_id": "cve-kev"},
             ]
-
-            for note in cisa_obj["notes"].split(" ; ")[:-1]:
-                more_external_refs.append(dict(source_name="cisa_note", url=note))
 
             content = f"CISA KEV: {cve_id}"
             retval.append(

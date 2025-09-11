@@ -2,6 +2,9 @@ from arango_cve_processor.managers.cve_capec import CveCapec
 
 
 class CveAttack(CveCapec, relationship_note="cve-attack"):
+    DESCRIPTION = """
+    Run CVE <-> ATT&CK relationships, requires cve-capec
+    """
     priority = CveCapec.priority + 1
     # ctibutler_path = 'capec'
     ctibutler_query = "attack_id"

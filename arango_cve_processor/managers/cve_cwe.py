@@ -5,6 +5,9 @@ from arango_cve_processor.managers.base_manager import RelationType, STIXRelatio
 
 
 class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
+    DESCRIPTION = """
+    Run CVE <-> CWE relationships
+    """
     priority = 0
 
     edge_collection = "nvd_cve_edge_collection"

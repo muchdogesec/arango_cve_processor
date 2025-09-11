@@ -23,6 +23,7 @@ class STIXRelationManager:
     MIN_DATE_STR = "1970-01-01"
     BATCH_SIZE = 1000
     CHUNK_SIZE = BATCH_SIZE
+    DESCRIPTION = "please set"
 
     def __init_subclass__(cls,/, relationship_note) -> None:
         cls.relationship_note = relationship_note

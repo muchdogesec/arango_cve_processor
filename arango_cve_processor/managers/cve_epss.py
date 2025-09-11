@@ -11,6 +11,9 @@ from stix2 import Vulnerability, Report
 
 
 class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
+    DESCRIPTION = """
+    Creates EPSS report objects for CVEs
+    """
     edge_collection = "nvd_cve_edge_collection"
     vertex_collection = "nvd_cve_vertex_collection"
     default_objects = [
@@ -108,20 +111,22 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
                 cve_object["epss"]["x_epss"]
             ):
                 latest_epss: dict = all_epss[0].copy()
-                self.update_objects.append(
-                    {
-                        **cve_object["epss"],
-                        "x_epss": all_epss,
-                        "_record_modified": datetime.now(timezone.utc).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        ),
-                        "modified": latest_epss["date"] + "T00:00:00.000Z",
-                        "_arango_cve_processor_note": self.relationship_note,
-                    },
-                    {
-                        '_key': cve_object['_key'],
-                        '_acvep_epss': latest_epss,
-                    }
+                self.update_objects.extend(
+                    [
+                        {
+                            **cve_object["epss"],
+                            "x_epss": all_epss,
+                            "_record_modified": datetime.now(timezone.utc).strftime(
+                                "%Y-%m-%dT%H:%M:%S.%fZ"
+                            ),
+                            "modified": latest_epss["date"] + "T00:00:00.000Z",
+                            "_arango_cve_processor_note": self.relationship_note,
+                        },
+                        {
+                            "_key": cve_object["_key"],
+                            "_acvep_epss": latest_epss,
+                        },
+                    ]
                 )
             return []
         else:
@@ -136,6 +141,10 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
 
 
 class CveEpssBackfillManager(CveEpssManager, relationship_note="cve-epss-backfill"):
+    DESCRIPTION = """
+    Creates EPSS report objects for CVEs. Starting from start date and stopping at end date 
+    """
+
     def __init__(self, processor, start_date, end_date, *args, **kwargs):
         self.processor = processor
         self.args = args

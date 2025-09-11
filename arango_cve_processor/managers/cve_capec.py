@@ -2,6 +2,9 @@ from arango_cve_processor.managers.cve_cwe import CveCwe
 
 
 class CveCapec(CveCwe, relationship_note="cve-capec"):
+    DESCRIPTION = """
+    Run CVE <-> CAPEC relationships, requires cve-cwe
+    """
     priority = CveCwe.priority + 1
     edge_collection = "nvd_cve_edge_collection"
     vertex_collection = "nvd_cve_vertex_collection"

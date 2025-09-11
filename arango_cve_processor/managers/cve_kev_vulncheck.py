@@ -13,6 +13,9 @@ from arango_cve_processor.managers.cve_kev import CISAKevManager
 
 
 class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev"):
+    DESCRIPTION = """
+    Creates KEV report objects for CVEs, Source: Vulncheck
+    """
     relation_type = RelationType.RELATE_SEQUENTIAL
 
     def __init__(self, *args, **kwargs):

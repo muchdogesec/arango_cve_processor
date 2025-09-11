@@ -24,6 +24,9 @@ RATE_LIMIT_WINDOW = 30
 
 class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
     relation_type = RelationType.RELATE_SEQUENTIAL
+    DESCRIPTION = """
+    Run CPEMATCH Updates for CVEs in database
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
