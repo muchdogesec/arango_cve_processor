@@ -38,12 +38,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             self.requests_per_window = 50
         if not self.modified_min:
             raise ValueError("modified_min is required for this mode")
-        
         self.ignore_embedded_relationships = True
-
-        self.softwares_buffer = []
-        self.processed_criteria = {}
-        
 
     def get_updated_cpematches(self):
         total_results = math.inf
@@ -106,34 +101,12 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         for groupings in self.get_updated_cpematches():
             if not groupings:
                 continue
-            objects = self.get_objects(groupings)
+            objects = self.get_object_chunks(groupings)
             self.groupings = groupings
-            self.reset_software_buffer()
             for objects_chunk in chunked(objects, 200):
                 yield objects_chunk
 
-    # def process(self, **kwargs):
-    #     for groupings in self.get_updated_cpematches():
-    #         if not groupings:
-    #             continue
-    #         objects = self.get_objects(groupings)
-    #         self.groupings = groupings
-    #         for objects_chunk in chunked(objects, 200):
-    #             self.do_process(objects_chunk)
-
-    def upload_softwares(self, softwares, force=False):
-        self.softwares_buffer.extend(softwares)
-        if force or len(self.softwares_buffer) > 20_000:
-            self.upload_vertex_data(self.softwares_buffer)
-            self.softwares_buffer.clear()
-            return True
-        return False
-    
-    def reset_software_buffer(self):
-        self.upload_softwares([], force=True)
-        self.processed_criteria.clear()
-
-    def get_objects(self, criteria_ids):
+    def get_object_chunks(self, criteria_ids):
         query = """
         FOR doc IN nvd_cve_vertex_collection OPTIONS {indexHint: "acvep_cpematch", forceIndexHint: true}
         FILTER doc.type == 'indicator' AND doc._is_latest == TRUE
@@ -151,22 +124,12 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         indicator = object
         retval = []
         for x_cpe_item in itertools.chain(*object['x_cpes'].values()):
-            if grouping_object := self.parse_and_upload_objects_for_grouping(x_cpe_item['matchCriteriaId']):
+            if match_data := self.groupings.get(x_cpe_item['matchCriteriaId']):
+                objects = cpe.parse_objects_for_criteria(match_data)
+                grouping_object = objects[0]
                 relationships = cpe.relate_indicator(grouping_object, indicator)
                 for r in relationships:
                     r['_from'] = indicator['_id']
+                retval.extend(objects)
                 retval.extend(relationships)
         return stix2python(retval)
-    
-    def parse_and_upload_objects_for_grouping(self, criteria_id):
-        match_data = self.groupings.get(criteria_id)
-        if not match_data:
-            return
-        if existing_group := self.processed_criteria[criteria_id]:
-            return existing_group
-        self.processed_criteria.add(criteria_id)
-        objects = cpe.parse_objects_for_criteria(match_data)
-        self.upload_softwares(objects)
-        self.processed_criteria[criteria_id] = objects[0]
-        return objects[0]
-

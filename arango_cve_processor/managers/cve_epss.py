@@ -25,7 +25,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         self.update_objects = []
         self.epss_date = EPSSManager.datenow()
 
-    def get_objects(self, **kwargs):
+    def get_object_chunks(self, **kwargs):
         limit = 20_000
         query = """
   FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
@@ -67,7 +67,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         for cve_name, cve in cves:
             cve.update(name=cve_name, epss=reports.get(cve_name))
             objects.append(cve)
-        return objects
+        return [ objects ]
 
     def process(self, **kwargs):
         self.epss_data_source = EPSSManager.get_epss_data(self.epss_date)

@@ -82,7 +82,7 @@ def load_file_from_url(url):
 
 
 def stix2python(obj: "stix2.base._STIXBase"):
-    return json.loads(serialize_stix(obj))
+    return json.loads(serialize_stix(obj, sort_keys=False))
 
 
 EMBEDDED_RELATIONSHIP_RE = re.compile(r"([a-z_]+)_refs{0,1}")
@@ -107,6 +107,8 @@ def get_embedded_refs(object: list | dict, xpath: list = []):
                 embedded_refs.extend(get_embedded_refs(obj, xpath))
     return embedded_refs
 
+def genrate_relationship_id(source_ref, target_ref, relationship_type):
+    return make_stix_id('relationship', f"{relationship_type}+{source_ref}+{target_ref}")
 
 def create_relationship(
     source,
@@ -237,3 +239,8 @@ def create_indexes(db: StandardDatabase):
         )
     )
     logging.info("finished creating indexes")
+
+
+def make_stix_id(type_part: str, content: str):
+    id_part = uuid.uuid5(config.namespace, content)
+    return type_part + "--" + str(id_part)

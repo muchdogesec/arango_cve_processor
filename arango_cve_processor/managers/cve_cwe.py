@@ -19,7 +19,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
     source_name = "cwe"
     CHUNK_SIZE = 20_000
 
-    def get_objects_chunk(self, start, batch_size):
+    def get_single_chunk(self, start, batch_size):
         query = """
         FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
         FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' 
@@ -78,20 +78,14 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
                     )
         return retval
 
-    def get_objects(self):
+    def get_object_chunks(self):
         start = 0
         while True:
-            chunk = self.get_objects_chunk(start, self.CHUNK_SIZE)
+            chunk = self.get_single_chunk(start, self.CHUNK_SIZE)
             if chunk == None:
                 return
             yield chunk
             start += self.CHUNK_SIZE
-
-    def process(self, **kwargs):
-        logging.info("getting objects - %s", self.relationship_note)
-        for chunk in self.get_objects():
-            logging.info("got %d objects - %s", len(chunk), self.relationship_note)
-            self.do_process(chunk)
 
     def get_external_references(self, cve_id, cwe_id: str):
         return [

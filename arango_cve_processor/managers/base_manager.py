@@ -54,7 +54,7 @@ class STIXRelationManager:
     def collection(self):
         return self.containing_collection or self.vertex_collection
 
-    def get_objects(self, **kwargs):
+    def get_object_chunks(self, **kwargs):
         query = """
         FOR doc IN @@collection
         FILTER doc._is_latest

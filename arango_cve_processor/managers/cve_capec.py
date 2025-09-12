@@ -16,7 +16,7 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
     ## used in query
     prev_note = CveCwe.relationship_note
 
-    def get_objects_chunk(self, start=0, batch_size=10_000):
+    def get_single_chunk(self, start=0, batch_size=10_000):
         v_query = """
     FOR doc IN @@vertex_collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
     FILTER doc.type == 'vulnerability'
