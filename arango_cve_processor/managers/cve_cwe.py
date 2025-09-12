@@ -91,7 +91,6 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
         logging.info("getting objects - %s", self.relationship_note)
         for chunk in self.get_objects():
             logging.info("got %d objects - %s", len(chunk), self.relationship_note)
-            1 / 0
             self.do_process(chunk)
 
     def get_external_references(self, cve_id, cwe_id: str):
