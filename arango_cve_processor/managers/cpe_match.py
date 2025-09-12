@@ -24,6 +24,9 @@ RATE_LIMIT_WINDOW = 30
 
 class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
     relation_type = RelationType.RELATE_SEQUENTIAL
+    DESCRIPTION = """
+    Run CPEMATCH Updates for CVEs in database
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,16 +97,16 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             if start_index < total_results:
                 time.sleep(RATE_LIMIT_WINDOW / self.requests_per_window)
 
-    def process(self, **kwargs):
+    def get_object_chunks(self):
         for groupings in self.get_updated_cpematches():
             if not groupings:
                 continue
-            objects = self.get_objects(groupings)
+            objects = self.get_object_chunks(groupings)
             self.groupings = groupings
             for objects_chunk in chunked(objects, 200):
-                self.do_process(objects_chunk)
+                yield objects_chunk
 
-    def get_objects(self, criteria_ids):
+    def get_object_chunks(self, criteria_ids):
         query = """
         FOR doc IN nvd_cve_vertex_collection OPTIONS {indexHint: "acvep_cpematch", forceIndexHint: true}
         FILTER doc.type == 'indicator' AND doc._is_latest == TRUE

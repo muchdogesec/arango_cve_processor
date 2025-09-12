@@ -38,8 +38,6 @@ class EPSSManager:
     @classmethod
     @lru_cache(maxsize=30)
     def _get_epss_date(cls, d: date):
-        if isinstance(d, datetime):
-            d = d.date()
         if d in cls._epss_data:
             return cls._epss_data[d]
         d_str = d.strftime('%Y-%m-%d')
@@ -58,10 +56,10 @@ class EPSSManager:
     def parse_csv(csv_data, date_str):
         data = csv.DictReader(io.StringIO(csv_data), ["cve","epss","percentile"])
         for d in data:
-            if not d['cve'].startswith('CVE-'):
+            cve_name = d['cve']
+            if not cve_name.startswith('CVE-'):
                 continue
-            d.update(date=date_str, epss=float(d['epss']), percentile=float(d['percentile']))
-            yield d['cve'], d
+            yield cve_name, dict(date=date_str, epss=float(d['epss']), percentile=float(d['percentile']))
 
     @classmethod
     def get_data_for_cve(cls, cve, date=None):
@@ -76,4 +74,4 @@ class EPSSManager:
     @classmethod
     def datenow(cls):
         resp = requests.get('https://api.first.org/data/v1/epss?limit=1')
-        return datetime.strptime(resp.json()['data'][0]['date'], '%Y-%m-%d')
+        return datetime.strptime(resp.json()['data'][0]['date'], '%Y-%m-%d').date()

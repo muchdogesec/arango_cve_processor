@@ -18,6 +18,11 @@ def generate_md5(obj: dict):
     for k in ["_from", "_to"]:
         if v := obj.get(k):
             obj_copy[k] = v
+    if obj_copy.get('labels') == ['epss']:
+        # don't include these volatile parts in epss digest
+        del obj_copy['modified']
+        del obj_copy['x_epss']
+
     json_str = json.dumps(obj_copy, sort_keys=True, default=str).encode("utf-8")
     return hashlib.md5(json_str).hexdigest()
 
@@ -77,7 +82,7 @@ def load_file_from_url(url):
 
 
 def stix2python(obj: "stix2.base._STIXBase"):
-    return json.loads(serialize_stix(obj))
+    return json.loads(serialize_stix(obj, sort_keys=False))
 
 
 EMBEDDED_RELATIONSHIP_RE = re.compile(r"([a-z_]+)_refs{0,1}")
@@ -102,6 +107,8 @@ def get_embedded_refs(object: list | dict, xpath: list = []):
                 embedded_refs.extend(get_embedded_refs(obj, xpath))
     return embedded_refs
 
+def genrate_relationship_id(source_ref, target_ref, relationship_type):
+    return make_stix_id('relationship', f"{relationship_type}+{source_ref}+{target_ref}")
 
 def create_relationship(
     source,
@@ -149,6 +156,7 @@ def chunked_tqdm(iterable, n, description=None):
         chunk = iterable[i : i + n]
         yield chunk
         iterator.update(len(chunk))
+    iterator.close()
 
 
 def create_indexes(db: StandardDatabase):
@@ -166,6 +174,16 @@ def create_indexes(db: StandardDatabase):
         )
     )
     vertex_collection.add_index(
+        dict(
+            type="persistent",
+            fields=["id"],
+            storedValues=["external_references"],
+            inBackground=True,
+            name=f"acvep_id",
+            sparse=True,
+        )
+    )
+    vertex_collection.add_index(
         {
             "analyzer": "identity",
             "features": ["frequency", "norm"],
@@ -175,10 +193,28 @@ def create_indexes(db: StandardDatabase):
                 {"name": "_is_latest"},
                 {"name": "type"},
             ],
-            "name": "acvep_cpematch",
+            "name": "acvep_type_sorted",
             "primarySort": {"fields": [], "compression": "lz4"},
             "sparse": True,
             "storedValues": [{"fields": [], "compression": "lz4"}],
+            "type": "inverted",
+        }
+    )
+
+    vertex_collection.add_index(
+        {
+            "analyzer": "identity",
+            "features": ["frequency", "norm"],
+            "fields": [
+                {"name": "_arango_cve_processor_note"},
+                {"name": "name"},
+                {"name": "_is_latest"},
+                {"name": "type"},
+            ],
+            "name": "acvep_search",
+            "primarySort": {"fields": [], "compression": "lz4"},
+            "sparse": True,
+            "storedValues": [{"fields": ["created", "modified"], "compression": "lz4"}],
             "type": "inverted",
         }
     )
@@ -192,4 +228,19 @@ def create_indexes(db: StandardDatabase):
             sparse=True,
         )
     )
+    edge_collection.add_index(
+        dict(
+            type="persistent",
+            fields=["_arango_cve_processor_note", "source_ref"],
+            storedValues=["id", "_is_ref", "_is_latest"],
+            inBackground=True,
+            name=f"acvep-capec_attack",
+            sparse=True,
+        )
+    )
     logging.info("finished creating indexes")
+
+
+def make_stix_id(type_part: str, content: str):
+    id_part = uuid.uuid5(config.namespace, content)
+    return type_part + "--" + str(id_part)
