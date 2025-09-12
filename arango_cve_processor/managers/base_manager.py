@@ -169,11 +169,19 @@ class STIXRelationManager:
     def relate_multiple(self, objects):
         raise NotImplementedError('must be subclassed')
 
+    # def process(self, **kwargs):
+    #     logging.info("getting objects - %s", self.relationship_note)
+    #     objects = self.get_objects(**kwargs)
+    #     logging.info("got %d objects - %s", len(objects), self.relationship_note)
+    #     return self.do_process(objects)
+
     def process(self, **kwargs):
-        logging.info("getting objects - %s", self.relationship_note)
-        objects = self.get_objects(**kwargs)
-        logging.info("got %d objects - %s", len(objects), self.relationship_note)
-        return self.do_process(objects)
+        for chunk in self.get_object_chunks():
+            if not chunk:
+                continue
+            logging.info("got %d objects - %s", len(chunk), self.relationship_note)
+            self.do_process(chunk)
+    
 
     def do_process(self, objects, extra_uploads=[]):
         logging.info("working on %d objects - %s", len(objects), self.relationship_note)
