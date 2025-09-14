@@ -105,7 +105,6 @@ python3 arango_cve_processor.py \
 
 Process CVE -> CWE relationships for all CVEs modified after `2024-02-01`
 
-
 ```shell
 python3 arango_cve_processor.py \
   --database vulmatch_database \
