@@ -107,8 +107,8 @@ Process CVE -> CWE relationships for all CVEs modified after `2024-02-01`
 
 ```shell
 python3 arango_cve_processor.py \
+  cve-cwe \
   --database vulmatch_database \
-  --relationship cve-cwe \
   --modified_min 2024-02-01 \
   --ignore_embedded_relationships true \
   --ignore_embedded_relationships_sro true \
@@ -119,8 +119,8 @@ Get all EPSS scores for CVEs for each day in 2024
 
 ```shell
 python3 arango_cve_processor.py \
+  cve-epss-backfill \
   --database vulmatch_database \
-  --relationship cve-epss-backfill \
   --start_date 2024-01-01 \
   --end_date 2024-12-31 \
   --ignore_embedded_relationships true \
@@ -132,8 +132,8 @@ Update all CPE Matches modified after `2024-02-01`
 
 ```shell
 python3 arango_cve_processor.py \
+  cpematch \
   --database vulmatch_database \
-  --relationship cpematch \
   --modified_min 2024-02-01 \
   --ignore_embedded_relationships true \
   --ignore_embedded_relationships_sro true \
