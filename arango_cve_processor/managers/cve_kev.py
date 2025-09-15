@@ -25,7 +25,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         self.kev_map = kev_map
         query = """
         FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
-        FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
+        FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
@@ -38,8 +38,6 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             query,
             bind_vars={
                 "@collection": self.collection,
-                "created_min": self.created_min,
-                "modified_min": self.modified_min,
                 "cve_ids": cve_ids,
             },
             batch_size=self.BATCH_SIZE,
