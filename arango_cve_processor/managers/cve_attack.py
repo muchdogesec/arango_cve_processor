@@ -6,19 +6,16 @@ class CveAttack(CveCapec, relationship_note="cve-attack"):
     Run CVE <-> ATT&CK relationships, requires cve-capec
     """
     priority = CveCapec.priority + 1
-    # ctibutler_path = 'capec'
     ctibutler_query = "attack_id"
     source_name = "ATTACK"
 
     prev_note = CveCapec.relationship_note
     MATRICES = ["ics", "mobile", "enterprise"]
-
-    def relate_multiple(self, objects):
-        retval = []
+    
+    def do_process(self, objects, extra_uploads=...):
         for matrix in self.MATRICES:
             self.ctibutler_path = f"attack-{matrix}"
-            retval.extend(super().relate_multiple(objects))
-        return retval
+            super().do_process(objects)
 
     def get_external_references(self, cve_id, attack_id):
         return [

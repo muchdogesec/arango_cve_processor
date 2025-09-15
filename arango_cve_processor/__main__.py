@@ -34,21 +34,12 @@ def parse_date_to_date(datetime_str):
     return parse_datetime(datetime_str).date()
 
 
+def parse_date_to_datetime(datetime_str):
+    return parse_datetime(datetime_str)
+
+
 def parse_arguments():
     p = argparse.ArgumentParser()
-    modes = list(RELATION_MANAGERS.keys())
-    # modes.pop('cve-epss-backfill')
-
-    # parser.add_argument(
-    #     "--modes",
-    #     "--relationship",
-    #     required=False,
-    #     help=f"you can apply updates to certain collection at run time. Default is all collections. Can select from; {modes}",
-    #     type=lambda x: x.split(","),
-    #     default=modes,
-    # )
-
-    # epss_backfill_parser = subparsers.add_parser('cve-epss-backfill')
 
     actions = dict(
         ignore_embedded_relationships=p.add_argument(
@@ -101,12 +92,14 @@ def parse_arguments():
         ),
     )
 
-    parser = argparse.ArgumentParser(description="Arango CVE Processor is a tool for enriching vulmatch data on ArangoDB.")
+    parser = argparse.ArgumentParser(
+        description="Arango CVE Processor is a tool for enriching vulmatch data on ArangoDB."
+    )
     subparser = parser.add_subparsers(title="mode", dest="mode", required=True)
     for mode in RELATION_MANAGERS.values():
         p = subparser.add_parser(mode.relationship_note, description=mode.DESCRIPTION)
         for k, action in actions.items():
-            if k == 'created_min' and mode == CpeMatchUpdateManager:
+            if k in ["created_min", "modified_min"] and mode == CpeMatchUpdateManager:
                 continue
             p._add_action(action)
 
@@ -124,6 +117,15 @@ def parse_arguments():
                 type=parse_date_to_date,
                 required=False,
                 help="Date to end backfilling epss at, only applies to `cve-epss-backfill` mode",
+            )
+        
+        if mode == CpeMatchUpdateManager:
+            p.add_argument(
+                "--updated_after",
+                metavar="YYYY-MM-DD[Thh:mm:ss]",
+                required=True,
+                help="only retrieve CPE Matches that have been updated after datetime",
+                type=parse_date_to_datetime,
             )
     args = parser.parse_args()
     args.modes = [args.mode]
