@@ -25,8 +25,10 @@ class STIXRelationManager:
     CHUNK_SIZE = BATCH_SIZE
     DESCRIPTION = "please set"
 
-    def __init_subclass__(cls,/, relationship_note) -> None:
+    def __init_subclass__(cls,/, relationship_note, register=True) -> None:
         cls.relationship_note = relationship_note
+        if not register:
+            return
         RELATION_MANAGERS[relationship_note] = cls
 
     relation_type: RelationType = RelationType.RELATE_SEQUENTIAL

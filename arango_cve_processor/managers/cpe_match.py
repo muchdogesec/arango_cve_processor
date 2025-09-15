@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 import itertools
 import json
 import logging
@@ -13,7 +13,6 @@ from tqdm import tqdm
 from stix2.serialization import serialize
 
 from arango_cve_processor import config
-from arango_cve_processor.managers.base_manager import RelationType
 from arango_cve_processor.tools import cpe
 from arango_cve_processor.tools.retriever import STIXObjectRetriever, chunked
 from arango_cve_processor.tools.utils import stix2python
@@ -23,30 +22,32 @@ from .base_manager import STIXRelationManager
 RATE_LIMIT_WINDOW = 30
 
 class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
-    relation_type = RelationType.RELATE_SEQUENTIAL
     DESCRIPTION = """
     Run CPEMATCH Updates for CVEs in database
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, updated_after, **kwargs):
         super().__init__(*args, **kwargs)
         self.session = requests.Session()
         self.api_key = os.environ.get("NVD_API_KEY")
         self.requests_per_window = 5
+        self.updated_after = updated_after
         if self.api_key:
             self.session.headers = {"apiKey": self.api_key}
             self.requests_per_window = 50
-        if not self.modified_min:
-            raise ValueError("modified_min is required for this mode")
+        if not self.updated_after:
+            raise ValueError("updated_after is required for this mode")
+        if isinstance(self.updated_after, (datetime, date)):
+            self.updated_after = self.updated_after.isoformat()
         self.ignore_embedded_relationships = True
 
     def get_updated_cpematches(self):
         total_results = math.inf
         start_index = 0
         query = dict(startIndex=0)
-        if self.modified_min:
+        if self.updated_after:
             query.update(
-                lastModStartDate=self.modified_min,
+                lastModStartDate=self.updated_after,
                 lastModEndDate=datetime.now(UTC).isoformat(),
             )
 
@@ -101,12 +102,12 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         for groupings in self.get_updated_cpematches():
             if not groupings:
                 continue
-            objects = self.get_object_chunks(groupings)
+            objects = self.get_single_chunk(groupings)
             self.groupings = groupings
             for objects_chunk in chunked(objects, 200):
                 yield objects_chunk
 
-    def get_object_chunks(self, criteria_ids):
+    def get_single_chunk(self, criteria_ids):
         query = """
         FOR doc IN nvd_cve_vertex_collection OPTIONS {indexHint: "acvep_cpematch", forceIndexHint: true}
         FILTER doc.type == 'indicator' AND doc._is_latest == TRUE

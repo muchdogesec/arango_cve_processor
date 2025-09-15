@@ -10,7 +10,7 @@ from arango_cve_processor.managers.base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
 
-class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
+class CveEpssManager(STIXRelationManager, relationship_note="cve-epss", register=False):
     DESCRIPTION = """
     Creates EPSS report objects for CVEs
     """
@@ -140,7 +140,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss"):
         return super().upload_vertex_data(objects)
 
 
-class CveEpssBackfillManager(CveEpssManager, relationship_note="cve-epss-backfill"):
+class CveEpssBackfillManager(CveEpssManager, relationship_note="cve-epss"):
     DESCRIPTION = """
     Creates EPSS report objects for CVEs. Starting from start date and stopping at end date 
     """
