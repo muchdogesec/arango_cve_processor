@@ -1,7 +1,7 @@
 import itertools
 import logging
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
-from arango_cve_processor.managers.base_manager import RelationType, STIXRelationManager
+from arango_cve_processor.managers.base_manager import STIXRelationManager
 
 
 class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
@@ -12,7 +12,6 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
 
     edge_collection = "nvd_cve_edge_collection"
     vertex_collection = "nvd_cve_vertex_collection"
-    relation_type = RelationType.RELATE_PARALLEL
 
     ctibutler_path = "cwe"
     ctibutler_query = "cwe_id"
@@ -41,41 +40,41 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
         }
         return self.arango.execute_raw_query(query, bind_vars=bindings) or None
 
-    def relate_multiple(self, objects):
+    def do_process(self, objects, extra_uploads=...):
         logging.info("relating %s (%s)", self.relationship_note, self.ctibutler_path)
-        cve_id_cwe_map: dict[str, list[str]] = {}
+        cwe_ids = set()
         for cve in objects:
-            cve_id_cwe_map[cve["id"]] = [
-                ref["external_id"]
-                for ref in cve["external_references"]
-                if ref and ref["source_name"] == self.source_name
-            ]
-        cwe_ids = list(itertools.chain(*cve_id_cwe_map.values()))
-        all_cwe_objects = STIXObjectRetriever("ctibutler").get_objects_by_external_ids(
-            cwe_ids, self.ctibutler_path, query_filter=self.ctibutler_query
+            for ref in cve["external_references"]:
+                if ref and ref["source_name"] == self.source_name:
+                    cwe_ids.add(ref["external_id"])
+        self.all_external_objects = STIXObjectRetriever().get_objects_by_external_ids(
+            list(cwe_ids), self.ctibutler_path, query_filter=self.ctibutler_query
         )
+        retval = list(self.all_external_objects.values())
+        return super().do_process(objects, extra_uploads=retval)
 
-        retval = list(
-            {v["id"]: v for v in itertools.chain(*all_cwe_objects.values())}.values()
-        )
-        for cve in objects:
-            cve_id = cve["name"]
-            for cwe_id in cve_id_cwe_map.get(cve["id"], []):
-                cwe_objects = all_cwe_objects.get(cwe_id)
-                if not cwe_objects:
-                    continue
-                for cwe_object in cwe_objects:
-                    retval.append(
-                        self.create_relationship(
-                            cve,
-                            cwe_object["id"],
-                            relationship_type="exploited-using",
-                            description=f"{cve_id} is exploited using {cwe_id}",
-                            external_references=self.get_external_references(
-                                cve_id, cwe_id
-                            ),
-                        )
-                    )
+    def relate_single(self, cve):
+        retval = []
+        cve_id = cve["name"]
+        for ext_id in [
+            ref["external_id"]
+            for ref in cve.get("external_references", [])
+            if ref and ref["source_name"] == self.source_name
+        ]:
+            external_object = self.all_external_objects.get(ext_id)
+            if not external_object:
+                continue
+            retval.append(
+                self.create_relationship(
+                    cve,
+                    external_object["id"],
+                    relationship_type="exploited-using",
+                    description=f"{cve_id} is exploited using {ext_id}",
+                    external_references=self.get_external_references(
+                        cve_id, external_object["external_references"][0]
+                    ),
+                )
+            )
         return retval
 
     def get_object_chunks(self):
@@ -87,16 +86,12 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
             yield chunk
             start += self.CHUNK_SIZE
 
-    def get_external_references(self, cve_id, cwe_id: str):
+    def get_external_references(self, cve_id, cwe_ref):
         return [
             dict(
                 source_name="cve",
                 external_id=cve_id,
                 url="https://nvd.nist.gov/vuln/detail/" + cve_id,
             ),
-            dict(
-                source_name="cwe",
-                external_id=cwe_id,
-                url=f"http://cwe.mitre.org/data/definitions/{cwe_id.split('-', 1)[-1]}.html",
-            ),
+            cwe_ref,
         ]

@@ -5,6 +5,8 @@ from arango import ArangoClient
 from dotenv import load_dotenv
 from stix2arango.stix2arango import Stix2Arango
 
+
+from arango_cve_processor.__main__ import run_all
 from .upload import make_uploads
 
 # Load environment variables
@@ -29,12 +31,13 @@ class TestArangoDB(unittest.TestCase):
             host_url=ARANGODB_HOST_URL, password=ARANGODB_PASSWORD, username=ARANGODB_USERNAME)
         print(f'======Test bundles uploaded successfully======')
         # Run the arango_cve_processor.py script
-        subprocess.run([
-            "python3", "arango_cve_processor.py",
-            "--database", TESTS_DATABASE,
-            "--relationship", TEST_MODE,
-            "--ignore_embedded_relationships", IGNORE_EMBEDDED_RELATIONSHIPS
-        ], check=True)
+        args = {
+            "database": TESTS_DATABASE,
+            "modes": [TEST_MODE],
+            "ignore_embedded_relationships": IGNORE_EMBEDDED_RELATIONSHIPS
+        }
+
+        run_all(**args)
         print(f'======arango_cve_processor run successfully======')
         
         cls.db = client.db('arango_cve_processor_standard_tests_database', username=ARANGODB_USERNAME, password=ARANGODB_PASSWORD)
@@ -47,6 +50,7 @@ class TestArangoDB(unittest.TestCase):
         query = """
           FOR doc IN nvd_cve_vertex_collection
             FILTER doc._arango_cve_processor_note == "automatically imported object at script runtime"
+            SORT doc.id DESC
             RETURN doc.id
         """
         cursor = self.db.aql.execute(query)

@@ -6,42 +6,30 @@ import requests
 
 
 class STIXObjectRetriever:
-    def __init__(self, host="ctibutler") -> None:
-        if host == "ctibutler":
-            self.api_root = os.environ['CTIBUTLER_BASE_URL'] + '/'
-            self.api_key = os.environ.get('CTIBUTLER_API_KEY')
-        elif host == "vulmatch":
-            self.api_root = os.environ['VULMATCH_BASE_URL'] + '/'
-            self.api_key = os.environ.get('VULMATCH_API_KEY')
-        else:
-            raise NotImplementedError("The type `%s` is not supported", host)
-
-    def get_attack_objects(self, matrix, attack_id):
-        endpoint = urljoin(self.api_root, f"v1/attack-{matrix}/objects/{attack_id}/")
-        return self._retrieve_objects(endpoint)
+    def __init__(self) -> None:
+        self.api_root = os.environ['CTIBUTLER_BASE_URL'] + '/'
+        self.api_key = os.environ.get('CTIBUTLER_API_KEY')
     
     def get_objects_by_external_ids(self, ids, type, key='objects', query_filter='id'):
-        objects_map : dict[str, list[dict]] = {}
+        objects_map : dict[str, dict] = {}
         ids = list(set(ids))
 
         for chunked_ids in chunked(ids, 100):
             objects = self._retrieve_objects(urljoin(self.api_root, f"v1/{type}/objects/?{query_filter}={','.join(chunked_ids)}&sort={query_filter}_ascending"), key)
-            for obj in objects:
-                object_id = obj['external_references'][0]['external_id']
-                arr = objects_map.setdefault(object_id, [])
-                arr.append(obj)
+            objects_map.update(self.make_map(objects))
         return objects_map
     
-    def get_attack_tactics(self, matrix):
-        objects = self._retrieve_objects(urljoin(self.api_root, f"v1/attack-{matrix}/objects/?type=x-mitre-tactic"), 'objects')
-        objects_map : dict[str, list[dict]] = {}
+    @staticmethod
+    def make_map(objects):
+        map = {}
         for obj in objects:
-            name = obj['x_mitre_shortname']
-            objects_map.setdefault(name, []).append(obj)
-        return objects_map
-    
-    def get_vulnerabilities(self, cve_ids):
-        return self.get_objects_by_external_ids(cve_ids, 'cve', 'vulnerabilities', 'cve_id')
+            refs = obj.get('external_references')
+            if not refs:
+                continue
+            object_id = refs[0]['external_id']
+            map[object_id] = obj
+        return map
+
     
     def _retrieve_objects(self, endpoint, key='objects'):
         s = requests.Session()

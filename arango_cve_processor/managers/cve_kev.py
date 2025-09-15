@@ -7,14 +7,13 @@ from arango_cve_processor import config
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
 from arango_cve_processor.tools.utils import make_stix_id, stix2python
 from stix2 import Report
-from arango_cve_processor.managers.base_manager import STIXRelationManager, RelationType
+from arango_cve_processor.managers.base_manager import STIXRelationManager
 
 
 class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
     DESCRIPTION = """
     Creates KEV report objects for CVEs, Source: CISA
     """
-    relation_type = RelationType.RELATE_SEQUENTIAL
     KEV_URLS = [
         "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
         "https://raw.githubusercontent.com/aboutcode-org/aboutcode-mirror-kev/main/known_exploited_vulnerabilities.json",
@@ -25,7 +24,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         self.kev_map = kev_map
         query = """
         FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
-        FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
+        FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
@@ -49,13 +48,9 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         cwe_ids = []
         for obj in objects:
             cwe_ids.extend(self.kev_map[obj["name"]]["cwes"])
-        cwe_objects = {}
-        for k, v in (
-            STIXObjectRetriever("ctibutler")
-            .get_objects_by_external_ids(cwe_ids, "cwe", query_filter="cwe_id")
-            .items()
-        ):
-            cwe_objects[k] = v[0]
+        cwe_objects = STIXObjectRetriever().get_objects_by_external_ids(
+            cwe_ids, "cwe", query_filter="cwe_id"
+        )
         return cwe_objects
 
     def get_object_chunks(self):
@@ -106,7 +101,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         ]
         if dueDate := kev_obj.get("dueDate"):
             references.append({"source_name": "action_due", "description": dueDate})
-            
+
         references.extend(self.get_additional_refs(kev_obj))
         cwe_objects = [
             self.cwe_objects[cwe_id]

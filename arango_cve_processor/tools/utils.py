@@ -78,7 +78,7 @@ def load_file_from_url(url):
         return response.text
     except requests.exceptions.RequestException as e:
         logging.error(f"Error loading JSON from {url}: {e}")
-        raise Exception("Load default objects error")
+        raise Exception("Load default objects error") from e
 
 
 def stix2python(obj: "stix2.base._STIXBase"):

@@ -74,16 +74,3 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
                 vuln_map[vuln_id]["external_references"].extend(refs)
         return [v for v in vuln_map.values() if v.get("external_references")]
 
-    def get_external_references(self, cve_id: str, capec_id: str):
-        return [
-            dict(
-                source_name="cve",
-                external_id=cve_id,
-                url="https://nvd.nist.gov/vuln/detail/" + cve_id,
-            ),
-            dict(
-                source_name="capec",
-                external_id=capec_id,
-                url=f"https://capec.mitre.org/data/definitions/{capec_id.split('-', 1)[-1]}.html",
-            ),
-        ]
