@@ -5,7 +5,7 @@ import logging
 from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
-from arango_cve_processor.managers import CveEpssBackfillManager, CpeMatchUpdateManager
+from arango_cve_processor.managers import CveEpssBackfillManager, CpeMatchUpdateManager, CISAKevManager, VulnCheckKevManager
 from arango_cve_processor.tools.utils import (
     create_indexes,
     import_default_objects,
@@ -42,6 +42,11 @@ def parse_arguments():
     p = argparse.ArgumentParser()
 
     actions = dict(
+        database=p.add_argument(
+            "--database",
+            required=True,
+            help="the arangoDB database name where the objects you want to link are found. It must contain the collections required for the `--relationship` option(s) selected",
+        ),
         ignore_embedded_relationships=p.add_argument(
             "--ignore_embedded_relationships",
             required=False,
@@ -62,11 +67,6 @@ def parse_arguments():
             help="Ignore Embedded Relationship for imported SMOs.",
             type=parse_bool,
             default=False,
-        ),
-        database=p.add_argument(
-            "--database",
-            required=True,
-            help="the arangoDB database name where the objects you want to link are found. It must contain the collections required for the `--relationship` option(s) selected",
         ),
         modified_min=p.add_argument(
             "--modified_min",
@@ -99,7 +99,7 @@ def parse_arguments():
     for mode in RELATION_MANAGERS.values():
         p = subparser.add_parser(mode.relationship_note, description=mode.DESCRIPTION)
         for k, action in actions.items():
-            if k in ["created_min", "modified_min"] and mode == CpeMatchUpdateManager:
+            if k in ["created_min", "modified_min"] and mode in [CpeMatchUpdateManager, CISAKevManager, VulnCheckKevManager]:
                 continue
             p._add_action(action)
 
