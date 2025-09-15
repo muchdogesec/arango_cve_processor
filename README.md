@@ -72,8 +72,6 @@ The following modes are available;
 * `cve-attack` (relies on `cve-capec` run first)
   * links vulnerability objects to ATT&CK objects
 * `cve-epss`
-  * creates/updates report objects linked to CVE representing one of more EPSS score for the day run
-* `cve-epss-backfill`
   * creates/updates report objects linked to CVE representing one of more EPSS score for the time range run
 * `cve-kev` (relies on `cve-cwe` run first)
   * creates/updates report objects linked to CVE representing CISA KEV data
