@@ -45,10 +45,10 @@ jobs:
         id: setup_environment
         run: |
             echo >> tests/tests.env
-            echo CTIBUTLER_BASE_URL="${{ env.CTIBUTLER_BASE_URL }}" >> tests/tests.env
-            echo CTIBUTLER_API_KEY="${{ env.CTIBUTLER_API_KEY }}" >> tests/tests.env
-            echo VULNCHECK_API_KEY="${{ env.VULNCHECK_API_KEY }}" >> tests/tests.env
-            echo NVD_API_KEY="${{ env.NVD_API_KEY }}" >> tests/tests.env
+            echo CTIBUTLER_BASE_URL="${{ secrets.CTIBUTLER_BASE_URL }}" >> tests/tests.env
+            echo CTIBUTLER_API_KEY="${{ secrets.CTIBUTLER_API_KEY }}" >> tests/tests.env
+            echo VULNCHECK_API_KEY="${{ secrets.VULNCHECK_API_KEY }}" >> tests/tests.env
+            echo NVD_API_KEY="${{ secrets.NVD_API_KEY }}" >> tests/tests.env
             set -a; 
             source tests/tests.env
             set +a;
