@@ -7,7 +7,6 @@ import requests
 from tqdm import tqdm
 
 from arango_cve_processor import config
-from arango_cve_processor.managers.base_manager import RelationType
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
 from arango_cve_processor.managers.cve_kev import CISAKevManager
 from arango_cve_processor.tools.utils import make_stix_id
@@ -17,7 +16,6 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
     DESCRIPTION = """
     Creates KEV report objects for CVEs, Source: Vulncheck
     """
-    relation_type = RelationType.RELATE_SEQUENTIAL
     content_fmt = "Vulncheck KEV: {cve_id}"
 
     def __init__(self, *args, **kwargs):
@@ -70,9 +68,10 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             )
             yield ref
 
-    def get_dates(self, cve, kev_obj):
+    def get_dates(self, cve):
+        kev_obj = cve['kev']
         return kev_obj["date_added"], kev_obj["_timestamp"]
-   
+
     def parse_exploits(self, object, kev_obj):
         xdbs = kev_obj["vulncheck_xdb"]
         cve_id = object["name"]

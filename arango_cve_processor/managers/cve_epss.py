@@ -10,7 +10,7 @@ from arango_cve_processor.managers.base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
 
-class CveEpssManager(STIXRelationManager, relationship_note="cve-epss", register=False):
+class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register=False):
     DESCRIPTION = """
     Creates EPSS report objects for CVEs
     """
@@ -67,7 +67,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss", register
         for cve_name, cve in cves:
             cve.update(name=cve_name, epss=reports.get(cve_name))
             objects.append(cve)
-        return [ objects ]
+        return [objects]
 
     def process(self, **kwargs):
         self.epss_data_source = EPSSManager.get_epss_data(self.epss_date)
@@ -99,6 +99,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss", register
 
     def relate_single(self, cve_object):
         todays_report = parse_cve_epss_report(cve_object, self.epss_date)
+        record_modified = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         if not todays_report:
             return []
         if cve_object["epss"]:
@@ -116,20 +117,26 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss", register
                         {
                             **cve_object["epss"],
                             "x_epss": all_epss,
-                            "_record_modified": datetime.now(timezone.utc).strftime(
-                                "%Y-%m-%dT%H:%M:%S.%fZ"
-                            ),
+                            "_record_modified": record_modified,
                             "modified": latest_epss["date"] + "T00:00:00.000Z",
                             "_arango_cve_processor_note": self.relationship_note,
                         },
-                        {
-                            "_key": cve_object["_key"],
-                            "_acvep_epss": latest_epss,
-                        },
+                        dict(
+                            _key=cve_object["_key"],
+                            _acvep_epss=latest_epss,
+                            _record_modified=record_modified,
+                        ),
                     ]
                 )
             return []
         else:
+            self.update_objects.append(
+                dict(
+                    _key=cve_object["_key"],
+                    _acvep_epss=todays_report["x_epss"][0],
+                    _record_modified=record_modified,
+                )
+            )
             return [stix2python(todays_report)]
 
     def upload_vertex_data(self, objects):
@@ -140,7 +147,7 @@ class CveEpssManager(STIXRelationManager, relationship_note="cve-epss", register
         return super().upload_vertex_data(objects)
 
 
-class CveEpssBackfillManager(CveEpssManager, relationship_note="cve-epss"):
+class CveEpssManager(_CveEpssWorker, relationship_note="cve-epss"):
     DESCRIPTION = """
     Creates EPSS report objects for CVEs. Starting from start date and stopping at end date 
     """
@@ -160,7 +167,7 @@ class CveEpssBackfillManager(CveEpssManager, relationship_note="cve-epss"):
                 f"Running CVE <-> EPSS Backfill for day {day}, date: {date.isoformat()}"
             )
             logging.info("================================")
-            rmanager = CveEpssManager(self.processor, *self.args, **self.kwargs)
+            rmanager = _CveEpssWorker(self.processor, *self.args, **self.kwargs)
             rmanager.epss_date = date
             rmanager.process(**kwargs)
 

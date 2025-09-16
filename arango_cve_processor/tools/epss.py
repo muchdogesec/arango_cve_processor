@@ -26,7 +26,6 @@ class EPSSManager:
             cls.get_epss_data(cls.datenow())
         return cls._epss_data
 
-    
     @classmethod
     def get_epss_data(cls, d: date|datetime=None):
         if not d:

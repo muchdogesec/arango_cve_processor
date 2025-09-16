@@ -1,4 +1,5 @@
 from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime
 import itertools
 import json
 import logging
@@ -102,7 +103,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         for groupings in self.get_updated_cpematches():
             if not groupings:
                 continue
-            objects = self.get_single_chunk(groupings)
+            objects = self.get_single_chunk(list(groupings))
             self.groupings = groupings
             for objects_chunk in chunked(objects, 200):
                 yield objects_chunk
@@ -112,7 +113,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         FOR doc IN nvd_cve_vertex_collection OPTIONS {indexHint: "acvep_cpematch", forceIndexHint: true}
         FILTER doc.type == 'indicator' AND doc._is_latest == TRUE
         FILTER doc.x_cpes.vulnerable[*].matchCriteriaId IN @criteria_ids OR doc.x_cpes.not_vulnerable[*].matchCriteriaId IN @criteria_ids
-        RETURN doc
+        RETURN KEEP(doc, 'id', 'x_cpes', 'name', '_id', 'external_references', 'created', 'modified')
         """
         return self.arango.execute_raw_query(
             query,
@@ -121,10 +122,9 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
             },
         )
 
-    def relate_single(self, object):
-        indicator = object
+    def relate_single(self, indicator):
         retval = []
-        for x_cpe_item in itertools.chain(*object['x_cpes'].values()):
+        for x_cpe_item in itertools.chain(*indicator['x_cpes'].values()):
             if match_data := self.groupings.get(x_cpe_item['matchCriteriaId']):
                 objects = cpe.parse_objects_for_criteria(match_data)
                 grouping_object = objects[0]

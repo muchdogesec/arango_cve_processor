@@ -9,15 +9,16 @@ from enum import IntEnum, StrEnum
 from stix2arango.services.arangodb_service import ArangoDBService
 
 from arango_cve_processor.tools import utils
-from arango_cve_processor.tools.utils import generate_md5, genrate_relationship_id, get_embedded_refs
+from arango_cve_processor.tools.utils import (
+    generate_md5,
+    genrate_relationship_id,
+    get_embedded_refs,
+)
 
-
-class RelationType(StrEnum):
-    RELATE_SEQUENTIAL = "sequential"
-    RELATE_PARALLEL = "parallel"
 
 SMO_TYPES = ["marking-definition", "extension-definition", "language-content"]
-RELATION_MANAGERS: dict[str, 'type[STIXRelationManager]'] = {}
+RELATION_MANAGERS: dict[str, "type[STIXRelationManager]"] = {}
+
 
 class STIXRelationManager:
     MIN_DATE_STR = "1970-01-01"
@@ -31,17 +32,27 @@ class STIXRelationManager:
             return
         RELATION_MANAGERS[relationship_note] = cls
 
-    relation_type: RelationType = RelationType.RELATE_SEQUENTIAL
-    vertex_collection : str = 'nvd_cve_vertex_collection'
-    edge_collection : str = 'nvd_cve_edge_collection'
+    vertex_collection: str = "nvd_cve_vertex_collection"
+    edge_collection: str = "nvd_cve_edge_collection"
 
-    containing_collection : str = None
-    relationship_note = 'stix-relation-manager'
+    containing_collection: str = None
+    relationship_note = "stix-relation-manager"
     default_objects = []
 
-    priority = 10 # used to determine order of running, for example cve_cwe must run before cve_capec, lower => run earlier
+    priority = 10  # used to determine order of running, for example cve_cwe must run before cve_capec, lower => run earlier
 
-    def __init__(self, processor: ArangoDBService, *args, modified_min=None, created_min=None, cve_ids=None, ignore_embedded_relationships=True, ignore_embedded_relationships_smo=True, ignore_embedded_relationships_sro=True, **kwargs) -> None:
+    def __init__(
+        self,
+        processor: ArangoDBService,
+        *args,
+        modified_min=None,
+        created_min=None,
+        cve_ids=None,
+        ignore_embedded_relationships=True,
+        ignore_embedded_relationships_smo=True,
+        ignore_embedded_relationships_sro=True,
+        **kwargs,
+    ) -> None:
         self.arango = processor
         self.client = self.arango._client
         self.cve_ids = cve_ids or []
@@ -57,12 +68,7 @@ class STIXRelationManager:
         return self.containing_collection or self.vertex_collection
 
     def get_object_chunks(self, **kwargs):
-        query = """
-        FOR doc IN @@collection
-        FILTER doc._is_latest
-        RETURN doc
-        """
-        return self.arango.execute_raw_query(query, bind_vars={'@collection': self.collection})
+        raise NotImplementedError("must be subclassed")
 
     @classmethod
     def create_relationship(
@@ -86,43 +92,57 @@ class STIXRelationManager:
             relationship_note=cls.relationship_note,
         )
 
-    def import_external_data(self, objects) -> dict[str, dict]:
-        pass
-
     def upload_vertex_data(self, objects):
         logging.info("uploading %d vertices", len(objects))
         for obj in objects:
-            obj['_arango_cve_processor_note'] = self.relationship_note
-            obj['_record_md5_hash'] = generate_md5(obj)
+            obj["_arango_cve_processor_note"] = self.relationship_note
+            obj["_record_md5_hash"] = generate_md5(obj)
 
-        inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(objects, self.vertex_collection)
-        self.arango.update_is_latest_several_chunked(inserted_ids, self.vertex_collection, self.edge_collection)
+        inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(
+            objects, self.vertex_collection
+        )
+        self.arango.update_is_latest_several_chunked(
+            inserted_ids, self.vertex_collection, self.edge_collection
+        )
 
     def upload_edge_data(self, objects: list[dict]):
         logging.info("uploading %d edges", len(objects))
 
         ref_ids = []
         for edge in objects:
-            ref_ids.append(edge['target_ref'])
-            ref_ids.append(edge['source_ref'])
+            edge.get("_to") or ref_ids.append(edge["target_ref"])
+            edge.get("_from") or ref_ids.append(edge["source_ref"])
+
         edge_id_map = self.get_edge_ids(ref_ids, self.collection)
 
         for edge in objects:
-            edge.setdefault('_from', edge_id_map.get(edge['source_ref'], edge['source_ref']))
-            edge.setdefault('_to', edge_id_map.get(edge['target_ref'], edge['target_ref']))
-            edge['_record_md5_hash'] = generate_md5(edge)
+            edge.setdefault(
+                "_from", edge_id_map.get(edge["source_ref"], edge["source_ref"])
+            )
+            edge.setdefault(
+                "_to", edge_id_map.get(edge["target_ref"], edge["target_ref"])
+            )
+            edge["_record_md5_hash"] = generate_md5(edge)
 
-        inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(objects, self.edge_collection)
-        self.arango.update_is_latest_several_chunked(inserted_ids, self.edge_collection, self.edge_collection)
+        inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(
+            objects, self.edge_collection
+        )
+        self.arango.update_is_latest_several_chunked(
+            inserted_ids, self.edge_collection, self.edge_collection
+        )
         if not self.ignore_embedded_relationships:
-            self.create_embedded_relationships(objects, self.vertex_collection, self.edge_collection)
+            self.create_embedded_relationships(
+                objects, self.vertex_collection, self.edge_collection
+            )
 
     def create_embedded_relationships(self, objects, *collections):
         edge_ids = {}
         obj_targets_map = {}
         for edge in objects:
-            obj_targets_map[edge['id']] = get_embedded_refs(edge)
-        ref_ids = [target_ref for _, target_ref in itertools.chain(*obj_targets_map.values())] + list(obj_targets_map)
+            obj_targets_map[edge["id"]] = get_embedded_refs(edge)
+        ref_ids = [
+            target_ref for _, target_ref in itertools.chain(*obj_targets_map.values())
+        ] + list(obj_targets_map)
 
         for collection in collections:
             edge_ids.update(self.get_edge_ids(ref_ids, collection))
@@ -130,24 +150,34 @@ class STIXRelationManager:
         embedded_relationships = []
         for obj in objects:
             if (
-                self.ignore_embedded_relationships_smo and obj['type'] in SMO_TYPES
+                self.ignore_embedded_relationships_smo and obj["type"] in SMO_TYPES
             ) or (
-                self.ignore_embedded_relationships_sro and obj['type'] == 'relationship'
+                self.ignore_embedded_relationships_sro and obj["type"] == "relationship"
             ):
                 continue
 
-            for ref, target_id in obj_targets_map.get(obj['id'], []):
-                _from, _to = edge_ids.get(obj['id']), edge_ids.get(target_id)
+            for ref, target_id in obj_targets_map.get(obj["id"], []):
+                _from, _to = edge_ids.get(obj["id"]), edge_ids.get(target_id)
                 if not (_to and _from):
                     continue
-                rel = self.create_relationship(obj, target_ref=target_id, relationship_type=ref, is_ref=True, description=None)
-                rel['_to'] = _to
-                rel['_from'] = _from
-                rel['_record_md5_hash'] = generate_md5(rel)
+                rel = self.create_relationship(
+                    obj,
+                    target_ref=target_id,
+                    relationship_type=ref,
+                    is_ref=True,
+                    description=None,
+                )
+                rel["_to"] = _to
+                rel["_from"] = _from
+                rel["_record_md5_hash"] = generate_md5(rel)
                 embedded_relationships.append(rel)
 
-        inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(embedded_relationships, self.edge_collection)
-        self.arango.update_is_latest_several_chunked(inserted_ids, self.edge_collection, self.edge_collection)
+        inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(
+            embedded_relationships, self.edge_collection
+        )
+        self.arango.update_is_latest_several_chunked(
+            inserted_ids, self.edge_collection, self.edge_collection
+        )
         return embedded_relationships
 
     def get_edge_ids(self, object_ids, collection=None) -> dict[str, str]:
@@ -162,20 +192,14 @@ class STIXRelationManager:
         SORT doc.modified ASC
         RETURN [doc.id, doc._id]
         """
-        result = self.arango.execute_raw_query(query, bind_vars={'@collection': collection, 'object_ids': list(set(object_ids))})
+        result = self.arango.execute_raw_query(
+            query,
+            bind_vars={"@collection": collection, "object_ids": list(set(object_ids))},
+        )
         return dict(result)
 
     def relate_single(self, object):
-        raise NotImplementedError('must be subclassed')
-
-    def relate_multiple(self, objects):
-        raise NotImplementedError('must be subclassed')
-
-    # def process(self, **kwargs):
-    #     logging.info("getting objects - %s", self.relationship_note)
-    #     objects = self.get_objects(**kwargs)
-    #     logging.info("got %d objects - %s", len(objects), self.relationship_note)
-    #     return self.do_process(objects)
+        raise NotImplementedError("must be subclassed")
 
     def process(self, **kwargs):
         for chunk in self.get_object_chunks():
@@ -183,30 +207,25 @@ class STIXRelationManager:
                 continue
             logging.info("got %d objects - %s", len(chunk), self.relationship_note)
             self.do_process(chunk)
-    
 
     def do_process(self, objects, extra_uploads=[]):
         logging.info("working on %d objects - %s", len(objects), self.relationship_note)
         uploads = [*extra_uploads]
-        match self.relation_type:
-            case RelationType.RELATE_SEQUENTIAL:
-                for obj in tqdm(
-                    objects, desc=f"{self.relationship_note} - {self.relation_type}"
-                ):
-                    uploads.extend(self.relate_single(obj))
-            case RelationType.RELATE_PARALLEL:
-                uploads.extend(self.relate_multiple(objects))
+        for obj in tqdm(
+            objects, desc=f"{self.relationship_note} - [seq]"
+        ):
+            uploads.extend(self.relate_single(obj))
 
         added = set()
         edges, vertices = [], []
         for obj in uploads:
-            if obj['id'] in added:
+            if obj["id"] in added:
                 continue
-            if obj['type'] == 'relationship':
+            if obj["type"] == "relationship":
                 edges.append(obj)
             else:
                 vertices.append(obj)
-            added.add(obj['id'])
+            added.add(obj["id"])
 
         self.upload_vertex_data(vertices)
         self.upload_edge_data(edges)

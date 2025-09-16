@@ -1,0 +1,566 @@
+[
+  {
+    "_key": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.901482Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.901482Z",
+    "_rev": "_kR0qccK--A",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-02T15:15:18.650Z",
+    "modified": "2025-06-05T21:01:15.860Z",
+    "name": "CVE-2022-45830",
+    "description": "Missing Authorization vulnerability in Analytify.This issue affects Analytify: from n/a through 4.2.3.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2022-45830",
+        "external_id": "CVE-2022-45830"
+      },
+      {
+        "source_name": "cwe",
+        "url": "https://cwe.mitre.org/data/definitions/CWE-862.html",
+        "external_id": "CWE-862"
+      },
+      {
+        "source_name": "audit@patchstack.com",
+        "description": "Third Party Advisory",
+        "url": "https://patchstack.com/database/wordpress/plugin/wp-analytify/vulnerability/wordpress-analytify-google-analytics-dashboard-plugin-4-2-3-privilege-escalation?_s_id=cve"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "audit@patchstack.com"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 6.5,
+        "base_severity": "MEDIUM",
+        "exploitability_score": 3.9,
+        "impact_score": 2.5,
+        "source": "audit@patchstack.com",
+        "type": "Secondary",
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L"
+      }
+    },
+    "_cvss_base_score": 6.5,
+    "_stix2arango_note": "vulmatch-cve-date=2025-01-02",
+    "_record_md5_hash": "3439177a19929fa5713e62927394fa92",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_02-00_00_00-2025_01_02-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-12T11:25:34.901482Z",
+    "_record_modified": "2025-09-12T11:25:34.901482Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "indicator--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.563706Z",
+    "_id": "nvd_cve_vertex_collection/indicator--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.563706Z",
+    "_rev": "_kR0qaMO--K",
+    "type": "indicator",
+    "spec_version": "2.1",
+    "id": "indicator--b7e6accd-fb2a-540c-bf13-f305fe42d606",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-02T15:15:18.650Z",
+    "modified": "2025-06-05T21:01:15.860Z",
+    "name": "CVE-2022-45830",
+    "description": "Missing Authorization vulnerability in Analytify.This issue affects Analytify: from n/a through 4.2.3.",
+    "indicator_types": [
+      "compromised"
+    ],
+    "pattern": "([software:cpe='cpe:2.3:a:analytify:analytify_-_google_analytics_dashboard:*:*:*:*:*:wordpress:*:*'])",
+    "pattern_type": "stix",
+    "pattern_version": "2.1",
+    "valid_from": "2025-01-02T15:15:18.65Z",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2022-45830",
+        "external_id": "CVE-2022-45830"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--ad995824-2901-5f6e-890b-561130a239d4": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cpes": {
+      "not_vulnerable": [
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:4.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "8198CDB2-4BC5-411A-8736-615A531FC545"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:4.2.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "2401DE15-9DBF-4645-A261-8C24D57C6342"
+        }
+      ],
+      "vulnerable": [
+        {
+          "criteria": "cpe:2.3:a:analytify:analytify_-_google_analytics_dashboard:*:*:*:*:*:wordpress:*:*",
+          "matchCriteriaId": "9664F6D2-4EE2-4326-9A93-5F8328FF65EC"
+        }
+      ]
+    },
+    "_stix2arango_note": "vulmatch-cve-date=2025-01-02",
+    "_record_md5_hash": "67830bde115b6f7ec9298256fd93363b",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_02-00_00_00-2025_01_02-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-12T11:25:34.563706Z",
+    "_record_modified": "2025-09-12T11:25:34.563706Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543+2025-09-12T11:25:43.985959Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543+2025-09-12T11:25:43.985959Z",
+    "_rev": "_kR0qmHq--F",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-06T17:15:14.217Z",
+    "modified": "2025-08-05T18:04:59.290Z",
+    "name": "CVE-2023-6601",
+    "description": "A flaw was found in FFmpeg's HLS demuxer. This vulnerability allows bypassing unsafe file extension checks and triggering arbitrary demuxers via base64-encoded data URIs appended with specific file extensions.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-6601",
+        "external_id": "CVE-2023-6601"
+      },
+      {
+        "source_name": "cwe",
+        "url": "https://cwe.mitre.org/data/definitions/CWE-99.html",
+        "external_id": "CWE-99"
+      },
+      {
+        "source_name": "cwe",
+        "url": "https://cwe.mitre.org/data/definitions/CWE-94.html",
+        "external_id": "CWE-94"
+      },
+      {
+        "source_name": "patrick@puiterwijk.org",
+        "description": "Exploit,Issue Tracking",
+        "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2253172"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "patrick@puiterwijk.org"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 4.7,
+        "base_severity": "MEDIUM",
+        "exploitability_score": 2.8,
+        "impact_score": 1.4,
+        "source": "patrick@puiterwijk.org",
+        "type": "Secondary",
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:N/A:N"
+      }
+    },
+    "_cvss_base_score": 4.7,
+    "_stix2arango_note": "vulmatch-cve-date=2025-01-06",
+    "_record_md5_hash": "8a7761c42430a6e8abbed9a88cd3d217",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_06-00_00_00-2025_01_06-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-12T11:25:43.985959Z",
+    "_record_modified": "2025-09-12T11:25:43.985959Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "indicator--01f30f82-30fd-5e43-a096-0ae15a29c543+2025-09-12T11:25:43.652362Z",
+    "_id": "nvd_cve_vertex_collection/indicator--01f30f82-30fd-5e43-a096-0ae15a29c543+2025-09-12T11:25:43.652362Z",
+    "_rev": "_kR0qjLG--F",
+    "type": "indicator",
+    "spec_version": "2.1",
+    "id": "indicator--01f30f82-30fd-5e43-a096-0ae15a29c543",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-06T17:15:14.217Z",
+    "modified": "2025-08-05T18:04:59.290Z",
+    "name": "CVE-2023-6601",
+    "description": "A flaw was found in FFmpeg's HLS demuxer. This vulnerability allows bypassing unsafe file extension checks and triggering arbitrary demuxers via base64-encoded data URIs appended with specific file extensions.",
+    "indicator_types": [
+      "compromised"
+    ],
+    "pattern": "([software:cpe='cpe:2.3:a:ffmpeg:ffmpeg:*:*:*:*:*:*:*:*'])",
+    "pattern_type": "stix",
+    "pattern_version": "2.1",
+    "valid_from": "2025-01-06T17:15:14.217Z",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-6601",
+        "external_id": "CVE-2023-6601"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--ad995824-2901-5f6e-890b-561130a239d4": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cpes": {
+      "not_vulnerable": [],
+      "vulnerable": [
+        {
+          "criteria": "cpe:2.3:a:ffmpeg:ffmpeg:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "DE670466-3267-48D2-A826-99B23F7FBD12"
+        }
+      ]
+    },
+    "_stix2arango_note": "vulmatch-cve-date=2025-01-06",
+    "_record_md5_hash": "ad8129be286b216a158bc462c98e4af6",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_06-00_00_00-2025_01_06-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-12T11:25:43.652362Z",
+    "_record_modified": "2025-09-12T11:25:43.652362Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "vulnerability--f503c132-140d-589f-ac60-6ae527fd2036+2025-09-12T11:25:56.462899Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--f503c132-140d-589f-ac60-6ae527fd2036+2025-09-12T11:25:56.462899Z",
+    "_rev": "_kR0q0dS--H",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--f503c132-140d-589f-ac60-6ae527fd2036",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-08T03:15:10.190Z",
+    "modified": "2025-01-13T21:42:30.453Z",
+    "name": "CVE-2024-56447",
+    "description": "Vulnerability of improper permission control in the window management module\nImpact: Successful exploitation of this vulnerability may affect service confidentiality.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-56447",
+        "external_id": "CVE-2024-56447"
+      },
+      {
+        "source_name": "cwe",
+        "url": "https://cwe.mitre.org/data/definitions/CWE-269.html",
+        "external_id": "CWE-269"
+      },
+      {
+        "source_name": "cwe",
+        "url": "https://cwe.mitre.org/data/definitions/CWE-276.html",
+        "external_id": "CWE-276"
+      },
+      {
+        "source_name": "psirt@huawei.com",
+        "description": "Vendor Advisory",
+        "url": "https://consumer.huawei.com/en/support/bulletin/2025/1/"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "psirt@huawei.com"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 7.8,
+        "base_severity": "HIGH",
+        "exploitability_score": 1.8,
+        "impact_score": 5.9,
+        "source": "psirt@huawei.com",
+        "type": "Secondary",
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+      }
+    },
+    "_cvss_base_score": 7.8,
+    "_stix2arango_note": "vulmatch-cve-date=2025-01-08",
+    "_record_md5_hash": "c1dd3f410fd0bedc84d604701bbc2903",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_08-00_00_00-2025_01_08-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-12T11:25:56.462899Z",
+    "_record_modified": "2025-09-12T11:25:56.462899Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "indicator--f503c132-140d-589f-ac60-6ae527fd2036+2025-09-12T11:25:55.342020Z",
+    "_id": "nvd_cve_vertex_collection/indicator--f503c132-140d-589f-ac60-6ae527fd2036+2025-09-12T11:25:55.342020Z",
+    "_rev": "_kR0qvXu--A",
+    "type": "indicator",
+    "spec_version": "2.1",
+    "id": "indicator--f503c132-140d-589f-ac60-6ae527fd2036",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-08T03:15:10.190Z",
+    "modified": "2025-01-13T21:42:30.453Z",
+    "name": "CVE-2024-56447",
+    "description": "Vulnerability of improper permission control in the window management module\nImpact: Successful exploitation of this vulnerability may affect service confidentiality.",
+    "indicator_types": [
+      "compromised"
+    ],
+    "pattern": "([software:cpe='cpe:2.3:o:huawei:emui:12.0.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:emui:13.0.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:emui:14.0.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:harmonyos:2.0.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:harmonyos:2.1.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:harmonyos:3.0.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:harmonyos:3.1.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:harmonyos:4.0.0:*:*:*:*:*:*:*' OR software:cpe='cpe:2.3:o:huawei:harmonyos:4.2.0:*:*:*:*:*:*:*'])",
+    "pattern_type": "stix",
+    "pattern_version": "2.1",
+    "valid_from": "2025-01-08T03:15:10.19Z",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-56447",
+        "external_id": "CVE-2024-56447"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--ad995824-2901-5f6e-890b-561130a239d4": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cpes": {
+      "not_vulnerable": [],
+      "vulnerable": [
+        {
+          "criteria": "cpe:2.3:o:huawei:emui:12.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "A974CA73-84E8-480B-BB4C-4A81D0C985B2"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:emui:13.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "353AEAF2-AF46-4835-93E1-4F942D5E2810"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:emui:14.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "32FBF39A-164F-4F98-AB49-28C50A430C36"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:2.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "20112231-B840-44D3-A061-B9B9F80EE378"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:2.1.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "C01447F1-7F58-4AE3-B403-C01B2575D898"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:3.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "CB3751C1-7729-41D3-AE50-80B5AF601135"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:3.1.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "4D81C4EF-7CAF-4E60-91A4-8CF7B95B2B54"
+        }
+      ]
+    },
+    "_stix2arango_note": "vulmatch-cve-date=2025-01-08",
+    "_record_md5_hash": "aab00ab89c49837d01dc8c200830253d",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_08-00_00_00-2025_01_08-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-12T11:25:55.342020Z",
+    "_record_modified": "2025-09-12T11:25:55.342020Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+2025-09-13T14:00:15.234771Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+2025-09-13T14:00:15.234771Z",
+    "_rev": "_kSLe3eC--_",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-06-02T18:15:25.010Z",
+    "modified": "2025-09-12T13:40:47.133Z",
+    "name": "CVE-2025-5086",
+    "description": "A deserialization of untrusted data vulnerability affecting DELMIA Apriso from Release 2020 through Release 2025 could lead to a remote code execution.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-5086",
+        "external_id": "CVE-2025-5086"
+      },
+      {
+        "source_name": "3DS.Information-Security@3ds.com",
+        "description": "Vendor Advisory",
+        "url": "https://www.3ds.com/vulnerability/advisories"
+      },
+      {
+        "source_name": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+        "description": "Exploit,Third Party Advisory",
+        "url": "https://isc.sans.edu/diary/Exploit+Attempts+for+Dassault+DELMIA+Apriso+CVE20255086/32256"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "3DS.Information-Security@3ds.com"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 9,
+        "base_severity": "CRITICAL",
+        "exploitability_score": 2.2,
+        "impact_score": 6,
+        "source": "3DS.Information-Security@3ds.com",
+        "type": "Secondary",
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H"
+      }
+    },
+    "_cvss_base_score": 9,
+    "_stix2arango_note": "vulmatch-cve-date=2025-09-12",
+    "_record_md5_hash": "b23fd7e5ad13e55115e43941f042f000",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_09_12-00_00_00-2025_09_12-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-13T14:00:15.234771Z",
+    "_record_modified": "2025-09-13T14:00:15.234771Z",
+    "_taxii": {
+      "last": true,
+      "first": false,
+      "visible": true
+    }
+  },
+  {
+    "_key": "vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85+2025-09-04T15:28:55.109187Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85+2025-09-04T15:28:55.109187Z",
+    "_rev": "_kPTWV8e--D",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-09T07:15:27.203Z",
+    "modified": "2025-02-19T15:33:49.643Z",
+    "name": "CVE-2024-53704",
+    "description": "An Improper Authentication vulnerability in the SSLVPN authentication mechanism allows a remote attacker to bypass authentication.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-53704",
+        "external_id": "CVE-2024-53704"
+      },
+      {
+        "source_name": "PSIRT@sonicwall.com",
+        "description": "Vendor Advisory",
+        "url": "https://psirt.global.sonicwall.com/vuln-detail/SNWLID-2025-0003"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "PSIRT@sonicwall.com"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 9.8,
+        "base_severity": "CRITICAL",
+        "exploitability_score": 3.9,
+        "impact_score": 5.9,
+        "source": "nvd@nist.gov",
+        "type": "Primary",
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      }
+    },
+    "_cvss_base_score": 9.8,
+    "_stix2arango_note": "",
+    "_record_md5_hash": "e2e9ad1954f662b2dd03f07ef9028cf6",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_09-00_00_00-2025_01_09-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-04T15:28:55.109187Z",
+    "_record_modified": "2025-09-04T15:28:55.109187Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  }
+]

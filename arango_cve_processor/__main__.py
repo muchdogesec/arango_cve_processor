@@ -5,7 +5,9 @@ import logging
 from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
-from arango_cve_processor.managers import CveEpssBackfillManager, CpeMatchUpdateManager, CISAKevManager, VulnCheckKevManager
+from arango_cve_processor.managers import CveEpssManager, CpeMatchUpdateManager
+from arango_cve_processor.managers.cve_kev import CISAKevManager
+from arango_cve_processor.managers.cve_kev_vulncheck import VulnCheckKevManager
 from arango_cve_processor.tools.utils import (
     create_indexes,
     import_default_objects,
@@ -103,7 +105,7 @@ def parse_arguments():
                 continue
             p._add_action(action)
 
-        if mode == CveEpssBackfillManager:
+        if mode == CveEpssManager:
             start_date = p.add_argument(
                 "--start_date",
                 metavar="YYYY-MM-DD",
@@ -147,9 +149,9 @@ def run_all(database=None, modes: list[str] = None, **kwargs):
 
     import_default_objects(
         processor,
-        default_objects=itertools.chain(
+        default_objects=tuple(itertools.chain(
             *[RELATION_MANAGERS[mode].default_objects for mode in modes]
-        ),
+        )),
     )
     manager_klasses = sorted(
         [RELATION_MANAGERS[mode] for mode in modes],

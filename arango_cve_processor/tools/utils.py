@@ -62,15 +62,6 @@ def import_default_objects(processor: ArangoDBService, default_objects: list = N
     processor.update_is_latest_several(inserted_ids, collection_name)
 
 
-def genrate_relationship_id(source_ref, target_ref, relationship_type):
-    return "relationship--" + str(
-        uuid.uuid5(
-            config.namespace,
-            f"{relationship_type}+{source_ref}+{target_ref}",
-        )
-    )
-
-
 def load_file_from_url(url):
     try:
         response = requests.get(url)
@@ -78,7 +69,7 @@ def load_file_from_url(url):
         return response.text
     except requests.exceptions.RequestException as e:
         logging.error(f"Error loading JSON from {url}: {e}")
-        raise Exception("Load default objects error")
+        raise Exception("Load default objects error") from e
 
 
 def stix2python(obj: "stix2.base._STIXBase"):
@@ -193,7 +184,7 @@ def create_indexes(db: StandardDatabase):
                 {"name": "_is_latest"},
                 {"name": "type"},
             ],
-            "name": "acvep_type_sorted",
+            "name": "acvep_cpematch",
             "primarySort": {"fields": [], "compression": "lz4"},
             "sparse": True,
             "storedValues": [{"fields": [], "compression": "lz4"}],
