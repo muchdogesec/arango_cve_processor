@@ -1,5 +1,7 @@
 # Arango CVE Processor
 
+[![codecov](https://codecov.io/gh/muchdogesec/arango_cve_processor/graph/badge.svg?token=90YNSA54ZD)](https://codecov.io/gh/muchdogesec/arango_cve_processor)
+
 ## Before you get started
 
 Arango CVE Processor is built into [Vulmatch](https://github.com/muchdogesec/vulmatch) which also handles the download of CVE objects (what you need for ACVEP to work). As such, [Vulmatch](https://github.com/muchdogesec/vulmatch) is probably better suited to what you're looking for.
