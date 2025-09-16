@@ -54,11 +54,13 @@ jobs:
             set +a;
             cp tests/tests.env .env
 
+
+            pip install -r tests/requirements.txt
+            pip install -e .
+
       - name: Run tests
         id: run_tests
         run: |
-          pip install -r tests/requirements.txt
-          pip install -e .
           pytest --cov=arango_cve_processor --cov-branch --cov-report=xml --junitxml=junit.xml -o junit_family=legacy tests/unit
 
       - name: Upload coverage reports to Codecov
