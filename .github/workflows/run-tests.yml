@@ -44,7 +44,7 @@ jobs:
       - name: Setup environment
         id: setup_environment
         run: |
-            echo > tests/tests.env
+            echo >> tests/tests.env
             echo CTIBUTLER_BASE_URL="${{ env.CTIBUTLER_BASE_URL }}" >> tests/tests.env
             echo CTIBUTLER_API_KEY="${{ env.CTIBUTLER_API_KEY }}" >> tests/tests.env
             echo VULNCHECK_API_KEY="${{ env.VULNCHECK_API_KEY }}" >> tests/tests.env
