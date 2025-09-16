@@ -3,7 +3,7 @@ from arango_cve_processor.managers.cve_epss import (
     CveEpssManager,
     _CveEpssWorker,
 )
-from tests.utils import remove_volatile_keys
+from tests.unit.utils import remove_volatile_keys
 
 
 def process(acp_processor, start_date, end_date):
@@ -141,4 +141,71 @@ def test_epss_backfill(acp_processor):
             "_is_latest": True,
             "_taxii": {"last": True, "first": True, "visible": True},
         },
+        {
+            "type": "report",
+            "spec_version": "2.1",
+            "id": "report--6cfb9545-0f59-577d-a04e-5ab3e4523574",
+            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created": "2025-01-09T07:15:27.203Z",
+            "modified": "2025-02-17T00:00:00.000Z",
+            "name": "EPSS Scores: CVE-2024-53704",
+            "published": "2025-01-09T07:15:27.203Z",
+            "object_refs": ["vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85"],
+            "labels": ["epss"],
+            "external_references": [
+                {
+                    "source_name": "cve",
+                    "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-53704",
+                    "external_id": "CVE-2024-53704",
+                },
+                {"source_name": "arango_cve_processor", "external_id": "cve-epss"},
+            ],
+            "object_marking_refs": [
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
+            ],
+            "extensions": {
+                "extension-definition--efd26d23-d37d-5cf2-ac95-a101e46ce11d": {
+                    "extension_type": "toplevel-property-extension"
+                }
+            },
+            "x_epss": [
+                {"date": "2025-02-17", "epss": 0.00054, "percentile": 0.25386},
+                {"date": "2025-02-16", "epss": 0.00054, "percentile": 0.25386},
+                {"date": "2025-02-15", "epss": 0.00054, "percentile": 0.25395},
+            ],
+            "_arango_cve_processor_note": "cve-epss",
+            "_record_md5_hash": "ca521dba057844f5ef5ec41ecc630d6b",
+            "_is_latest": True,
+            "_taxii": {"last": True, "first": True, "visible": True},
+        },
     ]
+
+    query = """
+    FOR d IN nvd_cve_vertex_collection
+    FILTER d.type == "vulnerability" AND d.id IN @vuln_refs
+    RETURN [d.name, d._acvep_epss]
+    """
+    epss = dict(
+        acp_processor.execute_raw_query(
+            query, bind_vars=dict(vuln_refs=[obj["object_refs"][0] for obj in retval])
+        )
+    )
+    assert epss == {
+        "CVE-2024-56447": {
+            "date": "2025-02-17",
+            "epss": 0.00087,
+            "percentile": 0.39353,
+        },
+        "CVE-2023-6601": {"date": "2025-02-17", "epss": 0.00043, "percentile": 0.11665},
+        "CVE-2022-45830": {
+            "date": "2025-02-17",
+            "epss": 0.00043,
+            "percentile": 0.11665,
+        },
+        "CVE-2024-53704": {
+            "date": "2025-02-17",
+            "epss": 0.00054,
+            "percentile": 0.25386,
+        },
+    }

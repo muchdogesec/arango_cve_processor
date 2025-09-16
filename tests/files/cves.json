@@ -106,7 +106,16 @@
       }
     },
     "x_cpes": {
-      "not_vulnerable": [],
+      "not_vulnerable": [
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:4.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "8198CDB2-4BC5-411A-8736-615A531FC545"
+        },
+        {
+          "criteria": "cpe:2.3:o:huawei:harmonyos:4.2.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "2401DE15-9DBF-4645-A261-8C24D57C6342"
+        }
+      ],
       "vulnerable": [
         {
           "criteria": "cpe:2.3:a:analytify:analytify_-_google_analytics_dashboard:*:*:*:*:*:wordpress:*:*",
@@ -401,14 +410,6 @@
         {
           "criteria": "cpe:2.3:o:huawei:harmonyos:3.1.0:*:*:*:*:*:*:*",
           "matchCriteriaId": "4D81C4EF-7CAF-4E60-91A4-8CF7B95B2B54"
-        },
-        {
-          "criteria": "cpe:2.3:o:huawei:harmonyos:4.0.0:*:*:*:*:*:*:*",
-          "matchCriteriaId": "8198CDB2-4BC5-411A-8736-615A531FC545"
-        },
-        {
-          "criteria": "cpe:2.3:o:huawei:harmonyos:4.2.0:*:*:*:*:*:*:*",
-          "matchCriteriaId": "2401DE15-9DBF-4645-A261-8C24D57C6342"
         }
       ]
     },
@@ -419,6 +420,143 @@
     "_is_latest": true,
     "_record_created": "2025-09-12T11:25:55.342020Z",
     "_record_modified": "2025-09-12T11:25:55.342020Z",
+    "_taxii": {
+      "last": true,
+      "first": true,
+      "visible": true
+    }
+  },
+  {
+    "_key": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+2025-09-13T14:00:15.234771Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+2025-09-13T14:00:15.234771Z",
+    "_rev": "_kSLe3eC--_",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-06-02T18:15:25.010Z",
+    "modified": "2025-09-12T13:40:47.133Z",
+    "name": "CVE-2025-5086",
+    "description": "A deserialization of untrusted data vulnerability affecting DELMIA Apriso from Release 2020 through Release 2025 could lead to a remote code execution.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-5086",
+        "external_id": "CVE-2025-5086"
+      },
+      {
+        "source_name": "3DS.Information-Security@3ds.com",
+        "description": "Vendor Advisory",
+        "url": "https://www.3ds.com/vulnerability/advisories"
+      },
+      {
+        "source_name": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+        "description": "Exploit,Third Party Advisory",
+        "url": "https://isc.sans.edu/diary/Exploit+Attempts+for+Dassault+DELMIA+Apriso+CVE20255086/32256"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "3DS.Information-Security@3ds.com"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 9,
+        "base_severity": "CRITICAL",
+        "exploitability_score": 2.2,
+        "impact_score": 6,
+        "source": "3DS.Information-Security@3ds.com",
+        "type": "Secondary",
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H"
+      }
+    },
+    "_cvss_base_score": 9,
+    "_stix2arango_note": "vulmatch-cve-date=2025-09-12",
+    "_record_md5_hash": "b23fd7e5ad13e55115e43941f042f000",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_09_12-00_00_00-2025_09_12-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-13T14:00:15.234771Z",
+    "_record_modified": "2025-09-13T14:00:15.234771Z",
+    "_taxii": {
+      "last": true,
+      "first": false,
+      "visible": true
+    }
+  },
+  {
+    "_key": "vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85+2025-09-04T15:28:55.109187Z",
+    "_id": "nvd_cve_vertex_collection/vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85+2025-09-04T15:28:55.109187Z",
+    "_rev": "_kPTWV8e--D",
+    "type": "vulnerability",
+    "spec_version": "2.1",
+    "id": "vulnerability--e1c66db1-3846-5f2c-91ea-4abadaa95a85",
+    "created_by_ref": "identity--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+    "created": "2025-01-09T07:15:27.203Z",
+    "modified": "2025-02-19T15:33:49.643Z",
+    "name": "CVE-2024-53704",
+    "description": "An Improper Authentication vulnerability in the SSLVPN authentication mechanism allows a remote attacker to bypass authentication.",
+    "external_references": [
+      {
+        "source_name": "cve",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-53704",
+        "external_id": "CVE-2024-53704"
+      },
+      {
+        "source_name": "PSIRT@sonicwall.com",
+        "description": "Vendor Advisory",
+        "url": "https://psirt.global.sonicwall.com/vuln-detail/SNWLID-2025-0003"
+      },
+      {
+        "source_name": "vulnStatus",
+        "description": "Analyzed"
+      },
+      {
+        "source_name": "sourceIdentifier",
+        "description": "PSIRT@sonicwall.com"
+      }
+    ],
+    "object_marking_refs": [
+      "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+      "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3"
+    ],
+    "extensions": {
+      "extension-definition--2c5c13af-ee92-5246-9ba7-0b958f8cd34a": {
+        "extension_type": "toplevel-property-extension"
+      }
+    },
+    "x_cvss": {
+      "v3_1": {
+        "base_score": 9.8,
+        "base_severity": "CRITICAL",
+        "exploitability_score": 3.9,
+        "impact_score": 5.9,
+        "source": "nvd@nist.gov",
+        "type": "Primary",
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      }
+    },
+    "_cvss_base_score": 9.8,
+    "_stix2arango_note": "",
+    "_record_md5_hash": "e2e9ad1954f662b2dd03f07ef9028cf6",
+    "_bundle_id": "",
+    "_file_name": "cve-bundle-2025_01_09-00_00_00-2025_01_09-23_59_59.json",
+    "_is_latest": true,
+    "_record_created": "2025-09-04T15:28:55.109187Z",
+    "_record_modified": "2025-09-04T15:28:55.109187Z",
     "_taxii": {
       "last": true,
       "first": true,

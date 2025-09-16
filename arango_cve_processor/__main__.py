@@ -140,9 +140,9 @@ def run_all(database=None, modes: list[str] = None, **kwargs):
 
     import_default_objects(
         processor,
-        default_objects=itertools.chain(
+        default_objects=tuple(itertools.chain(
             *[RELATION_MANAGERS[mode].default_objects for mode in modes]
-        ),
+        )),
     )
     manager_klasses = sorted(
         [RELATION_MANAGERS[mode] for mode in modes],

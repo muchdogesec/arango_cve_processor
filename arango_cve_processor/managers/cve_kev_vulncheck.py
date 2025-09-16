@@ -68,7 +68,8 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             )
             yield ref
 
-    def get_dates(self, cve, kev_obj):
+    def get_dates(self, cve):
+        kev_obj = cve['kev']
         return kev_obj["date_added"], kev_obj["_timestamp"]
 
     def parse_exploits(self, object, kev_obj):

@@ -121,6 +121,7 @@ def test_get_object_chunks(capec_processor):
                 ],
             }
         ],
+        [],
     ]
 
 

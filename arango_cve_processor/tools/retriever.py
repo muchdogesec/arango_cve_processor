@@ -13,6 +13,8 @@ class STIXObjectRetriever:
     def get_objects_by_external_ids(self, ids, type, key='objects', query_filter='id'):
         objects_map : dict[str, dict] = {}
         ids = list(set(ids))
+        if not ids:
+            return {}
 
         for chunked_ids in chunked(ids, 100):
             objects = self._retrieve_objects(urljoin(self.api_root, f"v1/{type}/objects/?{query_filter}={','.join(chunked_ids)}&sort={query_filter}_ascending"), key)

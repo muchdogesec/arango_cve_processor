@@ -47,6 +47,7 @@ def test_get_object_chunks(attack_processor):
     )
     manager.CHUNK_SIZE = 2
     matches = list(manager.get_object_chunks())
+    print(matches)
     assert matches == [
         [
             {
@@ -139,6 +140,7 @@ def test_get_object_chunks(attack_processor):
                 ],
             }
         ],
+        [],
     ]
 
 

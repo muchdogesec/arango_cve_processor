@@ -21,33 +21,34 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
     content_fmt = "CISA KEV: {cve_id}"
 
     def get_cve_for_kevs(self, kev_map):
-        self.kev_map = kev_map
         query = """
         FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
         FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
-        RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
+        RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified', '_key')
         """
         cve_ids = list(
-            set(self.cve_ids).intersection(self.kev_map)
+            set(self.cve_ids).intersection(kev_map)
             if self.cve_ids
-            else self.kev_map
+            else kev_map
         )
-        return self.arango.execute_raw_query(
+        retval = []
+        for obj in self.arango.execute_raw_query(
             query,
             bind_vars={
                 "@collection": self.collection,
-                "created_min": self.created_min,
-                "modified_min": self.modified_min,
                 "cve_ids": cve_ids,
             },
             batch_size=self.BATCH_SIZE,
-        )
+        ):
+            obj.update(kev=kev_map[obj['name']])
+            retval.append(obj)
+        return retval
 
     def get_all_cwes(self, objects):
         cwe_ids = []
         for obj in objects:
-            cwe_ids.extend(self.kev_map[obj["name"]]["cwes"])
+            cwe_ids.extend(obj['kev']["cwes"])
         cwe_objects = STIXObjectRetriever().get_objects_by_external_ids(
             cwe_ids, "cwe", query_filter="cwe_id"
         )
@@ -57,7 +58,6 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         for kev_map in self.get_all_kevs():
             if not kev_map:
                 continue
-            self.kev_map = kev_map
             objects = self.get_cve_for_kevs(kev_map)
             self.cwe_objects = self.get_all_cwes(objects)
             yield objects
@@ -69,12 +69,12 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
         for note in kev_obj["notes"].split(" ; ")[:-1]:
             yield dict(source_name="cisa_note", url=note)
 
-    def get_dates(self, cve, kev_obj):
+    def get_dates(self, cve):
         return cve["created"], cve["modified"]
 
     def relate_single(self, object):
         cve_id = object["name"]
-        kev_obj = self.kev_map[cve_id]
+        kev_obj = object['kev']
         references = [
             {
                 "source_name": "cve",
@@ -115,7 +115,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
 
         exploit_objects = self.parse_exploits(object, kev_obj)
         content = self.content_fmt.format(cve_id=cve_id)
-        created, modified = self.get_dates(object, kev_obj)
+        created, modified = self.get_dates(object)
         report = {
             "type": "report",
             "spec_version": "2.1",

@@ -26,48 +26,6 @@
         "external_id": "CWE-94"
       },
       {
-        "source_name": "Michael Howard, David LeBlanc, John Viega",
-        "description": "24 Deadly Sins of Software Security",
-        "external_id": "REF-44"
-      },
-      {
-        "source_name": "",
-        "description": "How ast.literal_eval can cause memory exhaustion",
-        "url": "https://www.reddit.com/r/learnpython/comments/zmbhcf/how_astliteral_eval_can_cause_memory_exhaustion/",
-        "external_id": "REF-1372"
-      },
-      {
-        "source_name": "",
-        "description": "ast - Abstract Syntax Trees",
-        "url": "https://docs.python.org/3/library/ast.html#ast.literal_eval",
-        "external_id": "REF-1373"
-      },
-      {
-        "source_name": "PLOVER",
-        "description": "Code Evaluation and Injection",
-        "external_id": "CODE"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req CR 3.5",
-        "external_id": "Part 4-2"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SR 3.5",
-        "external_id": "Part 3-3"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SVV-1",
-        "external_id": "Part 4-1"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SVV-3",
-        "external_id": "Part 4-1"
-      },
-      {
         "source_name": "capec",
         "url": "https://capec.mitre.org/data/definitions/242.html",
         "external_id": "CAPEC-242"
@@ -122,33 +80,6 @@
         "external_id": "CWE-99"
       },
       {
-        "source_name": "Katrina Tsipenyuk, Brian Chess, Gary McGraw",
-        "description": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-        "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-        "external_id": "REF-6"
-      },
-      {
-        "source_name": "Object Management Group (OMG)",
-        "description": "Automated Source Code Security Measure (ASCSM)",
-        "url": "http://www.omg.org/spec/ASCSM/1.0/",
-        "external_id": "REF-962"
-      },
-      {
-        "source_name": "7 Pernicious Kingdoms",
-        "description": "Resource Injection",
-        "external_id": ""
-      },
-      {
-        "source_name": "Software Fault Patterns",
-        "description": "Tainted input to command",
-        "external_id": "SFP24"
-      },
-      {
-        "source_name": "OMG ASCSM",
-        "description": "",
-        "external_id": "ASCSM-CWE-99"
-      },
-      {
         "source_name": "capec",
         "url": "https://capec.mitre.org/data/definitions/10.html",
         "external_id": "CAPEC-10"
@@ -201,72 +132,6 @@
         "source_name": "cwe",
         "url": "http://cwe.mitre.org/data/definitions/269.html",
         "external_id": "CWE-269"
-      },
-      {
-        "source_name": "Michael Howard, David LeBlanc, John Viega",
-        "description": "24 Deadly Sins of Software Security",
-        "external_id": "REF-44"
-      },
-      {
-        "source_name": "Mark Dowd, John McDonald, Justin Schuh",
-        "description": "The Art of Software Security Assessment",
-        "external_id": "REF-62"
-      },
-      {
-        "source_name": "MITRE",
-        "description": "Supplemental Details - 2022 CWE Top 25",
-        "url": "https://cwe.mitre.org/top25/archive/2022/2022_cwe_top25_supplemental.html#problematicMappingDetails",
-        "external_id": "REF-1287"
-      },
-      {
-        "source_name": "PLOVER",
-        "description": "Privilege Management Error",
-        "external_id": ""
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SP.03.08 BR",
-        "external_id": "Part 2-4"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req CR 3.1",
-        "external_id": "Part 3-2"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SR 1.2",
-        "external_id": "Part 3-3"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SR 2.1",
-        "external_id": "Part 3-3"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SD-3",
-        "external_id": "Part 4-1"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SD-4",
-        "external_id": "Part 4-1"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SI-1",
-        "external_id": "Part 4-1"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req CR 1.1",
-        "external_id": "Part 4-2"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req CR 2.1",
-        "external_id": "Part 4-2"
       },
       {
         "source_name": "capec",
@@ -330,36 +195,6 @@
         "source_name": "cwe",
         "url": "http://cwe.mitre.org/data/definitions/276.html",
         "external_id": "CWE-276"
-      },
-      {
-        "source_name": "Mark Dowd, John McDonald, Justin Schuh",
-        "description": "The Art of Software Security Assessment",
-        "external_id": "REF-62"
-      },
-      {
-        "source_name": "PLOVER",
-        "description": "Insecure Default Permissions",
-        "external_id": ""
-      },
-      {
-        "source_name": "CERT C Secure Coding",
-        "description": "Create files with appropriate access permissions",
-        "external_id": "FIO06-C"
-      },
-      {
-        "source_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-        "description": "Create files with appropriate access permission",
-        "external_id": "FIO01-J"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SP.03.08",
-        "external_id": "Part 2-4"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req CR 2.1",
-        "external_id": "Part 4-2"
       },
       {
         "source_name": "capec",
@@ -427,56 +262,6 @@
         "source_name": "cwe",
         "url": "http://cwe.mitre.org/data/definitions/862.html",
         "external_id": "CWE-862"
-      },
-      {
-        "source_name": "NIST",
-        "description": "Role Based Access Control and Role Based Security",
-        "url": "https://csrc.nist.gov/projects/role-based-access-control",
-        "external_id": "REF-229"
-      },
-      {
-        "source_name": "Michael Howard, David LeBlanc",
-        "description": "Writing Secure Code",
-        "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-        "external_id": "REF-7"
-      },
-      {
-        "source_name": "Frank Kim",
-        "description": "Top 25 Series - Rank 5 - Improper Access Control (Authorization)",
-        "url": "https://www.sans.org/blog/top-25-series-rank-5-improper-access-control-authorization/",
-        "external_id": "REF-231"
-      },
-      {
-        "source_name": "OWASP",
-        "description": "OWASP Enterprise Security API (ESAPI) Project",
-        "url": "http://www.owasp.org/index.php/ESAPI",
-        "external_id": "REF-45"
-      },
-      {
-        "source_name": "Rahul Bhattacharjee",
-        "description": "Authentication using JAAS",
-        "url": "https://javaranch.com/journal/2008/04/authentication-using-JAAS.html",
-        "external_id": "REF-233"
-      },
-      {
-        "source_name": "Mark Dowd, John McDonald, Justin Schuh",
-        "description": "The Art of Software Security Assessment",
-        "external_id": "REF-62"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req 4.3.3.7",
-        "external_id": "Part 2-1"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req SR 2.1",
-        "external_id": "Part 3-3"
-      },
-      {
-        "source_name": "ISA/IEC 62443",
-        "description": "Req CR 2.1",
-        "external_id": "Part 4-2"
       },
       {
         "source_name": "capec",

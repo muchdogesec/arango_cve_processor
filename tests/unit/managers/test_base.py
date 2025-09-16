@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 from arango_cve_processor.managers.base_manager import STIXRelationManager
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
-from tests.utils import remove_volatile_keys
+from tests.unit.utils import remove_volatile_keys
 
 
 def test_create_relationship():
@@ -156,6 +156,151 @@ def test_upload_edge_objects(processor):
     ]
 
 
+def test_create_embedded_relationships(processor):
+    manager = STIXRelationManager(
+        processor,
+        ignore_embedded_relationships=False,
+        ignore_embedded_relationships_sro=False,
+    )
+    input_edges = [
+        {
+            "type": "link",
+            "id": "relationship-2",
+            "type_refs": [
+                "src1",
+                "src2",
+            ],
+            "type2_soc_ref": "tgt1",
+            "created": "now",
+            "modified": "now",
+        },
+        {
+            "type": "link",
+            "id": "relationship-1",
+            "another_ref": "tgt2",
+            "created": "then",
+            "modified": "now",
+        },
+    ]
+    manager.get_edge_ids = MagicMock(
+        side_effect=(
+            {
+                "src1": "vertices/src1",
+                "tgt1": "vertices/tgt1",
+                "src2": "vertices/src2",
+                "tgt2": "vertices/tgt2",
+            },
+            {
+                "relationship-1": "edges/r1",
+                "relationship-2": "edges/r2",
+            },
+        )
+    )
+
+    with patch.object(
+        type(processor),
+        "insert_several_objects_chunked",
+        side_effect=processor.insert_several_objects_chunked,
+    ) as mock_insert:
+        manager.create_embedded_relationships(
+            input_edges, "nvd_cve_vertex_collection", "nvd_cve_edge_collection"
+        )
+
+    manager.get_edge_ids.assert_has_calls(
+        [
+            call(
+                ["src1", "src2", "tgt2", "relationship-2", "relationship-1"],
+                "nvd_cve_vertex_collection",
+            ),
+            call(
+                ["src1", "src2", "tgt2", "relationship-2", "relationship-1"],
+                "nvd_cve_edge_collection",
+            ),
+        ]
+    )
+
+    data = remove_volatile_keys(
+        list(processor.db.collection(manager.edge_collection).all()), extra_keys=['_key', '_id']
+    )
+    assert data == [
+        {
+            "_from": "edges/r2",
+            "_to": "vertices/src2",
+            "spec_version": "2.1",
+            "id": "relationship--33352a4f-3ccd-5ce9-8486-e253d25bbd76",
+            "type": "relationship",
+            "created": "now",
+            "modified": "now",
+            "relationship_type": "type",
+            "source_ref": "relationship-2",
+            "target_ref": "src2",
+            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "object_marking_refs": [
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
+            ],
+            "description": None,
+            "_arango_cve_processor_note": "stix-relation-manager",
+            "_is_ref": True,
+            "_record_md5_hash": "812d3fa8280b6da631274403a374981b",
+            "_is_latest": True,
+            "_target_type": "src2",
+            "_source_type": "relationship-2",
+            "_taxii": {"last": True, "first": True, "visible": True},
+        },
+        {
+            "_from": "edges/r2",
+            "_to": "vertices/src1",
+            "spec_version": "2.1",
+            "id": "relationship--a864030c-e809-5570-9d6a-830ec69daf38",
+            "type": "relationship",
+            "created": "now",
+            "modified": "now",
+            "relationship_type": "type",
+            "source_ref": "relationship-2",
+            "target_ref": "src1",
+            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "object_marking_refs": [
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
+            ],
+            "description": None,
+            "_arango_cve_processor_note": "stix-relation-manager",
+            "_is_ref": True,
+            "_record_md5_hash": "ffb6b429a0a1f4a6012ab99df51e8d6a",
+            "_is_latest": True,
+            "_target_type": "src1",
+            "_source_type": "relationship-2",
+            "_taxii": {"last": True, "first": True, "visible": True},
+        },
+        {
+            "_from": "edges/r1",
+            "_to": "vertices/tgt2",
+            "spec_version": "2.1",
+            "id": "relationship--ad6a471a-2241-5bad-a641-652c05582905",
+            "type": "relationship",
+            "created": "then",
+            "modified": "now",
+            "relationship_type": "another",
+            "source_ref": "relationship-1",
+            "target_ref": "tgt2",
+            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "object_marking_refs": [
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
+            ],
+            "description": None,
+            "_arango_cve_processor_note": "stix-relation-manager",
+            "_is_ref": True,
+            "_record_md5_hash": "2a96f23f6658201ca86d30f54a2525e8",
+            "_is_latest": True,
+            "_target_type": "tgt2",
+            "_source_type": "relationship-1",
+            "_taxii": {"last": True, "first": True, "visible": True},
+        },
+    ]
+
+
 def test_get_edge_ids(processor):
     manager = STIXRelationManager(processor)
     input_objects = [
@@ -182,6 +327,7 @@ def test_get_edge_ids(processor):
         "link-1": "nvd_cve_vertex_collection/ex-key1",
         "no-link-2": "nvd_cve_vertex_collection/ex-key2",
     }
+
 
 def test_process(processor):
     manager = STIXRelationManager(processor)
