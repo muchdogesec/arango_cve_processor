@@ -6,6 +6,8 @@ from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
 from arango_cve_processor.managers import CveEpssManager, CpeMatchUpdateManager
+from arango_cve_processor.managers.cve_kev import CISAKevManager
+from arango_cve_processor.managers.cve_kev_vulncheck import VulnCheckKevManager
 from arango_cve_processor.tools.utils import (
     create_indexes,
     import_default_objects,
@@ -34,10 +36,19 @@ def parse_date_to_date(datetime_str):
     return parse_datetime(datetime_str).date()
 
 
+def parse_date_to_datetime(datetime_str):
+    return parse_datetime(datetime_str)
+
+
 def parse_arguments():
     p = argparse.ArgumentParser()
 
     actions = dict(
+        database=p.add_argument(
+            "--database",
+            required=True,
+            help="the arangoDB database name where the objects you want to link are found. It must contain the collections required for the `--relationship` option(s) selected",
+        ),
         ignore_embedded_relationships=p.add_argument(
             "--ignore_embedded_relationships",
             required=False,
@@ -58,11 +69,6 @@ def parse_arguments():
             help="Ignore Embedded Relationship for imported SMOs.",
             type=parse_bool,
             default=False,
-        ),
-        database=p.add_argument(
-            "--database",
-            required=True,
-            help="the arangoDB database name where the objects you want to link are found. It must contain the collections required for the `--relationship` option(s) selected",
         ),
         modified_min=p.add_argument(
             "--modified_min",
@@ -88,12 +94,14 @@ def parse_arguments():
         ),
     )
 
-    parser = argparse.ArgumentParser(description="Arango CVE Processor is a tool for enriching vulmatch data on ArangoDB.")
+    parser = argparse.ArgumentParser(
+        description="Arango CVE Processor is a tool for enriching vulmatch data on ArangoDB."
+    )
     subparser = parser.add_subparsers(title="mode", dest="mode", required=True)
     for mode in RELATION_MANAGERS.values():
         p = subparser.add_parser(mode.relationship_note, description=mode.DESCRIPTION)
         for k, action in actions.items():
-            if k in ['created_min', 'modified_min'] and mode == CpeMatchUpdateManager:
+            if k in ["created_min", "modified_min"] and mode in [CpeMatchUpdateManager, CISAKevManager, VulnCheckKevManager]:
                 continue
             p._add_action(action)
 
@@ -112,13 +120,14 @@ def parse_arguments():
                 required=False,
                 help="Date to end backfilling epss at, only applies to `cve-epss-backfill` mode",
             )
+        
         if mode == CpeMatchUpdateManager:
             p.add_argument(
                 "--updated_after",
                 metavar="YYYY-MM-DD[Thh:mm:ss]",
                 required=True,
                 help="only retrieve CPE Matches that have been updated after datetime",
-                type=parse_date_to_date,
+                type=parse_date_to_datetime,
             )
     args = parser.parse_args()
     args.modes = [args.mode]

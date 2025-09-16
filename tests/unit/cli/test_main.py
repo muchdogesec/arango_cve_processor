@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 import pytest
 import sys
-from datetime import date
+from datetime import UTC, date, datetime
 from arango_cve_processor.__main__ import parse_arguments, main, run_all, RELATION_MANAGERS  # adjust the import if needed
 
 @pytest.mark.parametrize(
@@ -32,7 +32,7 @@ from arango_cve_processor.__main__ import parse_arguments, main, run_all, RELATI
             {
                 "modes": ["cpematch"],
                 "database": "test_db",
-                "updated_after": date(2023, 12, 1),
+                "updated_after": datetime(2023, 12, 1, 0, 0, tzinfo=UTC),
             },
         ),
         (

@@ -10,7 +10,7 @@ from arango_cve_processor.managers.base_manager import STIXRelationManager
 from stix2 import Vulnerability, Report
 
 
-class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss"):
+class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register=False):
     DESCRIPTION = """
     Creates EPSS report objects for CVEs
     """
