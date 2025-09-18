@@ -7,6 +7,7 @@ from stix2extensions._extensions import software_cpe_properties_ExtensionDefinit
 
 from arango_cve_processor import config
 from arango_cve_processor.tools import utils
+from arango_cve_processor.tools.cpe_db import SwidTitleDB
 
 def parse_cpematch_date(d):
     return pytz.utc.localize(datetime.strptime(d, "%Y-%m-%dT%H:%M:%S.%f"))
@@ -133,6 +134,8 @@ def cpe_name_as_dict(cpe_name: str) -> dict[str, str]:
 
 def parse_software(cpename, swid):
     cpe_struct = cpe_name_as_dict(cpename)
+    name_db = SwidTitleDB.get_db()
+    cpe = name_db.lookup(swid)
     return Software(
         id="software--"
         + str(
@@ -143,7 +146,7 @@ def parse_software(cpename, swid):
         ),
         x_cpe_struct=cpe_struct,
         cpe=cpename,
-        name=cpename,
+        name=cpe.get('title', cpename),
         swid=swid,
         version=cpe_struct["version"],
         vendor=cpe_struct["vendor"],

@@ -77,11 +77,11 @@ def test_cpe_name_as_dict_extracts_fields():
 
 def test_parse_software_returns_valid_software():
     cpe = "cpe:2.3:a:apache:http_server:2.4.1:*:*:*:*:*:*:*"
-    swid = "software--12345"
+    swid = "22E79981-978F-448F-B468-EC9BB2112290"
     software_obj = cpe_match.parse_software(cpe, swid)
     assert isinstance(software_obj, Software)
     assert software_obj.x_cpe_struct == cpe_match.cpe_name_as_dict(cpe)
-    assert software_obj.name == cpe
+    assert software_obj.name == "Apache Software Foundation Apache HTTP Server 2.4.1"
     assert software_obj.cpe == cpe
     assert software_obj.version == "2.4.1"
     assert software_obj.vendor == software_obj.x_cpe_struct["vendor"]
@@ -302,7 +302,7 @@ def test_parse_software():
         "type": "software",
         "spec_version": "2.1",
         "id": "software--246f33a1-3525-5ccb-a1fd-b057a0907c55",
-        "name": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
+        "name": "Linux Kernel",
         "cpe": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
         "swid": "0BA1AF04-98FA-4EBA-893B-700905C43151",
         "vendor": "linux",
