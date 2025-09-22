@@ -42,7 +42,7 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
         FOR doc IN @@edge_collection // uses acvep-capec-attack
         FILTER doc._arango_cve_processor_note == @cve_cwe_note
                 AND doc.source_ref IN @vuln_ids
-                AND doc._is_latest == TRUE AND doc._is_ref != true 
+                AND doc._is_latest == TRUE AND doc._is_ref != true
         RETURN [doc.source_ref, doc.target_ref]
         """
         secondary_relationships = self.arango.execute_raw_query(
