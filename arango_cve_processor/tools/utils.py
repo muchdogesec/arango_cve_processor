@@ -18,10 +18,10 @@ def generate_md5(obj: dict):
     for k in ["_from", "_to"]:
         if v := obj.get(k):
             obj_copy[k] = v
-    if obj_copy.get('labels') == ['epss']:
+    if obj_copy.get("labels") == ["epss"]:
         # don't include these volatile parts in epss digest
-        del obj_copy['modified']
-        del obj_copy['x_epss']
+        del obj_copy["modified"]
+        del obj_copy["x_epss"]
 
     json_str = json.dumps(obj_copy, sort_keys=True, default=str).encode("utf-8")
     return hashlib.md5(json_str).hexdigest()
@@ -98,8 +98,12 @@ def get_embedded_refs(object: list | dict, xpath: list = []):
                 embedded_refs.extend(get_embedded_refs(obj, xpath))
     return embedded_refs
 
+
 def genrate_relationship_id(source_ref, target_ref, relationship_type):
-    return make_stix_id('relationship', f"{relationship_type}+{source_ref}+{target_ref}")
+    return make_stix_id(
+        "relationship", f"{relationship_type}+{source_ref}+{target_ref}"
+    )
+
 
 def create_relationship(
     source,

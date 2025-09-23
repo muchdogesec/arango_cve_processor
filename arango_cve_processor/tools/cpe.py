@@ -65,19 +65,19 @@ def generate_grouping_id(criteria_id):
 def parse_deprecations(softwares):
     name_db = SwidTitleDB.get_db()
     objects = []
-    for s in softwares:
-        cpe = name_db.lookup(s.swid)
+    for source in softwares:
+        cpe = name_db.lookup(source.swid)
         for deprecated in cpe["deprecates"]:
-            ss = parse_software(deprecated["cpeName"], deprecated["cpeNameId"])
+            target = parse_software(deprecated["cpeName"], deprecated["cpeNameId"])
             objects.append(
                 utils.create_relationship(
-                    s,
-                    ss.id,
+                    source,
+                    target.id,
                     relationship_type="related-to",
-                    description=f"{s.cpe} deprecates {ss.cpe}",
+                    description=f"{source.cpe} deprecates {target.cpe}",
                 )
             )
-            objects.append(ss)
+            objects.append(target)
     return objects
 
 

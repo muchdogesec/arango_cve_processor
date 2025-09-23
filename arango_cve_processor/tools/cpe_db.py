@@ -15,9 +15,11 @@ logging.basicConfig(
     datefmt="%Y-%m-%d - %H:%M:%S",
 )
 
+
 class SwidTitleDB:
     _date = None
     _class_db = None
+
     def __init__(self, zip_path=""):
         self.db_path = tempfile.mktemp(prefix="acvep-swid-cpe_", suffix=".sqlite")
         self.conn = None
@@ -36,7 +38,7 @@ class SwidTitleDB:
 
     def _download_zip(self):
         logging.info("downloading cpe dictionary")
-        resp = requests.get('https://nvd.nist.gov/feeds/json/cpe/2.0/nvdcpe-2.0.zip')
+        resp = requests.get("https://nvd.nist.gov/feeds/json/cpe/2.0/nvdcpe-2.0.zip")
         return io.BytesIO(resp.content)
 
     def _create_db(self):
@@ -94,7 +96,7 @@ class SwidTitleDB:
                                 cpe.get("deprecated", False),
                                 cpe.get("created", ""),
                                 cpe.get("lastModified", ""),
-                                cpe.get('deprecates', [])
+                                cpe.get("deprecates", []),
                             )
         logging.info(f"wrote {count} entries to db")
         self.conn.commit()
@@ -107,7 +109,11 @@ class SwidTitleDB:
         row = self.cur.fetchone()
         if row:
             return dict(
-                title=row[0], deprecated=bool(row[1]), created=row[2], modified=row[3], deprecates=json.loads(row[4])
+                title=row[0],
+                deprecated=bool(row[1]),
+                created=row[2],
+                modified=row[3],
+                deprecates=json.loads(row[4]),
             )
 
     def __del__(self):
@@ -115,4 +121,3 @@ class SwidTitleDB:
             self.conn.close()
         if os.path.exists(self.db_path):
             os.remove(self.db_path)
-
