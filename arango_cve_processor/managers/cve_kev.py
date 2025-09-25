@@ -70,7 +70,8 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             yield dict(source_name="cisa_note", url=note)
 
     def get_dates(self, cve):
-        return cve['kev']["dateAdded"], cve['kev']["dateAdded"]
+        date_added = cve['kev']["dateAdded"] + 'T00:00:00Z'
+        return date_added, date_added
 
     def relate_single(self, vuln_obj):
         cve_id = vuln_obj["name"]
