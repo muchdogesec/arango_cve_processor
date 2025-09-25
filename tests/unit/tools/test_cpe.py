@@ -304,8 +304,8 @@ def test_parse_deprecations(cpematch):
             "spec_version": "2.1",
             "id": "relationship--c1d43ca8-9515-59bf-844c-de695d769f58",
             "type": "relationship",
-            "created": "2007-08-23T21:05:57.937Z",
-            "modified": "2008-04-01T16:11:49.55Z",
+            "created": None,
+            "modified": None,
             "relationship_type": "related-to",
             "source_ref": "software--246f33a1-3525-5ccb-a1fd-b057a0907c55",
             "target_ref": "software--c63644d9-1e6c-5cf4-8090-30e7912ec185",
@@ -337,8 +337,9 @@ def test_parse_deprecations(cpematch):
                     "extension_type": "toplevel-property-extension"
                 }
             },
-            "modified": "2010-12-29T17:10:59.527Z",
-            "created": "2007-08-23T21:05:57.937Z",
+            "x_revoked": True,
+            "x_modified": "2010-12-29T17:10:59.527Z",
+            "x_created": "2007-08-23T21:05:57.937Z",
             "x_cpe_struct": {
                 "cpe_version": "2.3",
                 "part": "a",
@@ -353,10 +354,8 @@ def test_parse_deprecations(cpematch):
                 "target_hw": "*",
                 "other": "*",
             },
-            "revoked": True,
         },
     ]
-
 
 def test_parse_software():
     s = cpe_match.parse_software(
@@ -381,8 +380,8 @@ def test_parse_software():
                 "extension_type": "toplevel-property-extension"
             }
         },
-        "modified": "2008-04-01T16:11:49.55Z",
-        "revoked": False,
+        "x_modified": "2008-04-01T16:11:49.55Z",
+        "x_revoked": False,
         "x_cpe_struct": {
             "cpe_version": "2.3",
             "part": "o",
@@ -397,7 +396,7 @@ def test_parse_software():
             "target_hw": "*",
             "other": "*",
         },
-        "created": "2007-08-23T21:05:57.937Z",
+        "x_created": "2007-08-23T21:05:57.937Z",
     }
 
 

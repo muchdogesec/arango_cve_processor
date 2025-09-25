@@ -156,12 +156,17 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
 
 def test_run_all(vulncheck_kev_manager):
     vulncheck_kev_manager.process()
-    query = """
+    query = "FOR d IN nvd_cve_vertex_collection RETURN [d.id, d.x_opencti_cisa_kev]"
+    cves_has_kev_map = dict(vulncheck_kev_manager.arango.execute_raw_query(query))
+    vulns_with_kev = {k for k, has_kev in cves_has_kev_map.items() if has_kev}
+    vulns_with_no_kev = set(cves_has_kev_map).difference(vulns_with_kev)
+    query2 = """
     FOR d IN nvd_cve_vertex_collection
     FILTER d.type == "report"
-    RETURN d.name
+    RETURN d.object_refs[0]
     """
-    report_names = set(vulncheck_kev_manager.arango.execute_raw_query(query))
-    assert report_names.issuperset(
-        {"Vulncheck KEV: CVE-2024-53704", "Vulncheck KEV: CVE-2025-5086"}
-    )
+    report_vuln_ids = set(vulncheck_kev_manager.arango.execute_raw_query(query2))
+    assert report_vuln_ids == vulns_with_kev
+    assert vulns_with_no_kev, 'there must be at least 1 vuln with no kev'
+    assert vulns_with_kev, 'there must be at least 1 vuln with kev'
+

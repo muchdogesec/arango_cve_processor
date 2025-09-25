@@ -22,7 +22,6 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.update_objects = []
         self.epss_date = EPSSManager.datenow()
 
     def get_object_chunks(self, **kwargs):
@@ -99,7 +98,6 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
 
     def relate_single(self, cve_object):
         todays_report = parse_cve_epss_report(cve_object, self.epss_date)
-        record_modified = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         if not todays_report:
             return []
         if cve_object["epss"]:
@@ -117,34 +115,27 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
                         {
                             **cve_object["epss"],
                             "x_epss": all_epss,
-                            "_record_modified": record_modified,
                             "modified": latest_epss["date"] + "T00:00:00.000Z",
                             "_arango_cve_processor_note": self.relationship_note,
                         },
-                        dict(
-                            _key=cve_object["_key"],
-                            _acvep_epss=latest_epss,
-                            _record_modified=record_modified,
-                        ),
+                        self.make_opencti_properties(cve_object["_key"], latest_epss),
                     ]
                 )
             return []
         else:
             self.update_objects.append(
-                dict(
-                    _key=cve_object["_key"],
-                    _acvep_epss=todays_report["x_epss"][0],
-                    _record_modified=record_modified,
-                )
+                self.make_opencti_properties(cve_object["_key"], latest_epss),
             )
             return [stix2python(todays_report)]
 
-    def upload_vertex_data(self, objects):
-        logging.info("updating %d existing reports", len(self.update_objects))
-        self.arango.db.collection(self.vertex_collection).update_many(
-            self.update_objects
+    @staticmethod
+    def make_opencti_properties(key: str, epss: dict):
+        return dict(
+            _key=key,
+            x_opencti_epss_score=epss["epss"],
+            x_opencti_epss_percentile=epss["percentile"],
+            x_opencti_epss_date=epss["date"],
         )
-        return super().upload_vertex_data(objects)
 
 
 class CveEpssManager(_CveEpssWorker, relationship_note="cve-epss"):

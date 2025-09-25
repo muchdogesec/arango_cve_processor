@@ -70,7 +70,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             yield dict(source_name="cisa_note", url=note)
 
     def get_dates(self, cve):
-        return cve["created"], cve["modified"]
+        return cve['kev']["dateAdded"], cve['kev']["dateAdded"]
 
     def relate_single(self, object):
         cve_id = object["name"]
@@ -139,6 +139,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
         }
+        self.update_objects.append(dict(_key=object['_key'], x_opencti_cisa_kev=True))
         return [report, *exploit_objects, *cwe_objects]
 
     def get_all_kevs(self):

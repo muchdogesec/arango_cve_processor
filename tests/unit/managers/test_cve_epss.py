@@ -184,7 +184,7 @@ def test_epss_backfill(acp_processor):
     query = """
     FOR d IN nvd_cve_vertex_collection
     FILTER d.type == "vulnerability" AND d.id IN @vuln_refs
-    RETURN [d.name, d._acvep_epss]
+    RETURN [d.name, [d.x_opencti_epss_date, d.x_opencti_epss_score, d.x_opencti_epss_percentile]]
     """
     epss = dict(
         acp_processor.execute_raw_query(
@@ -192,20 +192,8 @@ def test_epss_backfill(acp_processor):
         )
     )
     assert epss == {
-        "CVE-2024-56447": {
-            "date": "2025-02-17",
-            "epss": 0.00087,
-            "percentile": 0.39353,
-        },
-        "CVE-2023-6601": {"date": "2025-02-17", "epss": 0.00043, "percentile": 0.11665},
-        "CVE-2022-45830": {
-            "date": "2025-02-17",
-            "epss": 0.00043,
-            "percentile": 0.11665,
-        },
-        "CVE-2024-53704": {
-            "date": "2025-02-17",
-            "epss": 0.00054,
-            "percentile": 0.25386,
-        },
+        "CVE-2024-56447": ["2025-02-17", 0.00087, 0.39353],
+        "CVE-2023-6601": ["2025-02-17", 0.00043, 0.11665],
+        "CVE-2022-45830": ["2025-02-17", 0.00043, 0.11665],
+        "CVE-2024-53704": ["2025-02-17", 0.00054, 0.25386],
     }

@@ -181,8 +181,6 @@ def parse_software(cpename, swid):
         cpe=cpename,
         name=cpe.get("title", cpename),
         swid=swid,
-        created=created,
-        modified=modified,
         version=cpe_struct["version"],
         vendor=cpe_struct["vendor"],
         extensions={
@@ -194,6 +192,8 @@ def parse_software(cpename, swid):
             "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
             "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3",
         ],
-        revoked=cpe["deprecated"],
+        x_revoked=cpe["deprecated"],
+        x_created=created,
+        x_modified=modified,
         allow_custom=True,
     )
