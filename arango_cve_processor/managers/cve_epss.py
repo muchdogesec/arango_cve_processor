@@ -124,7 +124,7 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
             return []
         else:
             self.update_objects.append(
-                self.make_opencti_properties(cve_object["_key"], latest_epss),
+                self.make_opencti_properties(cve_object["_key"], todays_report["x_epss"][0]),
             )
             return [stix2python(todays_report)]
 

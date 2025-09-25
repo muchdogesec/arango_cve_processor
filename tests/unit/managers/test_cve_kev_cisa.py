@@ -12,7 +12,8 @@ def cisa_kev_manager(acp_processor):
 
 def test_relate_single(cisa_kev_manager, patched_retriever):
     cve_object = {
-        "_id": "nvd_cve_vertex_collection/12753767",
+        "_id": "nvd_cve_vertex_collection/vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+random-date",
+        "_key": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+random-date",
         "created": "2025-06-02T18:15:25.010Z",
         "id": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4",
         "modified": "2025-09-12T13:40:47.133Z",
@@ -217,5 +218,5 @@ def test_run_all(cisa_kev_manager):
     """
     report_vuln_ids = set(cisa_kev_manager.arango.execute_raw_query(query2))
     assert report_vuln_ids == vulns_with_kev
-    assert vulns_with_no_kev, 'there must be at least 1 vuln with no kev'
-    assert vulns_with_kev, 'there must be at least 1 vuln with kev'
+    assert vulns_with_no_kev, "there must be at least 1 vuln with no kev"
+    assert vulns_with_kev, "there must be at least 1 vuln with kev"

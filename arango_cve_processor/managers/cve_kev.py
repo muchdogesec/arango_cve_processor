@@ -72,9 +72,9 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
     def get_dates(self, cve):
         return cve['kev']["dateAdded"], cve['kev']["dateAdded"]
 
-    def relate_single(self, object):
-        cve_id = object["name"]
-        kev_obj = object['kev']
+    def relate_single(self, vuln_obj):
+        cve_id = vuln_obj["name"]
+        kev_obj = vuln_obj['kev']
         references = [
             {
                 "source_name": "cve",
@@ -113,9 +113,9 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             cwe_stix_ids.append(cwe["id"])
             references.append(cwe["external_references"][0])
 
-        exploit_objects = self.parse_exploits(object, kev_obj)
+        exploit_objects = self.parse_exploits(vuln_obj, kev_obj)
         content = self.content_fmt.format(cve_id=cve_id)
-        created, modified = self.get_dates(object)
+        created, modified = self.get_dates(vuln_obj)
         report = {
             "type": "report",
             "spec_version": "2.1",
@@ -127,7 +127,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             "name": content,
             "description": kev_obj["shortDescription"],
             "object_refs": [
-                object["id"],
+                vuln_obj["id"],
                 *cwe_stix_ids,
                 *[exploit["id"] for exploit in exploit_objects],
             ],
@@ -139,7 +139,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
         }
-        self.update_objects.append(dict(_key=object['_key'], x_opencti_cisa_kev=True))
+        self.update_objects.append(dict(_key=vuln_obj['_key'], x_opencti_cisa_kev=True))
         return [report, *exploit_objects, *cwe_objects]
 
     def get_all_kevs(self):

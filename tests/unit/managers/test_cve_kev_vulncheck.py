@@ -167,6 +167,5 @@ def test_run_all(vulncheck_kev_manager):
     """
     report_vuln_ids = set(vulncheck_kev_manager.arango.execute_raw_query(query2))
     assert report_vuln_ids == vulns_with_kev
-    assert vulns_with_no_kev, 'there must be at least 1 vuln with no kev'
-    assert vulns_with_kev, 'there must be at least 1 vuln with kev'
-
+    assert vulns_with_no_kev, "there must be at least 1 vuln with no kev"
+    assert vulns_with_kev, "there must be at least 1 vuln with kev"
