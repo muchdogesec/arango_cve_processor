@@ -19,7 +19,7 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
     default_objects = [
         "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/properties/report-epss-scoring.json"
     ]
-    CHUNK_SIZE = 10_000
+    CHUNK_SIZE = 20_000
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

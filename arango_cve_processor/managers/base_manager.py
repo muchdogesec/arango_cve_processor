@@ -11,6 +11,7 @@ from stix2arango.services.arangodb_service import ArangoDBService
 
 from arango_cve_processor.tools import utils
 from arango_cve_processor.tools.utils import (
+    chunked_tqdm,
     generate_md5,
     genrate_relationship_id,
     get_embedded_refs,
@@ -100,10 +101,13 @@ class STIXRelationManager:
             modified_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             for obj in self.update_objects:
                 obj.update(_record_modified=modified_at)
+
             logging.info("updating %d existing reports", len(self.update_objects))
-            self.arango.db.collection(self.vertex_collection).update_many(
-                self.update_objects
-            )
+            for batch in chunked_tqdm(self.update_objects, n=10_000, description='update existing objects'):
+                self.arango.db.collection(self.vertex_collection).update_many(
+                    batch
+                )
+
         self.update_objects.clear()
         logging.info("uploading %d vertices", len(objects))
         for obj in objects:
