@@ -101,7 +101,11 @@ def parse_arguments():
     for mode in RELATION_MANAGERS.values():
         p = subparser.add_parser(mode.relationship_note, description=mode.DESCRIPTION)
         for k, action in actions.items():
-            if k in ["created_min", "modified_min"] and mode in [CpeMatchUpdateManager, CISAKevManager, VulnCheckKevManager]:
+            if k in ["created_min", "modified_min"] and mode in [
+                CpeMatchUpdateManager,
+                CISAKevManager,
+                VulnCheckKevManager,
+            ]:
                 continue
             p._add_action(action)
 
@@ -120,7 +124,7 @@ def parse_arguments():
                 required=False,
                 help="Date to end backfilling epss at, only applies to `cve-epss-backfill` mode",
             )
-        
+
         if mode == CpeMatchUpdateManager:
             p.add_argument(
                 "--updated_after",
@@ -149,9 +153,11 @@ def run_all(database=None, modes: list[str] = None, **kwargs):
 
     import_default_objects(
         processor,
-        default_objects=tuple(itertools.chain(
-            *[RELATION_MANAGERS[mode].default_objects for mode in modes]
-        )),
+        default_objects=tuple(
+            itertools.chain(
+                *[RELATION_MANAGERS[mode].default_objects for mode in modes]
+            )
+        ),
     )
     manager_klasses = sorted(
         [RELATION_MANAGERS[mode] for mode in modes],

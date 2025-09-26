@@ -2,21 +2,6 @@ import time
 from unittest.mock import call, patch
 from arango_cve_processor.managers.cve_attack import CveAttack
 
-
-# def test_do_process(processor):
-#     manager = CveAttack(processor)
-#     objects = [1]
-#     attack_domains = []
-
-#     def append_attack_domain(obj):
-#         attack_domains.append(manager.ctibutler_path)
-
-#     with patch('arango_cve_processor.managers.CveCwe.do_process', side_effect=append_attack_domain) as mock_do_process:
-#         manager.do_process(objects)
-#         mock_do_process.assert_has_calls([call(objects), call(objects), call(objects)])
-#         assert attack_domains == ['attack-ics', 'attack-mobile', 'attack-enterprise'], "do_process must be called for all three attack domains"
-
-
 from unittest.mock import call, patch
 
 import pytest

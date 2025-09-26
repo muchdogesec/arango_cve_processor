@@ -19,55 +19,11 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
     default_objects = [
         "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/properties/report-epss-scoring.json"
     ]
+    CHUNK_SIZE = 20_000
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.update_objects = []
         self.epss_date = EPSSManager.datenow()
-
-    def get_object_chunks(self, **kwargs):
-        limit = 20_000
-        query = """
-  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
-  FILTER doc._arango_cve_processor_note == @relationship_note
-  FILTER doc.name IN @cve_ids AND doc._is_latest == TRUE
-  LET cve_name = doc.external_references[0].external_id
-  RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
-        """
-        reports = dict(
-            self.get_objects_from_db(
-                query,
-                limit,
-                dict(
-                    relationship_note=self.relationship_note,
-                    cve_ids=[f"EPSS Scores: {cve_id}" for cve_id in self.cve_ids],
-                ),
-            )
-        )
-        cve_query = (
-            query
-        ) = """
-  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
-  FILTER doc.type == 'vulnerability'
-  FILTER doc.name IN @cve_ids
-  FILTER doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
-  RETURN [doc.name, KEEP(doc, 'id', '_record_created', 'created', '_key')]
-        """
-        cves: list[tuple[str, dict]] = self.get_objects_from_db(
-            cve_query,
-            limit,
-            dict(
-                cve_ids=self.cve_ids,
-                created_min=self.created_min,
-                modified_min=self.modified_min,
-            ),
-        )
-
-        objects = []
-        for cve_name, cve in cves:
-            cve.update(name=cve_name, epss=reports.get(cve_name))
-            objects.append(cve)
-        return [objects]
 
     def process(self, **kwargs):
         self.epss_data_source = EPSSManager.get_epss_data(self.epss_date)
@@ -77,29 +33,55 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
             self.cve_ids = list(self.epss_data_source)
         return super().process(**kwargs)
 
-    def get_objects_from_db(self, query, limit, binds={}):
-        objects = []
-        t0 = time.time()
+    def get_objects_from_db(self, query, **binds):
+        return self.arango.execute_raw_query(
+            query,
+            bind_vars={
+                "@collection": self.collection,
+                **binds,
+            },
+            memory_limit=100 * 1024**2,
+        )
+
+    def get_object_chunks(self, **kwargs):
         for cve_ids_chunk in chunked_tqdm(
-            binds.pop("cve_ids", []), limit, "get-cve-and-existing-epss-reports"
+            self.cve_ids, self.CHUNK_SIZE, "get-cve-and-existing-epss-reports"
         ):
-            t = time.time()
-            ret = self.arango.execute_raw_query(
-                query,
-                bind_vars={
-                    "@collection": self.collection,
-                    "cve_ids": cve_ids_chunk,
-                    **binds,
-                },
-                memory_limit=100 * 1024**2,
+            reports_query = """
+  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+  FILTER doc._arango_cve_processor_note == @relationship_note
+  FILTER doc.name IN @cve_ids AND doc._is_latest == TRUE
+  LET cve_name = doc.external_references[0].external_id
+  RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
+        """
+            cve_query = """
+  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+  FILTER doc.type == 'vulnerability'
+  FILTER doc.name IN @cve_ids
+  FILTER doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
+  RETURN [doc.name, KEEP(doc, 'id', '_record_created', 'created', '_key')]
+        """
+            reports = dict(
+                self.get_objects_from_db(
+                    reports_query,
+                    relationship_note=self.relationship_note,
+                    cve_ids=[f"EPSS Scores: {cve_id}" for cve_id in cve_ids_chunk],
+                )
             )
-            objects.extend(ret)
-        logging.debug(f"total_time = {time.time() - t0}")
-        return objects
+            cves: list[tuple[str, dict]] = self.get_objects_from_db(
+                cve_query,
+                cve_ids=cve_ids_chunk,
+                created_min=self.created_min,
+                modified_min=self.modified_min,
+            )
+            objects = []
+            for cve_name, cve in cves:
+                cve.update(name=cve_name, epss=reports.get(cve_name))
+                objects.append(cve)
+            yield objects
 
     def relate_single(self, cve_object):
         todays_report = parse_cve_epss_report(cve_object, self.epss_date)
-        record_modified = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         if not todays_report:
             return []
         if cve_object["epss"]:
@@ -117,34 +99,29 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
                         {
                             **cve_object["epss"],
                             "x_epss": all_epss,
-                            "_record_modified": record_modified,
                             "modified": latest_epss["date"] + "T00:00:00.000Z",
                             "_arango_cve_processor_note": self.relationship_note,
                         },
-                        dict(
-                            _key=cve_object["_key"],
-                            _acvep_epss=latest_epss,
-                            _record_modified=record_modified,
-                        ),
+                        self.make_opencti_properties(cve_object["_key"], latest_epss),
                     ]
                 )
             return []
         else:
             self.update_objects.append(
-                dict(
-                    _key=cve_object["_key"],
-                    _acvep_epss=todays_report["x_epss"][0],
-                    _record_modified=record_modified,
-                )
+                self.make_opencti_properties(
+                    cve_object["_key"], todays_report["x_epss"][0]
+                ),
             )
             return [stix2python(todays_report)]
 
-    def upload_vertex_data(self, objects):
-        logging.info("updating %d existing reports", len(self.update_objects))
-        self.arango.db.collection(self.vertex_collection).update_many(
-            self.update_objects
+    @staticmethod
+    def make_opencti_properties(key: str, epss: dict):
+        return dict(
+            _key=key,
+            x_opencti_epss_score=epss["epss"],
+            x_opencti_epss_percentile=epss["percentile"],
+            x_opencti_epss_date=epss["date"],
         )
-        return super().upload_vertex_data(objects)
 
 
 class CveEpssManager(_CveEpssWorker, relationship_note="cve-epss"):

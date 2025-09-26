@@ -293,6 +293,70 @@ def test_grouping__object_ref_contains_all_softwares(cpematch):
         assert set(grouping["object_refs"]) == {s["id"] for s in softwares}
 
 
+def test_parse_deprecations(cpematch):
+    s = cpe_match.parse_software(
+        "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
+        "0BA1AF04-98FA-4EBA-893B-700905C43151",
+    )
+    objects = cpe_match.parse_deprecations([s])
+    assert stix2python(objects) == [
+        {
+            "spec_version": "2.1",
+            "id": "relationship--c1d43ca8-9515-59bf-844c-de695d769f58",
+            "type": "relationship",
+            "created": None,
+            "modified": None,
+            "relationship_type": "related-to",
+            "source_ref": "software--246f33a1-3525-5ccb-a1fd-b057a0907c55",
+            "target_ref": "software--c63644d9-1e6c-5cf4-8090-30e7912ec185",
+            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "object_marking_refs": [
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
+            ],
+            "description": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:* deprecates cpe:2.3:a:linux:linux_kernel:-:*:*:*:*:*:*:*",
+            "_arango_cve_processor_note": None,
+            "_from": None,
+            "_is_ref": False,
+        },
+        {
+            "type": "software",
+            "spec_version": "2.1",
+            "id": "software--c63644d9-1e6c-5cf4-8090-30e7912ec185",
+            "name": "Linux Kernel",
+            "cpe": "cpe:2.3:a:linux:linux_kernel:-:*:*:*:*:*:*:*",
+            "swid": "FA7F3011-C0A6-40AB-BD58-46E66AC14DB4",
+            "vendor": "linux",
+            "version": "-",
+            "object_marking_refs": [
+                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+                "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+            ],
+            "extensions": {
+                "extension-definition--82cad0bb-0906-5885-95cc-cafe5ee0a500": {
+                    "extension_type": "toplevel-property-extension"
+                }
+            },
+            "x_revoked": True,
+            "x_modified": "2010-12-29T17:10:59.527Z",
+            "x_created": "2007-08-23T21:05:57.937Z",
+            "x_cpe_struct": {
+                "cpe_version": "2.3",
+                "part": "a",
+                "vendor": "linux",
+                "product": "linux_kernel",
+                "version": "-",
+                "update": "*",
+                "edition": "*",
+                "language": "*",
+                "sw_edition": "*",
+                "target_sw": "*",
+                "target_hw": "*",
+                "other": "*",
+            },
+        },
+    ]
+
 def test_parse_software():
     s = cpe_match.parse_software(
         "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
@@ -316,6 +380,8 @@ def test_parse_software():
                 "extension_type": "toplevel-property-extension"
             }
         },
+        "x_modified": "2008-04-01T16:11:49.55Z",
+        "x_revoked": False,
         "x_cpe_struct": {
             "cpe_version": "2.3",
             "part": "o",
@@ -330,6 +396,7 @@ def test_parse_software():
             "target_hw": "*",
             "other": "*",
         },
+        "x_created": "2007-08-23T21:05:57.937Z",
     }
 
 

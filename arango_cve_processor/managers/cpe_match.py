@@ -41,6 +41,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         if isinstance(self.updated_after, (datetime, date)):
             self.updated_after = self.updated_after.isoformat()
         self.ignore_embedded_relationships = True
+        self.updated_before = datetime.now(UTC).isoformat()
 
     def get_updated_cpematches(self):
         total_results = math.inf
@@ -49,7 +50,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         if self.updated_after:
             query.update(
                 lastModStartDate=self.updated_after,
-                lastModEndDate=datetime.now(UTC).isoformat(),
+                lastModEndDate=self.updated_before,
             )
 
         iterator = tqdm(total=1, desc="retrieve cpematch from nvd")
@@ -129,8 +130,10 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
                 objects = cpe.parse_objects_for_criteria(match_data)
                 grouping_object = objects[0]
                 relationships = cpe.relate_indicator(grouping_object, indicator)
+                deprecations = cpe.parse_deprecations(objects[1:])
                 for r in relationships:
                     r['_from'] = indicator['_id']
                 retval.extend(objects)
                 retval.extend(relationships)
+                retval.extend(deprecations)
         return stix2python(retval)
