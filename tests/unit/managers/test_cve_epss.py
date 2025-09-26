@@ -18,6 +18,7 @@ def test_epss_backfill(acp_processor):
     query = """
     FOR d IN nvd_cve_vertex_collection
     FILTER d.type == "report"
+    SORT d.created ASC
     RETURN d
     """
     retval = remove_volatile_keys(
