@@ -62,7 +62,7 @@ def generate_grouping_id(criteria_id):
     )
 
 
-def parse_deprecations(softwares):
+def parse_deprecations(softwares, add_arango_props=True):
     name_db = SwidTitleDB.get_db()
     objects = []
     for source in softwares:
@@ -75,6 +75,7 @@ def parse_deprecations(softwares):
                     target.id,
                     relationship_type="related-to",
                     description=f"{source.cpe} deprecates {target.cpe}",
+                    add_arango_props=add_arango_props,
                 )
             )
             objects.append(target)
