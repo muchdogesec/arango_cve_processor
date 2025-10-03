@@ -12,7 +12,8 @@ def cisa_kev_manager(acp_processor):
 
 def test_relate_single(cisa_kev_manager, patched_retriever):
     cve_object = {
-        "_id": "nvd_cve_vertex_collection/12753767",
+        "_id": "nvd_cve_vertex_collection/vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+random-date",
+        "_key": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4+random-date",
         "created": "2025-06-02T18:15:25.010Z",
         "id": "vulnerability--43bad614-9f2f-5f84-9dfa-a68f5fa54ad4",
         "modified": "2025-09-12T13:40:47.133Z",
@@ -39,9 +40,9 @@ def test_relate_single(cisa_kev_manager, patched_retriever):
             "spec_version": "2.1",
             "id": "report--79b04f39-d572-5d4d-946e-b68e992c9a53",
             "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
-            "created": "2025-06-02T18:15:25.010Z",
-            "modified": "2025-09-12T13:40:47.133Z",
-            "published": "2025-06-02T18:15:25.010Z",
+            "created": "2025-09-11T00:00:00Z",
+            "modified": "2025-09-11T00:00:00Z",
+            "published": "2025-09-11T00:00:00Z",
             "name": "CISA KEV: CVE-2025-5086",
             "description": "Dassault Systèmes DELMIA Apriso contains a deserialization of untrusted data vulnerability that could lead to a remote code execution.",
             "object_refs": [
@@ -206,10 +207,16 @@ def test_relate_single(cisa_kev_manager, patched_retriever):
 
 def test_run_all(cisa_kev_manager):
     cisa_kev_manager.process()
-    query = """
+    query = "FOR d IN nvd_cve_vertex_collection RETURN [d.id, d.x_opencti_cisa_kev]"
+    cves_has_kev_map = dict(cisa_kev_manager.arango.execute_raw_query(query))
+    vulns_with_kev = {k for k, has_kev in cves_has_kev_map.items() if has_kev}
+    vulns_with_no_kev = set(cves_has_kev_map).difference(vulns_with_kev)
+    query2 = """
     FOR d IN nvd_cve_vertex_collection
     FILTER d.type == "report"
-    RETURN d.name
+    RETURN d.object_refs[0]
     """
-    report_names = set(cisa_kev_manager.arango.execute_raw_query(query))
-    assert report_names.issuperset(['CISA KEV: CVE-2025-5086', 'CISA KEV: CVE-2024-53704'])
+    report_vuln_ids = set(cisa_kev_manager.arango.execute_raw_query(query2))
+    assert report_vuln_ids == vulns_with_kev
+    assert vulns_with_no_kev, "there must be at least 1 vuln with no kev"
+    assert vulns_with_kev, "there must be at least 1 vuln with kev"

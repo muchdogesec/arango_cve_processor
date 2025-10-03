@@ -20,7 +20,7 @@ class SwidTitleDB:
     _date = None
     _class_db = None
 
-    def __init__(self, zip_path):
+    def __init__(self, zip_path=""):
         self.db_path = tempfile.mktemp(prefix="acvep-swid-cpe_", suffix=".sqlite")
         self.conn = None
         zip_file = zip_path or self._download_zip()
@@ -32,7 +32,7 @@ class SwidTitleDB:
     def get_db(cls):
         today = datetime.now(UTC).date()
         if cls._date != today:
-            cls._class_db = SwidTitleDB("")
+            cls._class_db = SwidTitleDB()
             cls._date = today
         return cls._class_db
 
@@ -50,19 +50,20 @@ class SwidTitleDB:
                 title TEXT,
                 deprecated INTEGER,
                 created TEXT,
-                modified TEXT
+                modified TEXT,
+                deprecates TEXT
             )
         """
         )
         self.conn.commit()
 
-    def _insert_cpe_title(self, swid, title, deprecated, created, modified):
+    def _insert_cpe_title(self, swid, title, deprecated, created, modified, deprecates):
         self.cur.execute(
             """
-            INSERT OR REPLACE INTO cpe_titles (swid, title, deprecated, created, modified)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT OR REPLACE INTO cpe_titles (swid, title, deprecated, created, modified, deprecates)
+            VALUES (?, ?, ?, ?, ?, ?)
         """,
-            (swid, title, int(deprecated), created, modified),
+            (swid, title, int(deprecated), created, modified, json.dumps(deprecates)),
         )
 
     def _extract_swid_titles_to_sqlite(self, zip_file):
@@ -95,19 +96,24 @@ class SwidTitleDB:
                                 cpe.get("deprecated", False),
                                 cpe.get("created", ""),
                                 cpe.get("lastModified", ""),
+                                cpe.get("deprecates", []),
                             )
         logging.info(f"wrote {count} entries to db")
         self.conn.commit()
 
     def lookup(self, swid):
         self.cur.execute(
-            "SELECT title, deprecated, created, modified FROM cpe_titles WHERE swid=?",
+            "SELECT title, deprecated, created, modified, deprecates FROM cpe_titles WHERE swid=?",
             (swid,),
         )
         row = self.cur.fetchone()
         if row:
             return dict(
-                title=row[0], deprecated=bool(row[1]), created=row[2], modified=row[3]
+                title=row[0],
+                deprecated=bool(row[1]),
+                created=row[2],
+                modified=row[3],
+                deprecates=json.loads(row[4]),
             )
 
     def __del__(self):

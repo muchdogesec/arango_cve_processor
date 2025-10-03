@@ -12,7 +12,9 @@ from datetime import UTC, datetime, timedelta, timezone
 
 @pytest.fixture
 def cpematch_manager(acp_processor, mocked_updates):
-    manager = CpeMatchUpdateManager(acp_processor, updated_after="2025-01-01")
+    manager = CpeMatchUpdateManager(acp_processor, updated_after='2025-01-01T00:00:00.000Z')
+    manager.updated_before = '2025-01-03T21:05:57.937Z'
+
     manager.groupings = mocked_updates
     return manager
 
@@ -162,7 +164,11 @@ def test_relate_single(cpematch_manager):
             ],
         },
     }
-    objects = cpematch_manager.relate_single(indicator)
+    objects: list = cpematch_manager.relate_single(indicator)
+    for obj in objects.copy():
+        if obj['type'] == 'relationship' and obj['source_ref'].startswith('software'):
+            objects.remove(obj)
+
     relationships = [obj for obj in objects if obj["type"] == "relationship"]
     assert relationships == [
         {
@@ -347,7 +353,6 @@ def test_get_object_chunks(cpematch_manager, mocked_updates):
 
 
 def test_get_cpematches__online(cpematch_manager):
-    cpematch_manager.updated_after = (datetime.now(UTC) - timedelta(days=5)).isoformat()
     groupings = {}
     for updates in cpematch_manager.get_updated_cpematches():
         if updates:

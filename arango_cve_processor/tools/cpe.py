@@ -9,6 +9,7 @@ from arango_cve_processor import config
 from arango_cve_processor.tools import utils
 from arango_cve_processor.tools.cpe_db import SwidTitleDB
 
+
 def parse_cpematch_date(d):
     return pytz.utc.localize(datetime.strptime(d, "%Y-%m-%dT%H:%M:%S.%f"))
 
@@ -45,8 +46,10 @@ def parse_objects_for_criteria(match_data: dict):
         "object_marking_refs": config.OBJECT_MARKING_REFS,
     }
     if not softwares:
-        grouping['object_refs'] = ["software--11111111-1111-4111-8111-111111111111"]
-        grouping['description'] = "This grouping contains no CPEs, a null software object has been added in object_refs"
+        grouping["object_refs"] = ["software--11111111-1111-4111-8111-111111111111"]
+        grouping["description"] = (
+            "This grouping contains no CPEs, a null software object has been added in object_refs"
+        )
     return [grouping, *softwares]
 
 
@@ -59,8 +62,32 @@ def generate_grouping_id(criteria_id):
     )
 
 
-def parse_softwares(softwares):
-    return [parse_software(cpename, swid) for cpename, swid in softwares]
+def parse_deprecations(softwares, add_arango_props=True):
+    name_db = SwidTitleDB.get_db()
+    objects = []
+    for source in softwares:
+        cpe = name_db.lookup(source.swid)
+        for deprecated in cpe["deprecates"]:
+            target = parse_software(deprecated["cpeName"], deprecated["cpeNameId"])
+            objects.append(
+                utils.create_relationship(
+                    source,
+                    target.id,
+                    relationship_type="related-to",
+                    description=f"{source.cpe} deprecates {target.cpe}",
+                    add_arango_props=add_arango_props,
+                )
+            )
+            objects.append(target)
+    return objects
+
+
+def parse_softwares(cpematches):
+    softwares = []
+    for cpename, swid in cpematches:
+        s = parse_software(cpename, swid)
+        softwares.append(s)
+    return softwares
 
 
 def relate_indicator(grouping: Grouping, indicator):
@@ -132,21 +159,28 @@ def cpe_name_as_dict(cpe_name: str) -> dict[str, str]:
     )
 
 
+def make_software_id(cpename, swid):
+    return "software--" + str(
+        uuid.uuid5(
+            config.namespace,
+            f"{cpename}+{swid}",
+        )
+    )
+
+
 def parse_software(cpename, swid):
     cpe_struct = cpe_name_as_dict(cpename)
     name_db = SwidTitleDB.get_db()
     cpe = name_db.lookup(swid)
+    stix_id = make_software_id(cpename, swid)
+    created = parse_cpematch_date(cpe["created"])
+    modified = parse_cpematch_date(cpe["modified"])
+
     return Software(
-        id="software--"
-        + str(
-            uuid.uuid5(
-                config.namespace,
-                f"{cpename}+{swid}",
-            )
-        ),
+        id=stix_id,
         x_cpe_struct=cpe_struct,
         cpe=cpename,
-        name=cpe.get('title', cpename),
+        name=cpe.get("title", cpename),
         swid=swid,
         version=cpe_struct["version"],
         vendor=cpe_struct["vendor"],
@@ -159,5 +193,8 @@ def parse_software(cpename, swid):
             "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
             "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3",
         ],
+        x_revoked=cpe["deprecated"],
+        x_created=created,
+        x_modified=modified,
         allow_custom=True,
     )

@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 import itertools
 import logging
 from types import SimpleNamespace
@@ -10,6 +11,7 @@ from stix2arango.services.arangodb_service import ArangoDBService
 
 from arango_cve_processor.tools import utils
 from arango_cve_processor.tools.utils import (
+    chunked_tqdm,
     generate_md5,
     genrate_relationship_id,
     get_embedded_refs,
@@ -62,6 +64,8 @@ class STIXRelationManager:
         self.kwargs = kwargs
         self.ignore_embedded_relationships_smo = ignore_embedded_relationships_smo
         self.ignore_embedded_relationships_sro = ignore_embedded_relationships_sro
+        self.update_objects = []
+
 
     @property
     def collection(self):
@@ -93,6 +97,18 @@ class STIXRelationManager:
         )
 
     def upload_vertex_data(self, objects):
+        if self.update_objects:
+            modified_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            for obj in self.update_objects:
+                obj.update(_record_modified=modified_at)
+
+            logging.info("updating %d existing reports", len(self.update_objects))
+            for batch in chunked_tqdm(self.update_objects, n=10_000, description='update existing objects'):
+                self.arango.db.collection(self.vertex_collection).update_many(
+                    batch
+                )
+
+        self.update_objects.clear()
         logging.info("uploading %d vertices", len(objects))
         for obj in objects:
             obj["_arango_cve_processor_note"] = self.relationship_note
