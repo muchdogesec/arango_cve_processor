@@ -210,7 +210,7 @@ def test_relate_single(capec_processor):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
             "target_ref": "attack-pattern--9a7c6cbc-e3f9-4925-992e-f07e1359de87",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -241,7 +241,7 @@ def test_relate_single(capec_processor):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
             "target_ref": "attack-pattern--5e4a268e-f89f-445a-aa42-395922f56bf0",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -272,7 +272,7 @@ def test_relate_single(capec_processor):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
             "target_ref": "attack-pattern--08c74bd3-c5ad-4d6c-a8bb-bb93d7503ddb",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",

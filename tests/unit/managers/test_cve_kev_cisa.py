@@ -39,7 +39,7 @@ def test_relate_single(cisa_kev_manager, patched_retriever):
             "type": "report",
             "spec_version": "2.1",
             "id": "report--79b04f39-d572-5d4d-946e-b68e992c9a53",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "created": "2025-09-11T00:00:00Z",
             "modified": "2025-09-11T00:00:00Z",
             "published": "2025-09-11T00:00:00Z",

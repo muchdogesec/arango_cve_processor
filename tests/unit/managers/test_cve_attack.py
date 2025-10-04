@@ -202,7 +202,6 @@ def test_relate_single(attack_processor):
             ],
         }
     )
-    print(retval)
     assert retval == [
         {
             "spec_version": "2.1",
@@ -213,7 +212,7 @@ def test_relate_single(attack_processor):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "target_ref": "attack-pattern--fe926152-f431-4baf-956c-4ad3cb0bf23b",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -244,7 +243,7 @@ def test_relate_single(attack_processor):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "target_ref": "attack-pattern--f4c1826f-a322-41cd-9557-562100848c84",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",

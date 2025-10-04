@@ -180,7 +180,7 @@ def test_relate_single(cpematch_manager):
             "relationship_type": "x-cpes-not-vulnerable",
             "source_ref": "indicator--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "target_ref": "grouping--aea1190d-db1d-5e2a-a1ad-6119bf0e0f41",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -212,7 +212,7 @@ def test_relate_single(cpematch_manager):
             "relationship_type": "x-cpes-vulnerable",
             "source_ref": "indicator--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "target_ref": "grouping--bda5cd3d-0b85-5428-9e11-04c75a1d236a",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",

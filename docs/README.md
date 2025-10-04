@@ -6,8 +6,11 @@ To support the generation of relationship, ACVEP checks the following objects ex
 
 The following objects are automatically inserted (if they do not exist) to each vertex collection on script run
 
-* Identity: https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/identity/arango_cve_processor.json
-* Marking Definition: https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/marking-definition/arango_cve_processor.json
+* Identity (all modes): https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/identity/dogesec.json
+* Marking Definition (all modes): https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/marking-definition/arango_cve_processor.json
+* Extension Definition (cve-epss mode): https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/schemas/properties/report-epss-scoring.json
+* Extension Definition (cve-vulncheck-kev mode): https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/sdos/exploit.json
+* Extension Definition (cve-cwe mode): https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/sdos/weakness.json
 
 When imported these objects always have the following Arango custom properties added to them:
 

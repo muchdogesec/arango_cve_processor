@@ -16,6 +16,8 @@ However, the issue is that match strings are consistently updated. See example r
 				"status": "Active",
 ```
 
-`cpematch` mode keeps grouping objects and software objects updated to match current state of cpe match api.
+The first place this happens is in cve2stix
 
-You can see the modelling of STIX objects in cve2stix here: https://github.com/muchdogesec/cve2stix/blob/main/docs/stix-mapping.md#indicator---grouping
+You can see the modelling of STIX objects (grouping and software) in cve2stix here: https://github.com/muchdogesec/cve2stix/blob/main/docs/stix-mapping.md#grouping-and-software-objects . The logic for this is actually defined in ACVEP code (and imported to CVE2STIX)
+
+`cpematch` mode keeps grouping objects and software objects updated to match current state of cpe match api.

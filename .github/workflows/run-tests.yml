@@ -61,7 +61,7 @@ jobs:
       - name: Run tests
         id: run_tests
         run: |
-          pytest --cov=arango_cve_processor --cov-branch --cov-report=xml --junitxml=junit.xml -o junit_family=legacy tests/unit
+          pytest --cov=arango_cve_processor --cov-branch --cov-report=xml --junitxml=junit.xml -o junit_family=legacy tests/unit -v
 
       - name: Upload coverage reports to Codecov
         id: upload_unit_test_coverage
