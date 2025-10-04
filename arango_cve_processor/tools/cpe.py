@@ -71,11 +71,14 @@ def parse_deprecations(softwares, add_arango_props=True):
             target = parse_software(deprecated["cpeName"], deprecated["cpeNameId"])
             objects.append(
                 utils.create_relationship(
-                    source,
+                    source["id"],
                     target.id,
                     relationship_type="related-to",
                     description=f"{source.cpe} deprecates {target.cpe}",
                     add_arango_props=add_arango_props,
+                    created=source["x_created"],
+                    modified=source["x_modified"],
+                    _from=source.get("_id"),
                 )
             )
             objects.append(target)
@@ -105,23 +108,29 @@ def relate_indicator(grouping: Grouping, indicator):
     if criteria_id in vulnerable_criteria_ids:
         relationships.append(
             utils.create_relationship(
-                indicator,
+                indicator["id"],
                 grouping["id"],
                 "x-cpes-vulnerable",
                 f"{criteria_id} ({group_name}) is vulnerable to {cve_name}",
                 external_references=ext_refs,
                 add_arango_props=False,
+                created=indicator["created"],
+                modified=indicator["modified"],
+                _from=indicator.get('_id'),
             )
         )
     else:
         relationships.append(
             utils.create_relationship(
-                indicator,
+                indicator["id"],
                 grouping["id"],
                 "x-cpes-not-vulnerable",
                 f"{criteria_id} ({group_name}) is not vulnerable to {cve_name}",
                 external_references=ext_refs,
                 add_arango_props=False,
+                created=indicator["created"],
+                modified=indicator["modified"],
+                _from=indicator.get('_id'),
             )
         )
     return relationships

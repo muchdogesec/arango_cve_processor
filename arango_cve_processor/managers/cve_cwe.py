@@ -9,6 +9,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
     Run CVE <-> CWE relationships
     """
     priority = 0
+    relationship_type = 'related-to'
 
     edge_collection = "nvd_cve_edge_collection"
     vertex_collection = "nvd_cve_vertex_collection"
@@ -66,13 +67,16 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
                 continue
             retval.append(
                 self.create_relationship(
-                    cve,
                     external_object["id"],
-                    relationship_type="exploited-using",
+                    cve["id"],
+                    relationship_type=self.relationship_type,
                     description=f"{cve_id} is exploited using {ext_id}",
                     external_references=self.get_external_references(
                         cve_id, external_object["external_references"][0]
                     ),
+                    created=cve["created"],
+                    modified=cve["modified"],
+                    _to=cve["_id"],
                 )
             )
         return retval

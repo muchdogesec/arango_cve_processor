@@ -304,8 +304,8 @@ def test_parse_deprecations(cpematch):
             "spec_version": "2.1",
             "id": "relationship--c1d43ca8-9515-59bf-844c-de695d769f58",
             "type": "relationship",
-            "created": None,
-            "modified": None,
+            "created": "2007-08-23T21:05:57.937Z",
+            "modified": "2008-04-01T16:11:49.55Z",
             "relationship_type": "related-to",
             "source_ref": "software--246f33a1-3525-5ccb-a1fd-b057a0907c55",
             "target_ref": "software--c63644d9-1e6c-5cf4-8090-30e7912ec185",
@@ -317,6 +317,7 @@ def test_parse_deprecations(cpematch):
             "description": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:* deprecates cpe:2.3:a:linux:linux_kernel:-:*:*:*:*:*:*:*",
             "_arango_cve_processor_note": None,
             "_from": None,
+            "_to": None,
             "_is_ref": False,
         },
         {
@@ -337,9 +338,8 @@ def test_parse_deprecations(cpematch):
                     "extension_type": "toplevel-property-extension"
                 }
             },
-            "x_revoked": True,
-            "x_modified": "2010-12-29T17:10:59.527Z",
             "x_created": "2007-08-23T21:05:57.937Z",
+            "x_revoked": True,
             "x_cpe_struct": {
                 "cpe_version": "2.3",
                 "part": "a",
@@ -354,6 +354,7 @@ def test_parse_deprecations(cpematch):
                 "target_hw": "*",
                 "other": "*",
             },
+            "x_modified": "2010-12-29T17:10:59.527Z",
         },
     ]
 
@@ -473,20 +474,20 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
     )
     assert relationships == [
         {
+            "spec_version": "2.1",
             "id": "relationship--b72c5225-b258-5b1b-8855-c69878151c04",
             "type": "relationship",
-            "spec_version": "2.1",
-            "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
-            "target_ref": "grouping--48a6e763-650c-589e-9fba-2b87e78a2125",
             "created": "2010-04-01T22:30:00.360Z",
             "modified": "2025-04-11T00:51:21.963Z",
             "relationship_type": "x-cpes-vulnerable",
-            "description": "703AF700-7A70-47E2-BC3A-7FD03B3CA9C1 (cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*) is vulnerable to CVE-2010-1226",
+            "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
+            "target_ref": "grouping--48a6e763-650c-589e-9fba-2b87e78a2125",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
+            "description": "703AF700-7A70-47E2-BC3A-7FD03B3CA9C1 (cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*) is vulnerable to CVE-2010-1226",
             "external_references": [
                 {
                     "source_name": "cve",
@@ -502,5 +503,5 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
                     "external_id": "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
                 },
             ],
-        },
+        }
     ]

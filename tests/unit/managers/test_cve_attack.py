@@ -32,7 +32,7 @@ def test_get_object_chunks(attack_processor):
     )
     manager.CHUNK_SIZE = 2
     matches = list(manager.get_object_chunks())
-    print(matches)
+    [(print(m), m['external_references'].sort(key=lambda x: x['external_id'])) for mm in matches for m in mm]
     assert matches == [
         [
             {
@@ -99,6 +99,18 @@ def test_get_object_chunks(attack_processor):
                 "name": "CVE-2024-56447",
                 "external_references": [
                     {
+                        "description": "File and Directory Discovery",
+                        "external_id": "T1083",
+                        "source_name": "ATTACK",
+                        "url": "https://attack.mitre.org/wiki/Technique/T1083",
+                    },
+                    {
+                        "description": "Abuse Elevation Control Mechanism",
+                        "external_id": "T1548",
+                        "source_name": "ATTACK",
+                        "url": "https://attack.mitre.org/wiki/Technique/T1548",
+                    },
+                    {
                         "description": "Abuse Elevation Control Mechanism",
                         "external_id": "T1548",
                         "source_name": "ATTACK",
@@ -109,18 +121,6 @@ def test_get_object_chunks(attack_processor):
                         "external_id": "T1574.010",
                         "source_name": "ATTACK",
                         "url": "https://attack.mitre.org/wiki/Technique/T1574/010",
-                    },
-                    {
-                        "description": "Abuse Elevation Control Mechanism",
-                        "external_id": "T1548",
-                        "source_name": "ATTACK",
-                        "url": "https://attack.mitre.org/wiki/Technique/T1548",
-                    },
-                    {
-                        "description": "File and Directory Discovery",
-                        "external_id": "T1083",
-                        "source_name": "ATTACK",
-                        "url": "https://attack.mitre.org/wiki/Technique/T1083",
                     },
                 ],
             }
@@ -205,13 +205,13 @@ def test_relate_single(attack_processor):
     assert retval == [
         {
             "spec_version": "2.1",
-            "id": "relationship--9a5d8e10-758e-5daa-a1d1-f026f688e001",
+            "id": "relationship--b8fe5d56-36aa-52af-a320-f78ae9a57935",
             "type": "relationship",
             "created": "2025-01-02T15:15:18.650Z",
             "modified": "2025-06-05T21:01:15.860Z",
-            "relationship_type": "exploited-using",
-            "source_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
-            "target_ref": "attack-pattern--fe926152-f431-4baf-956c-4ad3cb0bf23b",
+            "relationship_type": "exploits",
+            "source_ref": "attack-pattern--fe926152-f431-4baf-956c-4ad3cb0bf23b",
+            "target_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
@@ -231,18 +231,19 @@ def test_relate_single(attack_processor):
                 },
             ],
             "_arango_cve_processor_note": "cve-attack",
-            "_from": "nvd_cve_vertex_collection/vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.901482Z",
+            "_from": None,
+            "_to": "nvd_cve_vertex_collection/vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.901482Z",
             "_is_ref": False,
         },
         {
             "spec_version": "2.1",
-            "id": "relationship--b2b8f553-ccd4-53d2-9542-9eda3c109977",
+            "id": "relationship--d517fa28-861c-5958-832e-6ec6d8b4365d",
             "type": "relationship",
             "created": "2025-01-02T15:15:18.650Z",
             "modified": "2025-06-05T21:01:15.860Z",
-            "relationship_type": "exploited-using",
-            "source_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
-            "target_ref": "attack-pattern--f4c1826f-a322-41cd-9557-562100848c84",
+            "relationship_type": "exploits",
+            "source_ref": "attack-pattern--f4c1826f-a322-41cd-9557-562100848c84",
+            "target_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
@@ -262,7 +263,8 @@ def test_relate_single(attack_processor):
                 },
             ],
             "_arango_cve_processor_note": "cve-attack",
-            "_from": "nvd_cve_vertex_collection/vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.901482Z",
+            "_from": None,
+            "_to": "nvd_cve_vertex_collection/vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606+2025-09-12T11:25:34.901482Z",
             "_is_ref": False,
         },
     ]
