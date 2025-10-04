@@ -16,10 +16,11 @@ ARANGODB_PASSWORD = os.getenv("ARANGODB_PASSWORD")
 
 
 namespace = UUID("152ecfe1-5015-522b-97e4-86b60c57036d")
-
+MARKING_DEF_URL = "https://github.com/muchdogesec/stix4doge/raw/main/objects/marking-definition/arango_cve_processor.json"  # this is arango_cve_processor marking-definition
+IDENTITY_URL = "https://github.com/muchdogesec/stix4doge/raw/main/objects/identity/dogesec.json"  # this is dogesec identity
 DEFAULT_OBJECT_URL = [
-    "https://github.com/muchdogesec/stix4doge/raw/main/objects/marking-definition/arango_cve_processor.json",  # this is arango_cve_processor marking-definition
-    "https://github.com/muchdogesec/stix4doge/raw/main/objects/identity/dogesec.json",  # this is dogesec identity
+    MARKING_DEF_URL,
+    IDENTITY_URL,
 ]
 
 OBJECT_MARKING_REFS = [
