@@ -28,7 +28,7 @@ class STIXRelationManager:
     CHUNK_SIZE = BATCH_SIZE
     DESCRIPTION = "please set"
 
-    def __init_subclass__(cls,/, relationship_note, register=True) -> None:
+    def __init_subclass__(cls, /, relationship_note, register=True) -> None:
         cls.relationship_note = relationship_note
         if not register:
             return
@@ -66,7 +66,6 @@ class STIXRelationManager:
         self.ignore_embedded_relationships_sro = ignore_embedded_relationships_sro
         self.update_objects = []
 
-
     @property
     def collection(self):
         return self.containing_collection or self.vertex_collection
@@ -77,16 +76,17 @@ class STIXRelationManager:
     @classmethod
     def create_relationship(
         cls,
-        source,
+        source_ref,
         target_ref,
         relationship_type,
         description,
         relationship_id=None,
         is_ref=False,
         external_references=None,
+        **kwargs,
     ):
         return utils.create_relationship(
-            source,
+            source_ref,
             target_ref,
             relationship_type,
             description,
@@ -94,6 +94,7 @@ class STIXRelationManager:
             is_ref=is_ref,
             external_references=external_references,
             relationship_note=cls.relationship_note,
+            **kwargs,
         )
 
     def upload_vertex_data(self, objects):
@@ -103,10 +104,10 @@ class STIXRelationManager:
                 obj.update(_record_modified=modified_at)
 
             logging.info("updating %d existing reports", len(self.update_objects))
-            for batch in chunked_tqdm(self.update_objects, n=10_000, description='update existing objects'):
-                self.arango.db.collection(self.vertex_collection).update_many(
-                    batch
-                )
+            for batch in chunked_tqdm(
+                self.update_objects, n=10_000, description="update existing objects"
+            ):
+                self.arango.db.collection(self.vertex_collection).update_many(batch)
 
         self.update_objects.clear()
         logging.info("uploading %d vertices", len(objects))
@@ -132,12 +133,8 @@ class STIXRelationManager:
         edge_id_map = self.get_edge_ids(ref_ids, self.collection)
 
         for edge in objects:
-            edge.setdefault(
-                "_from", edge_id_map.get(edge["source_ref"], edge["source_ref"])
-            )
-            edge.setdefault(
-                "_to", edge_id_map.get(edge["target_ref"], edge["target_ref"])
-            )
+            edge.update(_from=edge.get("_from") or edge_id_map.get(edge["source_ref"]))
+            edge.update(_to=edge.get("_to") or edge_id_map.get(edge["target_ref"]))
             edge["_record_md5_hash"] = generate_md5(edge)
 
         inserted_ids, existing_objects = self.arango.insert_several_objects_chunked(
@@ -177,14 +174,16 @@ class STIXRelationManager:
                 if not (_to and _from):
                     continue
                 rel = self.create_relationship(
-                    obj,
+                    obj["id"],
                     target_ref=target_id,
                     relationship_type=ref,
                     is_ref=True,
                     description=None,
+                    created=obj["created"],
+                    modified=obj["modified"],
+                    _from=_from,
+                    _to=_to,
                 )
-                rel["_to"] = _to
-                rel["_from"] = _from
                 rel["_record_md5_hash"] = generate_md5(rel)
                 embedded_relationships.append(rel)
 
@@ -227,9 +226,7 @@ class STIXRelationManager:
     def do_process(self, objects, extra_uploads=[]):
         logging.info("working on %d objects - %s", len(objects), self.relationship_note)
         uploads = [*extra_uploads]
-        for obj in tqdm(
-            objects, desc=f"{self.relationship_note} - [seq]"
-        ):
+        for obj in tqdm(objects, desc=f"{self.relationship_note} - [seq]"):
             uploads.extend(self.relate_single(obj))
 
         added = set()
