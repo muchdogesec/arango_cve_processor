@@ -40,7 +40,7 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
         if not vuln_map:
             return None
         rel_query = """
-        FOR doc IN @@edge_collection // uses acvep-capec-attack
+        FOR doc IN @@edge_collection  OPTIONS {indexHint: "acvep-capec-attack", forceIndexHint: true}
         FILTER doc._arango_cve_processor_note == @cve_cwe_note
                 AND doc.target_ref IN @vuln_ids
                 AND doc._is_latest == TRUE AND doc._is_ref != true
