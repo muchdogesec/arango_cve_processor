@@ -117,7 +117,7 @@ def indicator_with_cpes():
             "name": "CVE-2010-1226",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
             "pattern": "[software:cpe='cpe:2.3:h:apple:iphone:2g:*:*:*:*:*:*:*']",
             "pattern_type": "stix",
@@ -309,7 +309,7 @@ def test_parse_deprecations(cpematch):
             "relationship_type": "related-to",
             "source_ref": "software--246f33a1-3525-5ccb-a1fd-b057a0907c55",
             "target_ref": "software--c63644d9-1e6c-5cf4-8090-30e7912ec185",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -330,7 +330,7 @@ def test_parse_deprecations(cpematch):
             "version": "-",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
             "extensions": {
                 "extension-definition--82cad0bb-0906-5885-95cc-cafe5ee0a500": {
@@ -357,6 +357,7 @@ def test_parse_deprecations(cpematch):
         },
     ]
 
+
 def test_parse_software():
     s = cpe_match.parse_software(
         "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
@@ -373,7 +374,7 @@ def test_parse_software():
         "version": "-",
         "object_marking_refs": [
             "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-            "marking-definition--562918ee-d5da-5579-b6a1-fae50cc6bad3",
+            "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
         ],
         "extensions": {
             "extension-definition--82cad0bb-0906-5885-95cc-cafe5ee0a500": {
@@ -417,7 +418,7 @@ def test_relate_indicator__not_vulnerable(indicator_with_cpes, cpematch):
             "relationship_type": "x-cpes-not-vulnerable",
             "source_ref": "indicator--02e44f54-182b-551d-b3c1-3ba098ed56a6",
             "target_ref": "grouping--3143de40-745c-5251-aa25-aedea6a0756e",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -481,7 +482,7 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
             "modified": "2025-04-11T00:51:21.963Z",
             "relationship_type": "x-cpes-vulnerable",
             "description": "703AF700-7A70-47E2-BC3A-7FD03B3CA9C1 (cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*) is vulnerable to CVE-2010-1226",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",

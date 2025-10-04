@@ -16,6 +16,6 @@ def test_import_default_objects(processor):
     stix_ids = processor.execute_raw_query(query)
     assert stix_ids == [
         "extension-definition--f80cce10-5ac0-58d1-9e7e-b4ed0cc4dbb9",
-        "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+        "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
         "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
     ]

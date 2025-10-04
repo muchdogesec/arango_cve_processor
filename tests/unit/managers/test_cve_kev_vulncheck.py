@@ -64,7 +64,7 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
             "type": "report",
             "spec_version": "2.1",
             "id": "report--06439778-3439-5f81-b549-8df65fbf5abd",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "created": "2025-02-13T00:00:00Z",
             "modified": "2025-09-16T10:25:34.044567372Z",
             "published": "2025-02-13T00:00:00Z",
@@ -122,7 +122,7 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
             "type": "exploit",
             "spec_version": "2.1",
             "id": "exploit--e8476b83-2154-5db3-8380-a4fced6061e2",
-            "created_by_ref": "identity--e1db4e59-c7f9-5ec0-bd55-10004728a167",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "created": "2025-02-11T20:43:23Z",
             "modified": "2025-02-11T20:43:23Z",
             "name": "CVE-2024-53704",
@@ -143,7 +143,7 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
             ],
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                "marking-definition--60c0f466-511a-5419-9f7e-4814e696da40",
+                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
             ],
             "extensions": {
                 "extension-definition--5a047f57-0149-59b6-a079-e2d7c7ac799a": {

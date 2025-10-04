@@ -184,7 +184,7 @@ def test_relate_single(acp_processor, patched_retriever):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--f503c132-140d-589f-ac60-6ae527fd2036",
             "target_ref": "weakness--eb90af25-bcf1-5a0e-a162-a149ed58712a",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -215,7 +215,7 @@ def test_relate_single(acp_processor, patched_retriever):
             "relationship_type": "exploited-using",
             "source_ref": "vulnerability--f503c132-140d-589f-ac60-6ae527fd2036",
             "target_ref": "weakness--bfa2f40d-b5f0-505e-9ac5-92adfe0b6bd8",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",

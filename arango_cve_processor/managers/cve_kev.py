@@ -121,7 +121,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             "type": "report",
             "spec_version": "2.1",
             "id": make_stix_id("report", content),
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": config.IDENTITY_REF,
             "created": created,
             "modified": modified,
             "published": created,
@@ -135,10 +135,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
             "labels": ["kev"],
             "report_types": ["vulnerability"],
             "external_references": references,
-            "object_marking_refs": [
-                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
-            ],
+            "object_marking_refs": config.OBJECT_MARKING_REFS,
         }
         self.update_objects.append(dict(_key=vuln_obj['_key'], x_opencti_cisa_kev=True))
         return [report, *exploit_objects, *cwe_objects]

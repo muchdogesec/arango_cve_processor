@@ -81,7 +81,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                 "type": "exploit",
                 "spec_version": "2.1",
                 "id": "exploit--" + str(uuid.uuid5(config.namespace, xdb["xdb_id"])),
-                "created_by_ref": "identity--e1db4e59-c7f9-5ec0-bd55-10004728a167",
+                "created_by_ref": config.IDENTITY_REF,
                 "created": xdb["date_added"],
                 "modified": xdb["date_added"],
                 "name": object["name"],
@@ -100,10 +100,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
                         "url": xdb["xdb_url"],
                     },
                 ],
-                "object_marking_refs": [
-                    "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
-                    "marking-definition--60c0f466-511a-5419-9f7e-4814e696da40",
-                ],
+                "object_marking_refs": config.OBJECT_MARKING_REFS,
                 "extensions": {
                     "extension-definition--5a047f57-0149-59b6-a079-e2d7c7ac799a": {
                         "extension_type": "new-sdo"

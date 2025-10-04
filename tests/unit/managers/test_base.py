@@ -220,7 +220,8 @@ def test_create_embedded_relationships(processor):
     )
 
     data = remove_volatile_keys(
-        list(processor.db.collection(manager.edge_collection).all()), extra_keys=['_key', '_id']
+        list(processor.db.collection(manager.edge_collection).all()),
+        extra_keys=["_key", "_id"],
     )
     assert data == [
         {
@@ -234,7 +235,7 @@ def test_create_embedded_relationships(processor):
             "relationship_type": "type",
             "source_ref": "relationship-2",
             "target_ref": "src2",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -242,7 +243,7 @@ def test_create_embedded_relationships(processor):
             "description": None,
             "_arango_cve_processor_note": "stix-relation-manager",
             "_is_ref": True,
-            "_record_md5_hash": "812d3fa8280b6da631274403a374981b",
+            "_record_md5_hash": "da60ea7066ce86a8b68dfa6bd6ae4684",
             "_is_latest": True,
             "_target_type": "src2",
             "_source_type": "relationship-2",
@@ -259,7 +260,7 @@ def test_create_embedded_relationships(processor):
             "relationship_type": "type",
             "source_ref": "relationship-2",
             "target_ref": "src1",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -267,7 +268,7 @@ def test_create_embedded_relationships(processor):
             "description": None,
             "_arango_cve_processor_note": "stix-relation-manager",
             "_is_ref": True,
-            "_record_md5_hash": "ffb6b429a0a1f4a6012ab99df51e8d6a",
+            "_record_md5_hash": "a56b2f3ed9785d9961096937031fdba2",
             "_is_latest": True,
             "_target_type": "src1",
             "_source_type": "relationship-2",
@@ -284,7 +285,7 @@ def test_create_embedded_relationships(processor):
             "relationship_type": "another",
             "source_ref": "relationship-1",
             "target_ref": "tgt2",
-            "created_by_ref": "identity--152ecfe1-5015-522b-97e4-86b60c57036d",
+            "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
             "object_marking_refs": [
                 "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
                 "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
@@ -292,7 +293,7 @@ def test_create_embedded_relationships(processor):
             "description": None,
             "_arango_cve_processor_note": "stix-relation-manager",
             "_is_ref": True,
-            "_record_md5_hash": "2a96f23f6658201ca86d30f54a2525e8",
+            "_record_md5_hash": "885edbb2d57e7331b954472e1009c045",
             "_is_latest": True,
             "_target_type": "tgt2",
             "_source_type": "relationship-1",
