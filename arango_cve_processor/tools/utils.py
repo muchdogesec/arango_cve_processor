@@ -231,10 +231,10 @@ def create_indexes(db: StandardDatabase):
     edge_collection.add_index(
         dict(
             type="persistent",
-            fields=["_arango_cve_processor_note", "source_ref"],
+            fields=["_arango_cve_processor_note", "target_ref"],
             storedValues=["id", "_is_ref", "_is_latest"],
             inBackground=True,
-            name=f"acvep-capec_attack",
+            name=f"acvep-capec-attack",
             sparse=True,
         )
     )
