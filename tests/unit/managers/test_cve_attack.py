@@ -202,7 +202,6 @@ def test_relate_single(attack_processor):
             ],
         }
     )
-    print(retval)
     assert retval == [
         {
             "spec_version": "2.1",

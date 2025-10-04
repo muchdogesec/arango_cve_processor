@@ -24,7 +24,6 @@ def test_epss_backfill(acp_processor):
     retval = remove_volatile_keys(
         acp_processor.execute_raw_query(query), extra_keys=["_key", "_id"]
     )
-    print(retval)
     assert retval == [
         {
             "type": "report",
