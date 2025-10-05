@@ -126,6 +126,7 @@ def test_upload_edge_objects(processor):
     data = remove_volatile_keys(
         list(processor.db.collection(manager.edge_collection).all())
     )
+    print(data)
     assert data == [
         {
             "_key": "ex-key1",

@@ -106,27 +106,31 @@ def genrate_relationship_id(source_ref, target_ref, relationship_type):
 
 
 def create_relationship(
-    source,
+    source_ref,
     target_ref,
     relationship_type,
     description,
+    created,
+    modified,
     relationship_id=None,
     is_ref=False,
     external_references=None,
     relationship_note=None,
     add_arango_props=True,
+    _from=None,
+    _to=None,
 ):
     relationship_id = relationship_id or genrate_relationship_id(
-        source["id"], target_ref, relationship_type
+        source_ref, target_ref, relationship_type
     )
     retval = dict(
         spec_version="2.1",
         id=relationship_id,
         type="relationship",
-        created=source.get("created"),
-        modified=source.get("modified"),
+        created=created,
+        modified=modified,
         relationship_type=relationship_type,
-        source_ref=source.get("id"),
+        source_ref=source_ref,
         target_ref=target_ref,
         created_by_ref=config.IDENTITY_REF,
         object_marking_refs=config.OBJECT_MARKING_REFS,
@@ -137,7 +141,8 @@ def create_relationship(
     if add_arango_props:
         retval.update(
             _arango_cve_processor_note=relationship_note,
-            _from=source.get("_id"),
+            _from=_from,
+            _to=_to,
             _is_ref=is_ref,
         )
     return retval
@@ -226,10 +231,10 @@ def create_indexes(db: StandardDatabase):
     edge_collection.add_index(
         dict(
             type="persistent",
-            fields=["_arango_cve_processor_note", "source_ref"],
+            fields=["_arango_cve_processor_note", "target_ref"],
             storedValues=["id", "_is_ref", "_is_latest"],
             inBackground=True,
-            name=f"acvep-capec_attack",
+            name=f"acvep-capec-attack",
             sparse=True,
         )
     )

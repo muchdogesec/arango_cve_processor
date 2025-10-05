@@ -12,10 +12,6 @@ Arango CVE Processor is built into [Vulmatch](https://github.com/muchdogesec/vul
 
 A small script that enriches CVEs to other sources with all data stored as STIX 2.1 objects.
 
-[![arango_cve_processor](https://img.youtube.com/vi/J_LbAzoUpd4/0.jpg)](https://www.youtube.com/watch?v=J_LbAzoUpd4)
-
-[Watch the demo](https://www.youtube.com/watch?v=J_LbAzoUpd4).
-
 ## Overview
 
 Here at DOGESEC we work with a lot of CVE data across our products. [cve2stix](https://github.com/muchdogesec/cve2stix) generates core STIX 2.1 Vulnerability objects from CVE data.
@@ -28,6 +24,10 @@ In short, Arango CVE Processor is a script that;
 
 1. reads the ingested CVE STIX data in ArangoDB
 2. creates STIX objects to represent the relationships between CVE and other datasets
+
+![](docs/arango_cve_processor-structure.jpg)
+
+[Source](https://miro.com/app/board/uXjVL5tH2Ro=/)
 
 ## Usage
 
