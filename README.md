@@ -4,7 +4,9 @@
 
 ## Before you get started
 
-Arango CVE Processor is built into [Vulmatch](https://github.com/muchdogesec/vulmatch) which also handles the download of CVE objects (what you need for ACVEP to work). As such, [Vulmatch](https://github.com/muchdogesec/vulmatch) is probably better suited to what you're looking for.
+![](docs/vulmatch.png)
+
+Arango CVE Processor is built into [Vulmatch](https://www.vulmatch.com) which also handles the download of CVE objects (what you need for ACVEP to work). As such, [Vulmatch](https://www.vulmatch.com) is probably better suited to what you're looking for.
 
 ## tl;dr
 
