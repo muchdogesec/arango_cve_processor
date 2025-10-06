@@ -120,7 +120,6 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
             _key=key,
             x_opencti_epss_score=epss["epss"],
             x_opencti_epss_percentile=epss["percentile"],
-            x_opencti_epss_date=epss["date"],
         )
 
 
