@@ -133,14 +133,16 @@ class CveEpssManager(_CveEpssWorker, relationship_note="cve-epss"):
         self.args = args
         self.kwargs = kwargs
         self.start_date = start_date
-        self.end_date = end_date
+        latest_date_available = EPSSManager.datenow()
+        end_date = end_date or latest_date_available
+        self.end_date = min(end_date, latest_date_available)
 
     def process(self, **kwargs):
         start_date = self.start_date
-        end_date = self.end_date or EPSSManager.datenow()
+        end_date = self.end_date
         for day, date in date_range(start_date, end_date):
             logging.info(
-                f"Running CVE <-> EPSS Backfill for day {day}, date: {date.isoformat()}"
+                f"Running CVE <-> EPSS Backfill for day {day}, date: {date.isoformat()} of {end_date.isoformat()}"
             )
             logging.info("================================")
             rmanager = _CveEpssWorker(self.processor, *self.args, **self.kwargs)
