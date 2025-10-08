@@ -21,6 +21,7 @@ class SwidTitleDB:
     _class_db = None
 
     def __init__(self, zip_path=""):
+        self.lastModified = ''
         self.db_path = tempfile.mktemp(prefix="acvep-swid-cpe_", suffix=".sqlite")
         self.conn = None
         zip_file = zip_path or self._download_zip()
@@ -30,10 +31,15 @@ class SwidTitleDB:
 
     @classmethod
     def get_db(cls):
-        today = datetime.now(UTC).date()
-        if cls._date != today:
+        return cls._class_db
+    
+    @classmethod
+    def refresh_cache(cls, last_modified):
+        if not cls._class_db:
             cls._class_db = SwidTitleDB()
-            cls._date = today
+        if cls._class_db.lastModified < last_modified:
+            logging.info("CPE cache is older than lastModified of cpematch, rebuilding...")
+            cls._class_db = SwidTitleDB()
         return cls._class_db
 
     def _download_zip(self):
@@ -90,12 +96,14 @@ class SwidTitleDB:
                                 break
                         if swid and title:
                             count += 1
+                            lastModified = cpe.get("lastModified", "")
+                            self.lastModified = max(self.lastModified, lastModified)
                             self._insert_cpe_title(
                                 swid,
                                 title,
                                 cpe.get("deprecated", False),
                                 cpe.get("created", ""),
-                                cpe.get("lastModified", ""),
+                                lastModified,
                                 cpe.get("deprecates", []),
                             )
         logging.info(f"wrote {count} entries to db")
