@@ -32,7 +32,11 @@ def test_get_object_chunks(attack_processor):
     )
     manager.CHUNK_SIZE = 2
     matches = list(manager.get_object_chunks())
-    [(print(m), m['external_references'].sort(key=lambda x: x['external_id'])) for mm in matches for m in mm]
+    [
+        (print(m), m["external_references"].sort(key=lambda x: x["external_id"]))
+        for mm in matches
+        for m in mm
+    ]
     assert matches == [
         [
             {
@@ -205,11 +209,11 @@ def test_relate_single(attack_processor):
     assert retval == [
         {
             "spec_version": "2.1",
-            "id": "relationship--b8fe5d56-36aa-52af-a320-f78ae9a57935",
+            "id": "relationship--ec1444b1-4c21-5877-ad97-c761ffb10d23",
             "type": "relationship",
             "created": "2025-01-02T15:15:18.650Z",
             "modified": "2025-06-05T21:01:15.860Z",
-            "relationship_type": "exploits",
+            "relationship_type": "targets",
             "source_ref": "attack-pattern--fe926152-f431-4baf-956c-4ad3cb0bf23b",
             "target_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
@@ -237,11 +241,11 @@ def test_relate_single(attack_processor):
         },
         {
             "spec_version": "2.1",
-            "id": "relationship--d517fa28-861c-5958-832e-6ec6d8b4365d",
+            "id": "relationship--90491b7f-08a8-59ea-856e-4988172cd78d",
             "type": "relationship",
             "created": "2025-01-02T15:15:18.650Z",
             "modified": "2025-06-05T21:01:15.860Z",
-            "relationship_type": "exploits",
+            "relationship_type": "targets",
             "source_ref": "attack-pattern--f4c1826f-a322-41cd-9557-562100848c84",
             "target_ref": "vulnerability--b7e6accd-fb2a-540c-bf13-f305fe42d606",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",

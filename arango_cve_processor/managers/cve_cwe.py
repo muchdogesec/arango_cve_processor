@@ -9,7 +9,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
     Run CVE <-> CWE relationships
     """
     priority = 0
-    relationship_type = 'related-to'
+    relationship_type = "targets"
 
     edge_collection = "nvd_cve_edge_collection"
     vertex_collection = "nvd_cve_vertex_collection"
