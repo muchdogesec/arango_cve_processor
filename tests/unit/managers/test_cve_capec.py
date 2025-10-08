@@ -200,14 +200,15 @@ def test_relate_single(capec_processor):
             ],
         }
     )
+
     assert retval == [
         {
             "spec_version": "2.1",
-            "id": "relationship--802e3204-09e1-5db9-b2f9-8c53eb89e2ea",
+            "id": "relationship--139082b9-201f-58a9-9083-9f91a4e7f1b4",
             "type": "relationship",
             "created": "2025-01-06T17:15:14.217Z",
             "modified": "2025-08-05T18:04:59.290Z",
-            "relationship_type": "exploits",
+            "relationship_type": "targets",
             "source_ref": "attack-pattern--9a7c6cbc-e3f9-4925-992e-f07e1359de87",
             "target_ref": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
@@ -235,11 +236,11 @@ def test_relate_single(capec_processor):
         },
         {
             "spec_version": "2.1",
-            "id": "relationship--8eca7c46-2268-5597-91d6-1c960770b4b9",
+            "id": "relationship--1a2030b6-c3cf-5522-b3a3-7814844611c6",
             "type": "relationship",
             "created": "2025-01-06T17:15:14.217Z",
             "modified": "2025-08-05T18:04:59.290Z",
-            "relationship_type": "exploits",
+            "relationship_type": "targets",
             "source_ref": "attack-pattern--5e4a268e-f89f-445a-aa42-395922f56bf0",
             "target_ref": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
@@ -267,11 +268,11 @@ def test_relate_single(capec_processor):
         },
         {
             "spec_version": "2.1",
-            "id": "relationship--fdf88288-c861-5c72-aaba-b5bd24de9fca",
+            "id": "relationship--afc0bbd0-e6d6-546b-8168-568852f7c54c",
             "type": "relationship",
             "created": "2025-01-06T17:15:14.217Z",
             "modified": "2025-08-05T18:04:59.290Z",
-            "relationship_type": "exploits",
+            "relationship_type": "targets",
             "source_ref": "attack-pattern--08c74bd3-c5ad-4d6c-a8bb-bb93d7503ddb",
             "target_ref": "vulnerability--01f30f82-30fd-5e43-a096-0ae15a29c543",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",

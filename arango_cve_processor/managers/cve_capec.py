@@ -12,7 +12,7 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
     ctibutler_path = "capec"
     ctibutler_query = "capec_id"
     source_name = "capec"
-    relationship_type = 'exploits'
+    relationship_type = 'targets'
 
     ## used in query
     prev_note = CveCwe.relationship_note
