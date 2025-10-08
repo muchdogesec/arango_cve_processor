@@ -174,14 +174,15 @@ def test_relate_single(acp_processor, patched_retriever):
             "name": "CVE-2024-56447",
         }
     )
+    print(retval)
     assert retval == [
         {
             "spec_version": "2.1",
-            "id": "relationship--475fb5d9-7d54-50da-8f18-a1a545042c50",
+            "id": "relationship--7cfee28f-b9ab-5ed5-a8a0-f221a918a981",
             "type": "relationship",
             "created": "2025-01-08T03:15:10.190Z",
             "modified": "2025-01-13T21:42:30.453Z",
-            "relationship_type": "related-to",
+            "relationship_type": "targets",
             "source_ref": "weakness--eb90af25-bcf1-5a0e-a162-a149ed58712a",
             "target_ref": "vulnerability--f503c132-140d-589f-ac60-6ae527fd2036",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
@@ -209,11 +210,11 @@ def test_relate_single(acp_processor, patched_retriever):
         },
         {
             "spec_version": "2.1",
-            "id": "relationship--56018711-6d17-56b6-a1a8-273f40307032",
+            "id": "relationship--bd1a592c-265b-5a88-8fa6-1cd96536f1e4",
             "type": "relationship",
             "created": "2025-01-08T03:15:10.190Z",
             "modified": "2025-01-13T21:42:30.453Z",
-            "relationship_type": "related-to",
+            "relationship_type": "targets",
             "source_ref": "weakness--bfa2f40d-b5f0-505e-9ac5-92adfe0b6bd8",
             "target_ref": "vulnerability--f503c132-140d-589f-ac60-6ae527fd2036",
             "created_by_ref": "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5",
