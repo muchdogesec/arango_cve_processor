@@ -6,6 +6,7 @@ from arango_cve_processor.managers.cve_attack import CveAttack
 from arango_cve_processor.managers.cve_capec import CveCapec
 from arango_cve_processor.managers.cve_cwe import CveCwe
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
+from tests.unit.utils import sort_external_references
 
 
 @pytest.fixture
@@ -24,6 +25,7 @@ def test_get_object_chunks(capec_processor):
     )
     manager.CHUNK_SIZE = 2
     matches = list(manager.get_object_chunks())
+    sort_external_references(matches)
     assert matches == [
         [
             {
@@ -49,21 +51,6 @@ def test_get_object_chunks(capec_processor):
                 "external_references": [
                     {
                         "source_name": "capec",
-                        "url": "https://capec.mitre.org/data/definitions/242.html",
-                        "external_id": "CAPEC-242",  # from CWE-94
-                    },
-                    {
-                        "source_name": "capec",
-                        "url": "https://capec.mitre.org/data/definitions/35.html",
-                        "external_id": "CAPEC-35",  # from CWE-94
-                    },
-                    {
-                        "source_name": "capec",
-                        "url": "https://capec.mitre.org/data/definitions/77.html",
-                        "external_id": "CAPEC-77",  # from CWE-94
-                    },
-                    {
-                        "source_name": "capec",
                         "url": "https://capec.mitre.org/data/definitions/10.html",
                         "external_id": "CAPEC-10",  # from CWE-99
                     },
@@ -74,8 +61,23 @@ def test_get_object_chunks(capec_processor):
                     },
                     {
                         "source_name": "capec",
+                        "url": "https://capec.mitre.org/data/definitions/242.html",
+                        "external_id": "CAPEC-242",  # from CWE-94
+                    },
+                    {
+                        "source_name": "capec",
+                        "url": "https://capec.mitre.org/data/definitions/35.html",
+                        "external_id": "CAPEC-35",  # from CWE-94
+                    },
+                    {
+                        "source_name": "capec",
                         "url": "https://capec.mitre.org/data/definitions/75.html",
                         "external_id": "CAPEC-75",  # from CWE-99
+                    },
+                    {
+                        "source_name": "capec",
+                        "url": "https://capec.mitre.org/data/definitions/77.html",
+                        "external_id": "CAPEC-77",  # from CWE-94
                     },
                 ],
             },
@@ -90,8 +92,18 @@ def test_get_object_chunks(capec_processor):
                 "external_references": [
                     {
                         "source_name": "capec",
+                        "url": "https://capec.mitre.org/data/definitions/1.html",
+                        "external_id": "CAPEC-1",
+                    },
+                    {
+                        "source_name": "capec",
                         "url": "https://capec.mitre.org/data/definitions/122.html",
                         "external_id": "CAPEC-122",
+                    },
+                    {
+                        "source_name": "capec",
+                        "url": "https://capec.mitre.org/data/definitions/127.html",
+                        "external_id": "CAPEC-127",
                     },
                     {
                         "source_name": "capec",
@@ -102,16 +114,6 @@ def test_get_object_chunks(capec_processor):
                         "source_name": "capec",
                         "url": "https://capec.mitre.org/data/definitions/58.html",
                         "external_id": "CAPEC-58",
-                    },
-                    {
-                        "source_name": "capec",
-                        "url": "https://capec.mitre.org/data/definitions/1.html",
-                        "external_id": "CAPEC-1",
-                    },
-                    {
-                        "source_name": "capec",
-                        "url": "https://capec.mitre.org/data/definitions/127.html",
-                        "external_id": "CAPEC-127",
                     },
                     {
                         "source_name": "capec",

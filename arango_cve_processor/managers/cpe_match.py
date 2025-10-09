@@ -15,12 +15,12 @@ from stix2.serialization import serialize
 
 from arango_cve_processor import config
 from arango_cve_processor.tools import cpe
+from arango_cve_processor.tools.nvd import fetch_nvd_api
 from arango_cve_processor.tools.retriever import STIXObjectRetriever, chunked
 from arango_cve_processor.tools.utils import stix2python
 from .cve_kev import CISAKevManager
 from .base_manager import STIXRelationManager
 
-RATE_LIMIT_WINDOW = 30
 
 class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
     DESCRIPTION = """
@@ -29,13 +29,7 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
 
     def __init__(self, *args, updated_after, **kwargs):
         super().__init__(*args, **kwargs)
-        self.session = requests.Session()
-        self.api_key = os.environ.get("NVD_API_KEY")
-        self.requests_per_window = 5
         self.updated_after = updated_after
-        if self.api_key:
-            self.session.headers = {"apiKey": self.api_key}
-            self.requests_per_window = 50
         if not self.updated_after:
             raise ValueError("updated_after is required for this mode")
         if isinstance(self.updated_after, (datetime, date)):
@@ -44,61 +38,21 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         self.updated_before = datetime.now(UTC).isoformat()
 
     def get_updated_cpematches(self):
-        total_results = math.inf
-        start_index = 0
-        query = dict(startIndex=0)
+        query = {}
         if self.updated_after:
             query.update(
                 lastModStartDate=self.updated_after,
                 lastModEndDate=self.updated_before,
             )
-
         iterator = tqdm(total=1, desc="retrieve cpematch from nvd")
-        backoff_time = RATE_LIMIT_WINDOW / 2
-        url = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
-        while start_index < total_results:
-            logging.info(
-                f"Calling NVD API `{url}` with startIndex: {start_index}",
-            )
-            query.update(startIndex=start_index)
-
-            try:
-                logging.info(f"Query => {query}")
-                response = self.session.get(url, params=query)
-                logging.info(f"URL => {response.url}")
-                logging.info(f"HEADERS => {response.request.headers}")
-                logging.info(
-                    f"Status Code => {response.status_code} [{response.reason}]"
-                )
-                if response.status_code != 200:
-                    logging.warning(
-                        "Got response status code %d.", response.status_code
-                    )
-                    raise requests.ConnectionError
-
-            except requests.ConnectionError as ex:
-                logging.warning(
-                    "Got ConnectionError. Backing off for %d seconds.", backoff_time
-                )
-                time.sleep(backoff_time)
-                backoff_time = min(backoff_time * 1.5, RATE_LIMIT_WINDOW*20)
-                continue
-
-            backoff_time = RATE_LIMIT_WINDOW / 2
-            content = response.json()
-            total_results = content["totalResults"]
-            logging.info(f"Total Results {total_results}")
+        for content in fetch_nvd_api("https://services.nvd.nist.gov/rest/json/cpematch/2.0", query):
             groups: dict[str, dict] = {
                 group["matchString"]["matchCriteriaId"]: group["matchString"]
                 for group in content["matchStrings"]
             }
-            iterator.total = total_results
+            iterator.total = content["totalResults"]
             iterator.update(len(groups))
             yield groups
-
-            start_index += content["resultsPerPage"]
-            if start_index < total_results:
-                time.sleep(RATE_LIMIT_WINDOW / self.requests_per_window)
 
     def get_object_chunks(self):
         for groupings in self.get_updated_cpematches():

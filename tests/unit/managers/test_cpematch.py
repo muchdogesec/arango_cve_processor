@@ -3,7 +3,6 @@ import time
 from unittest.mock import call, patch, MagicMock
 from arango_cve_processor.managers.cpe_match import (
     CpeMatchUpdateManager,
-    RATE_LIMIT_WINDOW,
 )
 import requests
 
@@ -12,72 +11,13 @@ from datetime import UTC, datetime, timedelta, timezone
 
 @pytest.fixture
 def cpematch_manager(acp_processor, mocked_updates):
-    manager = CpeMatchUpdateManager(acp_processor, updated_after='2025-01-01T00:00:00.000Z')
-    manager.updated_before = '2025-01-03T21:05:57.937Z'
+    manager = CpeMatchUpdateManager(
+        acp_processor, updated_after="2025-01-01T00:00:00.000Z"
+    )
+    manager.updated_before = "2025-01-03T21:05:57.937Z"
 
     manager.groupings = mocked_updates
     return manager
-
-
-def make_mock_response(
-    status_code=200, total_results=2, results_per_page=1, start_index=0
-):
-    match_id = f"criteria-{start_index}"
-    return MagicMock(
-        status_code=status_code,
-        reason="OK" if status_code == 200 else "Error",
-        json=MagicMock(
-            return_value={
-                "totalResults": total_results,
-                "resultsPerPage": results_per_page,
-                "matchStrings": [
-                    {"matchString": {"matchCriteriaId": match_id}},
-                ],
-            }
-        ),
-        url=f"https://mocked.url/api?startIndex={start_index}",
-        request=MagicMock(headers={}),
-    )
-
-
-def test_get_updated_cpematches_success(cpematch_manager):
-    with patch("requests.Session.get") as mock_get, patch("time.sleep") as mock_sleep:
-
-        # Simulate 2 pages (0 and 1)
-        mock_get.side_effect = [
-            make_mock_response(start_index=0),
-            make_mock_response(start_index=1),
-        ]
-
-        results = list(cpematch_manager.get_updated_cpematches())
-
-        assert len(results) == 2  # 2 pages
-        assert all(isinstance(group, dict) for group in results)
-        assert mock_sleep.call_count == 1  # 1 sleep between 2 pages
-        mock_sleep.assert_called_with(
-            RATE_LIMIT_WINDOW / cpematch_manager.requests_per_window
-        )
-
-
-def test_get_updated_cpematches_with_backoff(cpematch_manager):
-    with patch("requests.Session.get") as mock_get, patch("time.sleep") as mock_sleep:
-
-        # Simulate a connection error first, then success
-        mock_get.side_effect = [
-            requests.ConnectionError(),
-            make_mock_response(start_index=0),
-            make_mock_response(start_index=1),
-        ]
-
-        results = list(cpematch_manager.get_updated_cpematches())
-
-        assert len(results) == 2
-        assert mock_sleep.call_count >= 2  # One for backoff, one for pagination
-        # First sleep is backoff, second is rate limit
-        first_sleep_duration = RATE_LIMIT_WINDOW / 2
-        second_sleep_duration = RATE_LIMIT_WINDOW / cpematch_manager.requests_per_window
-        mock_sleep.assert_any_call(first_sleep_duration)
-        mock_sleep.assert_any_call(second_sleep_duration)
 
 
 @pytest.mark.parametrize(
@@ -166,7 +106,7 @@ def test_relate_single(cpematch_manager):
     }
     objects: list = cpematch_manager.relate_single(indicator)
     for obj in objects.copy():
-        if obj['type'] == 'relationship' and obj['source_ref'].startswith('software'):
+        if obj["type"] == "relationship" and obj["source_ref"].startswith("software"):
             objects.remove(obj)
 
     relationships = [obj for obj in objects if obj["type"] == "relationship"]
