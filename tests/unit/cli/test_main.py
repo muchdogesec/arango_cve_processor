@@ -92,8 +92,8 @@ def test_run_all(acp_processor, monkeypatch):
         run_all(
             acp_processor.db.name,
             modes=["cve-attack", "cve-epss", "cve-capec"],
-            start_date="2026-01-01",
-            end_date="2025-01-01",
+            start_date=date(2026, 1, 1),
+            end_date=date(2025, 1, 1),
             modified_min="2999-01-01",
         )
         mock_create_indexes.assert_called_once()

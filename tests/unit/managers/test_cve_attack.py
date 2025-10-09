@@ -9,6 +9,7 @@ from arango_cve_processor.managers.cve_attack import CveAttack
 from arango_cve_processor.managers.cve_capec import CveCapec
 from arango_cve_processor.managers.cve_cwe import CveCwe
 from arango_cve_processor.tools.retriever import STIXObjectRetriever
+from tests.unit.utils import sort_external_references
 
 
 @pytest.fixture(scope="module")
@@ -32,11 +33,7 @@ def test_get_object_chunks(attack_processor):
     )
     manager.CHUNK_SIZE = 2
     matches = list(manager.get_object_chunks())
-    [
-        (print(m), m["external_references"].sort(key=lambda x: x["external_id"]))
-        for mm in matches
-        for m in mm
-    ]
+    sort_external_references(matches)
     assert matches == [
         [
             {

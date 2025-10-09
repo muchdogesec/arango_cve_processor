@@ -19,7 +19,6 @@ def parse_objects_for_criteria(match_data: dict):
     cpes = []
     for cpe in match_data.get("matches", []):
         cpes.append((cpe["cpeName"], cpe["cpeNameId"]))
-    SwidTitleDB.refresh_cache(match_data['lastModified'])
     softwares = parse_softwares(cpes)
     more_refs = [
         dict(source_name=k, external_id=v)

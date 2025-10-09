@@ -6,7 +6,8 @@ from unittest.mock import patch
 import pytest
 from stix2 import Software, Indicator, Relationship
 from pytz import timezone
-from arango_cve_processor.tools import cpe as cpe_match
+from arango_cve_processor.tools import cpe as tools_cpe
+from arango_cve_processor.tools.cpe_db import SwidTitleDB
 from arango_cve_processor.tools.utils import stix2python
 
 
@@ -52,13 +53,13 @@ from arango_cve_processor.tools.utils import stix2python
     ],
 )
 def test_split_cpe_name(cpename, expected_split):
-    split = cpe_match.split_cpe_name(cpename)
+    split = tools_cpe.split_cpe_name(cpename)
     assert split == expected_split
 
 
 def test_cpe_name_as_dict_extracts_fields():
     cpe = "cpe:2.3:a:apache:http_server:2.4.1:*:*:*:*:*:*:*"
-    d = cpe_match.cpe_name_as_dict(cpe)
+    d = tools_cpe.cpe_name_as_dict(cpe)
     assert d == {
         "cpe_version": "2.3",
         "part": "a",
@@ -78,16 +79,16 @@ def test_cpe_name_as_dict_extracts_fields():
 def test_parse_software_returns_valid_software():
     cpe = "cpe:2.3:a:apache:http_server:2.4.1:*:*:*:*:*:*:*"
     swid = "22E79981-978F-448F-B468-EC9BB2112290"
-    software_obj = cpe_match.parse_software(cpe, swid)
+    software_obj = tools_cpe.parse_software(cpe, swid)
     assert isinstance(software_obj, Software)
-    assert software_obj.x_cpe_struct == cpe_match.cpe_name_as_dict(cpe)
+    assert software_obj.x_cpe_struct == tools_cpe.cpe_name_as_dict(cpe)
     assert software_obj.name == "Apache Software Foundation Apache HTTP Server 2.4.1"
     assert software_obj.cpe == cpe
     assert software_obj.version == "2.4.1"
     assert software_obj.vendor == software_obj.x_cpe_struct["vendor"]
     assert swid == software_obj.swid
     assert (
-        cpe_match.software_cpe_properties_ExtensionDefinitionSMO.id
+        tools_cpe.software_cpe_properties_ExtensionDefinitionSMO.id
         in software_obj.extensions
     )
 
@@ -236,19 +237,19 @@ def matchString(cpematch):
 
 
 def test_parse_cpematch_date():
-    assert cpe_match.parse_cpematch_date("2022-09-26T22:47:53.533") == datetime(
+    assert tools_cpe.parse_cpematch_date("2022-09-26T22:47:53.533") == datetime(
         2022, 9, 26, 22, 47, 53, microsecond=533 * 1000, tzinfo=UTC
     )
-    assert cpe_match.parse_cpematch_date("2025-03-11T18:33:05.670") == datetime(
+    assert tools_cpe.parse_cpematch_date("2025-03-11T18:33:05.670") == datetime(
         2025, 3, 11, 18, 33, 5, microsecond=670 * 1000, tzinfo=UTC
     )
-    assert cpe_match.parse_cpematch_date("2019-06-17T09:16:33.960") == datetime(
+    assert tools_cpe.parse_cpematch_date("2019-06-17T09:16:33.960") == datetime(
         2019, 6, 17, 9, 16, 33, microsecond=960 * 1000, tzinfo=UTC
     )
 
 
 def test_parse_objects_for_criteria(matchString):
-    grouping, *softwares = cpe_match.parse_objects_for_criteria(matchString)
+    grouping, *softwares = tools_cpe.parse_objects_for_criteria(matchString)
     assert grouping["id"] == "grouping--3143de40-745c-5251-aa25-aedea6a0756e"
     assert grouping["name"] == matchString["criteria"]
     assert grouping["external_references"] == [
@@ -279,7 +280,7 @@ def test_parse_objects_for_criteria(matchString):
     ],
 )
 def test_grouping_revoked(cpematch, i, expected_revoked):
-    grouping, *softwares = cpe_match.parse_objects_for_criteria(
+    grouping, *softwares = tools_cpe.parse_objects_for_criteria(
         cpematch["matchStrings"][i]["matchString"]
     )
     assert grouping["revoked"] == expected_revoked
@@ -287,18 +288,18 @@ def test_grouping_revoked(cpematch, i, expected_revoked):
 
 def test_grouping__object_ref_contains_all_softwares(cpematch):
     for match in cpematch["matchStrings"]:
-        grouping, *softwares = cpe_match.parse_objects_for_criteria(
+        grouping, *softwares = tools_cpe.parse_objects_for_criteria(
             match["matchString"]
         )
         assert set(grouping["object_refs"]) == {s["id"] for s in softwares}
 
 
 def test_parse_deprecations(cpematch):
-    s = cpe_match.parse_software(
+    s = tools_cpe.parse_software(
         "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
         "0BA1AF04-98FA-4EBA-893B-700905C43151",
     )
-    objects = cpe_match.parse_deprecations([s])
+    objects = tools_cpe.parse_deprecations([s])
     assert stix2python(objects) == [
         {
             "spec_version": "2.1",
@@ -360,7 +361,7 @@ def test_parse_deprecations(cpematch):
 
 
 def test_parse_software():
-    s = cpe_match.parse_software(
+    s = tools_cpe.parse_software(
         "cpe:2.3:o:linux:linux_kernel:-:*:*:*:*:*:*:*",
         "0BA1AF04-98FA-4EBA-893B-700905C43151",
     )
@@ -403,11 +404,11 @@ def test_parse_software():
 
 
 def test_relate_indicator__not_vulnerable(indicator_with_cpes, cpematch):
-    grouping, *softwares = cpe_match.parse_objects_for_criteria(
+    grouping, *softwares = tools_cpe.parse_objects_for_criteria(
         cpematch["matchStrings"][0]["matchString"]
     )
     relationships = stix2python(
-        cpe_match.relate_indicator(grouping, indicator_with_cpes)
+        tools_cpe.relate_indicator(grouping, indicator_with_cpes)
     )
     assert relationships == [
         {
@@ -456,7 +457,7 @@ def test_parse_objects__null_matchdata():
         "created": "2024-11-08T21:29:12.073",
         "status": "Active",
     }
-    grouping, *softwares = cpe_match.parse_objects_for_criteria(null_match)
+    grouping, *softwares = tools_cpe.parse_objects_for_criteria(null_match)
     grouping = parse(grouping)
     assert len(softwares) == 0
     assert grouping.object_refs == [
@@ -466,11 +467,11 @@ def test_parse_objects__null_matchdata():
 
 
 def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
-    grouping, *softwares = cpe_match.parse_objects_for_criteria(
+    grouping, *softwares = tools_cpe.parse_objects_for_criteria(
         cpematch["matchStrings"][1]["matchString"]
     )
     relationships = stix2python(
-        cpe_match.relate_indicator(grouping, indicator_with_cpes)
+        tools_cpe.relate_indicator(grouping, indicator_with_cpes)
     )
     assert relationships == [
         {
@@ -505,3 +506,20 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
             ],
         }
     ]
+
+
+def test_title_db__missing_lookup_calls_refresh():
+    db = SwidTitleDB.get_db()
+    with (
+        patch.object(SwidTitleDB, "refresh_from_api") as mock_refresh,
+        patch.object(SwidTitleDB, "_lookup", side_effect=(None, "sample-response")),
+    ):
+        d = db.lookup("1")
+        mock_refresh.assert_called_once_with()
+        assert d == "sample-response"
+
+
+def test_refresh_from_api():
+    db = SwidTitleDB.get_db()
+    retval = db.refresh_from_api()
+    assert isinstance(retval, int)
