@@ -6,6 +6,7 @@ import requests
 
 
 RATE_LIMIT_WINDOW = 30
+RATE_LIMIT_MAX_SLEEP = 10*60 #10 minutes
 
 
 def fetch_nvd_api(url, query: dict):
@@ -42,7 +43,7 @@ def fetch_nvd_api(url, query: dict):
                 "Got ConnectionError. Backing off for %d seconds.", backoff_time
             )
             time.sleep(backoff_time)
-            backoff_time = min(backoff_time * 1.5, RATE_LIMIT_WINDOW * 20)
+            backoff_time = min(backoff_time * 1.5, RATE_LIMIT_MAX_SLEEP)
             continue
 
         backoff_time = RATE_LIMIT_WINDOW / 2
@@ -54,4 +55,4 @@ def fetch_nvd_api(url, query: dict):
         dt = time.time() - t
         start_index += content["resultsPerPage"]
         if start_index < total_results:
-            time.sleep(RATE_LIMIT_WINDOW / requests_per_window - dt)
+            time.sleep(max(RATE_LIMIT_WINDOW / requests_per_window - dt, 0))
