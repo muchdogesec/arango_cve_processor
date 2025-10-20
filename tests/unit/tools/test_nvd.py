@@ -27,7 +27,7 @@ def make_mock_response(
     )
 
 
-def test_get_updated_cpematches_success():
+def test_fetch_nvd_success():
     with patch("requests.Session.get") as mock_get, patch("time.sleep") as mock_sleep:
 
         # Simulate 2 pages (0 and 1)
@@ -43,7 +43,7 @@ def test_get_updated_cpematches_success():
         assert mock_sleep.call_count == 1  # 1 sleep between 2 pages
 
 
-def test_get_updated_cpematches_with_backoff():
+def test_fetch_nvd_with_backoff():
     with patch("requests.Session.get") as mock_get, patch("time.sleep") as mock_sleep:
 
         # Simulate a connection error first, then success
