@@ -210,11 +210,12 @@ def create_indexes(db: StandardDatabase):
                 {"name": "name"},
                 {"name": "_is_latest"},
                 {"name": "type"},
+                {"name": "created"},
+                {"name": "modified"},
             ],
-            "name": "acvep_search",
+            "name": "acvep_search_v2",
             "primarySort": {"fields": [], "compression": "lz4"},
             "sparse": True,
-            "storedValues": [{"fields": ["created", "modified"], "compression": "lz4"}],
             "type": "inverted",
         }
     )

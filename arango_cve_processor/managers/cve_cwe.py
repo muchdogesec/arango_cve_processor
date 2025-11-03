@@ -21,7 +21,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
 
     def get_single_chunk(self, start, batch_size):
         query = """
-        FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+        FOR doc IN @@collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
         FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' 
             AND doc.created >= @created_min 
             AND doc.modified >= @modified_min
