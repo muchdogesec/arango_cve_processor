@@ -22,7 +22,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
 
     def get_cve_for_kevs(self, kev_map):
         query = """
-        FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+        FOR doc IN @@collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
         FILTER doc.type == 'vulnerability' AND doc._is_latest == TRUE
                 AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
         RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified', '_key')

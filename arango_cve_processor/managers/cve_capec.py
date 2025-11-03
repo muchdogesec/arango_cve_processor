@@ -19,7 +19,7 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
 
     def get_single_chunk(self, start=0, batch_size=10_000):
         v_query = """
-    FOR doc IN @@vertex_collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+    FOR doc IN @@vertex_collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
     FILTER doc.type == 'vulnerability'
                 AND doc._is_latest == TRUE
                     AND doc.created >= @created_min AND doc.modified >= @modified_min 

@@ -48,14 +48,14 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
             self.cve_ids, self.CHUNK_SIZE, "get-cve-and-existing-epss-reports"
         ):
             reports_query = """
-  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
   FILTER doc._arango_cve_processor_note == @relationship_note
   FILTER doc.name IN @cve_ids AND doc._is_latest == TRUE
   LET cve_name = doc.external_references[0].external_id
   RETURN [cve_name, KEEP(doc, '_key', 'x_epss', '_record_created')]
         """
             cve_query = """
-  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search", forceIndexHint: true}
+  FOR doc IN @@collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
   FILTER doc.type == 'vulnerability'
   FILTER doc.name IN @cve_ids
   FILTER doc._is_latest == TRUE AND doc.created >= @created_min AND doc.modified >= @modified_min 
