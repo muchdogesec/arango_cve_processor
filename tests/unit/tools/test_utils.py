@@ -5,7 +5,7 @@ def test_import_default_objects(processor):
     import_default_objects(
         processor,
         [
-            "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/properties/report-epss-scoring.json"
+            "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/automodel_generated/extension-definitions/properties/report-epss-scoring.json"
         ],
     )
     query = """

@@ -99,7 +99,7 @@ def test_run_all(acp_processor, monkeypatch):
         mock_create_indexes.assert_called_once()
         assert mock_import_defaults.call_args[1] == dict(
             default_objects=(
-                "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/properties/report-epss-scoring.json",
+                "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/automodel_generated/extension-definitions/properties/report-epss-scoring.json",
             )
         )
         assert processed_modes == ['cve-capec', 'cve-attack', 'cve-epss'], "must be called in order"

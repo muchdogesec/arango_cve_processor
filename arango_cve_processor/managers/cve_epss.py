@@ -17,7 +17,7 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
     edge_collection = "nvd_cve_edge_collection"
     vertex_collection = "nvd_cve_vertex_collection"
     default_objects = [
-        "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/extension-definitions/properties/report-epss-scoring.json"
+        "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/automodel_generated/extension-definitions/properties/report-epss-scoring.json"
     ]
     CHUNK_SIZE = 20_000
 
