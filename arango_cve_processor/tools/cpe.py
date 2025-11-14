@@ -3,7 +3,7 @@ import re
 import uuid
 import pytz
 from stix2 import Grouping, Software
-from stix2extensions._extensions import software_cpe_properties_ExtensionDefinitionSMO
+from stix2extensions import SoftwareCpePropertiesExtension
 
 from arango_cve_processor import config
 from arango_cve_processor.tools import utils
@@ -194,7 +194,7 @@ def parse_software(cpename, swid):
         version=cpe_struct["version"],
         vendor=cpe_struct["vendor"],
         extensions={
-            software_cpe_properties_ExtensionDefinitionSMO.id: {
+            SoftwareCpePropertiesExtension.extension_definition['id']: {
                 "extension_type": "toplevel-property-extension"
             }
         },

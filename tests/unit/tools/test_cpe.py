@@ -88,7 +88,7 @@ def test_parse_software_returns_valid_software():
     assert software_obj.vendor == software_obj.x_cpe_struct["vendor"]
     assert swid == software_obj.swid
     assert (
-        tools_cpe.software_cpe_properties_ExtensionDefinitionSMO.id
+        "extension-definition--82cad0bb-0906-5885-95cc-cafe5ee0a500"
         in software_obj.extensions
     )
 
