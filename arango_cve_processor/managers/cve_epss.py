@@ -19,7 +19,7 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
     default_objects = [
         "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/automodel_generated/extension-definitions/properties/report-epss-scoring.json"
     ]
-    CHUNK_SIZE = 20_000
+    CHUNK_SIZE = 10_000
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -101,6 +101,8 @@ class _CveEpssWorker(STIXRelationManager, relationship_note="cve-epss", register
                             "x_epss": all_epss,
                             "modified": latest_epss["date"] + "T00:00:00.000Z",
                             "_arango_cve_processor_note": self.relationship_note,
+                            "_epss_score": latest_epss["epss"],
+                            "_epss_percentile": latest_epss["percentile"],
                         },
                         self.make_opencti_properties(cve_object["_key"], latest_epss),
                     ]

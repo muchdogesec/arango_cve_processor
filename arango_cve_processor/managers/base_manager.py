@@ -26,6 +26,7 @@ class STIXRelationManager:
     MIN_DATE_STR = "1970-01-01"
     BATCH_SIZE = 1000
     CHUNK_SIZE = BATCH_SIZE
+    UPDATE_CHUNK_SIZE = 5000
     DESCRIPTION = "please set"
 
     def __init_subclass__(cls, /, relationship_note, register=True) -> None:
@@ -105,9 +106,9 @@ class STIXRelationManager:
 
             logging.info("updating %d existing reports", len(self.update_objects))
             for batch in chunked_tqdm(
-                self.update_objects, n=10_000, description="update existing objects"
+                self.update_objects, n=self.UPDATE_CHUNK_SIZE, description="update existing objects"
             ):
-                self.arango.db.collection(self.vertex_collection).update_many(batch)
+                self.arango.db.collection(self.vertex_collection).update_many(batch, silent=True, check_rev=False)
 
         self.update_objects.clear()
         logging.info("uploading %d vertices", len(objects))
