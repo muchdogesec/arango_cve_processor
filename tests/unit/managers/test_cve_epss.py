@@ -66,6 +66,8 @@ def test_epss_backfill(acp_processor):
             "_record_md5_hash": "dd9295679421ae55cd4ab7a20532a509",
             "_is_latest": True,
             "_taxii": {"last": True, "first": True, "visible": True},
+            "_epss_score": 0.00043,
+            "_epss_percentile": 0.11665,
         },
         {
             "type": "report",
@@ -104,6 +106,8 @@ def test_epss_backfill(acp_processor):
             "_record_md5_hash": "f25e43d30c9d44a2e73a698d12dc015d",
             "_is_latest": True,
             "_taxii": {"last": True, "first": True, "visible": True},
+            "_epss_score": 0.00043,
+            "_epss_percentile": 0.11665,
         },
         {
             "type": "report",
@@ -142,6 +146,8 @@ def test_epss_backfill(acp_processor):
             "_record_md5_hash": "19c7516d89633f14acb35319480dcd3c",
             "_is_latest": True,
             "_taxii": {"last": True, "first": True, "visible": True},
+            "_epss_score": 0.00087,
+            "_epss_percentile": 0.39353,
         },
         {
             "type": "report",
@@ -180,6 +186,8 @@ def test_epss_backfill(acp_processor):
             "_record_md5_hash": "daf44f8b6498071b6c6cd7d213fbecd8",
             "_is_latest": True,
             "_taxii": {"last": True, "first": True, "visible": True},
+            "_epss_score": 0.00054,
+            "_epss_percentile": 0.25386,
         },
     ]
 
