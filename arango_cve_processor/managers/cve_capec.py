@@ -17,14 +17,14 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
     ## used in query
     prev_note = CveCwe.relationship_note
 
-    def get_single_chunk(self, start=0, batch_size=10_000):
+    def get_single_chunk(self, start=0, chunk_size=10_000):
         v_query = """
     FOR doc IN @@vertex_collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
     FILTER doc.type == 'vulnerability'
                 AND doc._is_latest == TRUE
                     AND doc.created >= @created_min AND doc.modified >= @modified_min 
                         AND (NOT @cve_ids OR doc.name IN @cve_ids)
-    LIMIT @start, @batch_size
+    LIMIT @start, @chunk_size
     RETURN KEEP(doc, '_id', 'id', 'name', 'created', 'modified')
         """
         v_binds = {
@@ -33,7 +33,7 @@ class CveCapec(CveCwe, relationship_note="cve-capec"):
             "modified_min": self.modified_min,
             "cve_ids": self.cve_ids or None,
             "start": start,
-            "batch_size": batch_size,
+            "chunk_size": chunk_size,
         }
         results = self.arango.execute_raw_query(v_query, bind_vars=v_binds)
         vuln_map = {d["id"]: d for d in results}

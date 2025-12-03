@@ -24,9 +24,9 @@ RELATION_MANAGERS: dict[str, "type[STIXRelationManager]"] = {}
 
 class STIXRelationManager:
     MIN_DATE_STR = "1970-01-01"
-    BATCH_SIZE = 1000
-    CHUNK_SIZE = BATCH_SIZE
-    UPDATE_CHUNK_SIZE = 5000
+    CHUNK_SIZE = 1_000
+    UPDATE_CHUNK_SIZE = 5_000
+    UPLOAD_CHUNK_SIZE = 5_000
     DESCRIPTION = "please set"
 
     def __init_subclass__(cls, /, relationship_note, register=True) -> None:
@@ -120,7 +120,7 @@ class STIXRelationManager:
             objects, self.vertex_collection
         )
         self.arango.update_is_latest_several_chunked(
-            inserted_ids, self.vertex_collection, self.edge_collection
+            inserted_ids, self.vertex_collection, self.edge_collection, chunk_size=self.UPLOAD_CHUNK_SIZE
         )
 
     def upload_edge_data(self, objects: list[dict]):

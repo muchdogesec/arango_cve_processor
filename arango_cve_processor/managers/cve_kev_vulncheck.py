@@ -17,6 +17,8 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
     Creates KEV report objects for CVEs, Source: Vulncheck
     """
     content_fmt = "Vulncheck KEV: {cve_id}"
+    CHUNK_SIZE = 1500
+    UPLOAD_CHUNK_SIZE = 2500
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +32,7 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             raise ValueError(f"Bad API KEY for vulncheck: {resp.content}")
 
     def get_all_kevs(self):
-        params = dict(limit=1500)
+        params = dict(limit=self.CHUNK_SIZE)
         if self.modified_min:
             params.update(lastModStartDate=self.modified_min[:10])
         if self.created_min:
