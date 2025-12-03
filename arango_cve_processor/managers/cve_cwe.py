@@ -19,7 +19,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
     source_name = "cwe"
     CHUNK_SIZE = 20_000
 
-    def get_single_chunk(self, start, batch_size):
+    def get_single_chunk(self, start, chunk_size):
         query = """
         FOR doc IN @@collection OPTIONS {indexHint: "acvep_search_v2", forceIndexHint: true}
         FILTER doc._is_latest == TRUE AND doc.type == 'vulnerability' 
@@ -27,7 +27,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
             AND doc.modified >= @modified_min
             AND (NOT @cve_ids OR doc.name IN @cve_ids) // filter --cve_id
             AND doc.external_references[? ANY FILTER CURRENT.source_name == @source_name]
-        LIMIT @start, @batch_size
+        LIMIT @start, @chunk_size
         RETURN KEEP(doc, '_id', 'id', 'external_references', 'name', 'created', 'modified')
         """
         bindings = {
@@ -37,7 +37,7 @@ class CveCwe(STIXRelationManager, relationship_note="cve-cwe"):
             "modified_min": self.modified_min,
             "cve_ids": self.cve_ids or None,
             "start": start,
-            "batch_size": batch_size,
+            "chunk_size": chunk_size,
         }
         return self.arango.execute_raw_query(query, bind_vars=bindings) or None
 

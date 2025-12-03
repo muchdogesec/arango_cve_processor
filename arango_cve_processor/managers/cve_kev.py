@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any
 import uuid
@@ -39,7 +40,7 @@ class CISAKevManager(STIXRelationManager, relationship_note="cve-kev"):
                 "@collection": self.collection,
                 "cve_ids": cve_ids,
             },
-            batch_size=self.BATCH_SIZE,
+            batch_size=self.CHUNK_SIZE,
         ):
             obj.update(kev=kev_map[obj['name']])
             retval.append(obj)
