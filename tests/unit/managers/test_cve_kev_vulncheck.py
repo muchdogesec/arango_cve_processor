@@ -43,6 +43,10 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
             ],
             "vulncheck_reported_exploitation": [
                 {
+                    "url": "https://dashboard.shadowserver.org/statistics/honeypot/vulnerability/map/?day=2025-11-29&host_type=src&vulnerability=cve-2024-53704",
+                    "date_added": "2025-11-29T00:00:00Z",
+                },
+                {
                     "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
                     "date_added": "2025-02-18T00:00:00Z",
                 },
@@ -98,14 +102,14 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
                 },
                 {"source_name": "action_due", "description": "2025-03-11T00:00:00Z"},
                 {
+                    "url": "https://dashboard.shadowserver.org/statistics/honeypot/vulnerability/map/?host_type=src&vulnerability=cve-2024-53704",
+                    "description": "Added on: 2025-11-29T00:00:00Z",
+                    "source_name": "dashboard.shadowserver.org",
+                },
+                {
                     "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
                     "description": "Added on: 2025-02-18T00:00:00Z",
                     "source_name": "www.cisa.gov",
-                },
-                {
-                    "url": "https://dashboard.shadowserver.org/statistics/honeypot/vulnerability/map/?day=2025-02-24&host_type=src&vulnerability=cve-2024-53704",
-                    "description": "Added on: 2025-02-24T00:00:00Z",
-                    "source_name": "dashboard.shadowserver.org",
                 },
                 {
                     "source_name": "cwe",
