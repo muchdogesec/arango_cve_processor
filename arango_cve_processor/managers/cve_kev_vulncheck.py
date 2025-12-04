@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 import uuid
 import requests
 from tqdm import tqdm
@@ -18,7 +18,8 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
     """
     content_fmt = "Vulncheck KEV: {cve_id}"
     CHUNK_SIZE = 1500
-    UPLOAD_CHUNK_SIZE = 2500
+    UPLOAD_CHUNK_SIZE = 500
+    UPDATE_CHUNK_SIZE = 500
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,14 +62,27 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
             if meta["last_item"] >= meta["total_documents"]:
                 break
 
+    @staticmethod
+    def sanitize_url(url):
+        """ this function removes #frgments and day=/date= queries from the link"""
+        parsed = urlparse(url)
+        qs = parse_qsl(parsed.query, keep_blank_values=True)
+        filtered = [(k, v) for (k, v) in qs if k.lower() not in ("day", "date")]
+        new_query = urlencode(filtered, doseq=True)
+        new_parsed = parsed._replace(query=new_query, fragment="")
+        return urlunparse(new_parsed)
+
     def get_additional_refs(self, kev_obj):
-        for reported in kev_obj["vulncheck_reported_exploitation"]:
+        refs = {}
+        for reported in sorted(kev_obj["vulncheck_reported_exploitation"], key=lambda x: x["date_added"]):
+            ref_url = self.sanitize_url(reported["url"])
             ref = dict(
-                url=reported["url"],
+                url=ref_url,
                 description=f"Added on: {reported['date_added']}",
                 source_name=urlparse(reported["url"]).hostname,
             )
-            yield ref
+            refs[ref_url] = ref
+        return reversed(refs.values()) #return descending
 
     def get_dates(self, cve):
         kev_obj = cve['kev']
