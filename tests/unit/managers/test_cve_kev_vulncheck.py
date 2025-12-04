@@ -63,7 +63,6 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
     }
     vulncheck_kev_manager.cwe_objects = vulncheck_kev_manager.get_all_cwes([cve_object])
     retval = vulncheck_kev_manager.relate_single(cve_object)
-    print([obj for obj in retval if obj["type"] != "weakness"])
     assert [obj for obj in retval if obj["type"] != "weakness"] == [
         {
             "type": "report",
