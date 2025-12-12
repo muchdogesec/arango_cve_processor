@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 import json
 import random
 from unittest.mock import patch
@@ -507,9 +507,17 @@ def test_relate_indicator__vulnerable(indicator_with_cpes, cpematch):
         }
     ]
 
+@pytest.fixture
+def fake_tmp_zip_path(tmp_path):
+    path = tmp_path / "fake_swid_titles.zip"
+    import zipfile
 
-def test_title_db__missing_lookup_calls_refresh():
-    db = SwidTitleDB.get_db()
+    with zipfile.ZipFile(path, 'w') as zf:
+        zf.open('metadata.txt', 'w').write(b"Fake SWID Titles Database")
+    return path
+
+def test_title_db__missing_lookup_calls_refresh(fake_tmp_zip_path):
+    db = SwidTitleDB(fake_tmp_zip_path)
     with (
         patch.object(SwidTitleDB, "refresh_from_api") as mock_refresh,
         patch.object(SwidTitleDB, "_lookup", side_effect=(None, "sample-response")),
@@ -518,8 +526,41 @@ def test_title_db__missing_lookup_calls_refresh():
         mock_refresh.assert_called_once_with()
         assert d == "sample-response"
 
+def test_title_db__lookup_swid_after_refresh(fake_tmp_zip_path):
+    db = SwidTitleDB(fake_tmp_zip_path)
+    swid = "5112BE1F-3DAD-4C1C-B50A-0D336D31E71B"
+    with (
+        patch.object(SwidTitleDB, "refresh_from_api") as mock_refresh,
+        patch.object(
+            SwidTitleDB,
+            "get_swid_from_api",
+            side_effect=db.get_swid_from_api,
+        ) as mock_get_swid_from_api,
+    ):
+        d = db.lookup(swid)
+        mock_refresh.assert_called_once_with()
+        assert d['title'] == 'GiveWP 2.9.3 for WordPress'
+        mock_get_swid_from_api.assert_called_once_with(swid)
 
-def test_refresh_from_api():
-    db = SwidTitleDB.get_db()
+def test_title_db__lookup_raises_value_error_if_not_found(fake_tmp_zip_path):
+    db = SwidTitleDB(fake_tmp_zip_path)
+    swid = "NON-EXISTENT-SWID-0000-0000-000000000000"
+    with (
+        patch.object(SwidTitleDB, "refresh_from_api") as mock_refresh,
+        patch.object(
+            SwidTitleDB,
+            "get_swid_from_api",
+            return_value=None,
+        ) as mock_get_swid_from_api,
+    ):
+        with pytest.raises(ValueError, match=f"SWID {swid} not found in CPE database"):
+            db.lookup(swid)
+        mock_refresh.assert_called_once_with()
+        mock_get_swid_from_api.assert_called_once_with(swid)
+
+def test_refresh_from_api(fake_tmp_zip_path):
+    db = SwidTitleDB(fake_tmp_zip_path)
+    db.lastModified, _, _ = (datetime.now(UTC) - timedelta(days=1)).isoformat().rpartition('+')
     retval = db.refresh_from_api()
     assert isinstance(retval, int)
+    assert retval > 0

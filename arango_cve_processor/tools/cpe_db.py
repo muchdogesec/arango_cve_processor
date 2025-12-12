@@ -132,14 +132,31 @@ class SwidTitleDB:
     def lookup(self, swid):
         cpe = self._lookup(swid)
         if not cpe:
+            logging.warning(f"SWID {swid} not found in CPE database, refreshing from API")
             self.refresh_from_api()
+        cpe = self._lookup(swid)
+        if not cpe:
+            logging.warning(f"SWID {swid} not found in CPE database after API refresh")
+            cpe = self.get_swid_from_api(swid)
+        if not cpe:
+            raise ValueError(f"SWID {swid} not found in CPE database after API refresh")
+        return cpe
+    
+    def get_swid_from_api(self, swid):
+        params = dict(cpeNameId=swid)
+        for data in fetch_nvd_api(
+            self.api_base_url, params
+        ):
+            self.load_data(data)
         return self._lookup(swid)
 
     def refresh_from_api(self):
         assert self.lastModified, "cache must already be populated"
+        last_mod_date = datetime.strptime(self.lastModified, '%Y-%m-%dT%H:%M:%S.%f')
+        last_mod_date = last_mod_date.replace(tzinfo=UTC)
         query = dict(
-            lastModStartDate=self.lastModified,
-            lastModEndDate=(datetime.now() + timedelta(1)).isoformat(),
+            lastModStartDate=(last_mod_date - timedelta(hours=6)).isoformat(),
+            lastModEndDate=(datetime.now(tz=UTC) + timedelta(1)).isoformat(),
         )
         total_count = 0
         for data in fetch_nvd_api(
