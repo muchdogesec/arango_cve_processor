@@ -11,20 +11,6 @@ from arango_cve_processor.__main__ import parse_arguments, main, run_all, RELATI
         (
             [
                 "prog",
-                "cve-epss",
-                "--database", "test_db",
-                "--start_date", "2024-01-01",
-            ],
-            {
-                "modes": ["cve-epss"],
-                "database": "test_db",
-                "start_date": date(2024, 1, 1),
-                "end_date": None
-            },
-        ),
-        (
-            [
-                "prog",
                 "cpematch",
                 "--database", "test_db",
                 "--updated_after", "2023-12-01",
@@ -33,23 +19,6 @@ from arango_cve_processor.__main__ import parse_arguments, main, run_all, RELATI
                 "modes": ["cpematch"],
                 "database": "test_db",
                 "updated_after": datetime(2023, 12, 1, 0, 0, tzinfo=UTC),
-            },
-        ),
-        (
-            [
-                "prog",
-                "cve-epss",
-                "--database", "test_db",
-                "--start_date", "2024-01-01",
-                "--end_date", "2024-01-31",
-                "--ignore_embedded_relationships", "yes",
-                "--cve_ids", "CVE-2021-1234", "CVE-2020-5678"
-            ],
-            {
-                "ignore_embedded_relationships": True,
-                "cve_ids": ["CVE-2021-1234", "CVE-2020-5678"],
-                "start_date": date(2024, 1, 1),
-                "end_date": date(2024, 1, 31),
             },
         ),
     ]
@@ -63,7 +32,7 @@ def test_parse_arguments(monkeypatch, cli_args, expected):
 
 def test_parse_bad_argument(monkeypatch):
     monkeypatch.setattr(sys, "argv", [
-        "prog", "cve-epss",
+        "prog", "cve-kev",
         "--database", "test_db",
         "--start_date", "2024-01-01",
         "--ignore_embedded_relationships", "n",
@@ -91,7 +60,7 @@ def test_run_all(acp_processor, monkeypatch):
             monkeypatch.setattr(v, 'process', lambda self, *args, **kw: processed_modes.append(self.relationship_note))
         run_all(
             acp_processor.db.name,
-            modes=["cve-attack", "cve-epss", "cve-capec"],
+            modes=["cve-attack", 'cve-vulncheck-kev', "cve-capec"],
             start_date=date(2026, 1, 1),
             end_date=date(2025, 1, 1),
             modified_min="2999-01-01",
@@ -99,7 +68,7 @@ def test_run_all(acp_processor, monkeypatch):
         mock_create_indexes.assert_called_once()
         assert mock_import_defaults.call_args[1] == dict(
             default_objects=(
-                "https://raw.githubusercontent.com/muchdogesec/stix2extensions/refs/heads/main/automodel_generated/extension-definitions/properties/report-epss-scoring.json",
+                "https://github.com/muchdogesec/stix2extensions/raw/refs/heads/main/automodel_generated/extension-definitions/sdos/exploit.json",
             )
         )
-        assert processed_modes == ['cve-capec', 'cve-attack', 'cve-epss'], "must be called in order"
+        assert processed_modes == ['cve-capec', 'cve-attack', 'cve-vulncheck-kev'], "must be called in order"
