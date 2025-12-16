@@ -28,5 +28,3 @@ OBJECT_MARKING_REFS = [
     "marking-definition--152ecfe1-5015-522b-97e4-86b60c57036d",
 ]
 IDENTITY_REF = "identity--9779a2db-f98c-5f4b-8d08-8ee04e02dbb5"
-
-EPSS_API_ENDPOINT = "https://api.first.org/data/v1/epss"

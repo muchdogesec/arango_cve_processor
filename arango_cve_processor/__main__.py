@@ -5,7 +5,7 @@ import logging
 from arango_cve_processor.managers import RELATION_MANAGERS
 from stix2arango.services import ArangoDBService
 from arango_cve_processor import config
-from arango_cve_processor.managers import CveEpssManager, CpeMatchUpdateManager
+from arango_cve_processor.managers import CpeMatchUpdateManager
 from arango_cve_processor.managers.cve_kev import CISAKevManager
 from arango_cve_processor.managers.cve_kev_vulncheck import VulnCheckKevManager
 from arango_cve_processor.tools.utils import (
@@ -108,22 +108,6 @@ def parse_arguments():
             ]:
                 continue
             p._add_action(action)
-
-        if mode == CveEpssManager:
-            start_date = p.add_argument(
-                "--start_date",
-                metavar="YYYY-MM-DD",
-                type=parse_date_to_date,
-                required=True,
-                help="Date to start backfilling epss from, only applies to `cve-epss-backfill` mode",
-            )
-            end_date = p.add_argument(
-                "--end_date",
-                metavar="YYYY-MM-DD",
-                type=parse_date_to_date,
-                required=False,
-                help="Date to end backfilling epss at, only applies to `cve-epss-backfill` mode",
-            )
 
         if mode == CpeMatchUpdateManager:
             p.add_argument(

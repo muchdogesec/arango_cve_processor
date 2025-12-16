@@ -20,6 +20,9 @@ class VulnCheckKevManager(CISAKevManager, relationship_note="cve-vulncheck-kev")
     CHUNK_SIZE = 1500
     UPLOAD_CHUNK_SIZE = 500
     UPDATE_CHUNK_SIZE = 500
+    default_objects = [
+        "https://github.com/muchdogesec/stix2extensions/raw/refs/heads/main/automodel_generated/extension-definitions/sdos/exploit.json"
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
