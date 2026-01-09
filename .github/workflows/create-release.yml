@@ -1,11 +1,17 @@
 name: Create Release
 run-name: Creating release
 
+permissions:
+  contents: read
+
 on:
-  workflow_dispatch:
   push:
     branches:
-      - 'main'
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
 
 jobs:
   create-release:
