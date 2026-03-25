@@ -40,8 +40,16 @@ class SwidTitleDB:
 
     def _download_zip(self):
         logging.info("downloading cpe dictionary")
-        resp = requests.get(self.archive_url)
-        return io.BytesIO(resp.content)
+        retry_count = 0
+        while retry_count < 5:
+            try:
+                resp = requests.get(self.archive_url)
+                resp.raise_for_status()
+                return io.BytesIO(resp.content)
+            except requests.RequestException as e:
+                logging.warning(f"Failed to download cpe dictionary: {e}")
+                retry_count += 1
+        raise RuntimeError("Failed to download cpe dictionary after 5 attempts")
 
     def _create_db(self):
         self.cur = self.conn.cursor()
