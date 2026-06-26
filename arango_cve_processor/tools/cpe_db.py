@@ -6,8 +6,9 @@ import sqlite3
 import os
 import tempfile
 import logging
+from pathlib import Path
 
-import requests
+from pypdl import Pypdl
 
 from arango_cve_processor.tools.nvd import fetch_nvd_api
 
@@ -38,18 +39,24 @@ class SwidTitleDB:
             cls._class_db = SwidTitleDB()
         return cls._class_db
 
+
     def _download_zip(self):
-        logging.info("downloading cpe dictionary")
-        retry_count = 0
-        while retry_count < 5:
-            try:
-                resp = requests.get(self.archive_url)
-                resp.raise_for_status()
-                return io.BytesIO(resp.content)
-            except requests.RequestException as e:
-                logging.warning(f"Failed to download cpe dictionary: {e}")
-                retry_count += 1
-        raise RuntimeError("Failed to download cpe dictionary after 5 attempts")
+        logging.info("Downloading CPE dictionary")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output = Path(tmpdir) / "cpe.zip"
+
+            dl = Pypdl()
+            result = dl.start(
+                url=self.archive_url,
+                file_path=str(output),
+                retries=5,
+                block=True,
+            )
+            if not result or not output.exists():
+                raise RuntimeError("Failed to download CPE dictionary after 5 attempts")
+
+            return io.BytesIO(output.read_bytes())
 
     def _create_db(self):
         self.cur = self.conn.cursor()

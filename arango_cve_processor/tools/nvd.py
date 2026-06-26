@@ -9,13 +9,13 @@ RATE_LIMIT_WINDOW = 30
 RATE_LIMIT_MAX_SLEEP = 10*60 #10 minutes
 
 
-def fetch_nvd_api(url, query: dict):
+def fetch_nvd_api(url, query: dict, api_key=None):
     total_results = math.inf
     start_index = 0
     query.update(startIndex=0)
+    api_key = api_key or os.environ.get("NVD_API_KEY")
 
     session = requests.Session()
-    api_key = os.environ.get("NVD_API_KEY")
     requests_per_window = 5
     if api_key:
         session.headers = {"apiKey": api_key}
@@ -38,7 +38,7 @@ def fetch_nvd_api(url, query: dict):
                 logging.warning("Got response status code %d.", response.status_code)
                 raise requests.ConnectionError
 
-        except requests.ConnectionError as ex:
+        except requests.RequestException as ex:
             logging.warning(
                 "Got ConnectionError. Backing off for %d seconds.", backoff_time
             )

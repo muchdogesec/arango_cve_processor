@@ -1,6 +1,6 @@
-
 from unittest.mock import MagicMock, patch
 
+import pytest
 import requests
 
 from arango_cve_processor.tools.nvd import RATE_LIMIT_WINDOW, fetch_nvd_api
@@ -36,7 +36,7 @@ def test_fetch_nvd_success():
             make_mock_response(start_index=1),
         ]
 
-        results = list(fetch_nvd_api('', {}))
+        results = list(fetch_nvd_api("", {}))
 
         assert len(results) == 2  # 2 pages
         assert all(isinstance(group, dict) for group in results)
@@ -53,7 +53,7 @@ def test_fetch_nvd_with_backoff():
             make_mock_response(start_index=1),
         ]
 
-        results = list(fetch_nvd_api('', {}))
+        results = list(fetch_nvd_api("", {}))
 
         assert len(results) == 2
         assert mock_sleep.call_count >= 2  # One for backoff, one for pagination
@@ -61,3 +61,36 @@ def test_fetch_nvd_with_backoff():
         # first_sleep_duration = RATE_LIMIT_WINDOW / 2
         # second_sleep_duration = RATE_LIMIT_WINDOW / cpematch_manager.requests_per_window
         assert mock_sleep.call_count == 2
+
+
+@pytest.mark.parametrize(
+    "api_key,api_key_env,expected",
+    [
+        [None, None, None],
+        ["arg", None, "arg"],
+        ["arg", "env", "arg"],
+        [None, "env", "env"],
+    ],
+)
+def test_fetch_nvd_uses_api_key(api_key, api_key_env, expected, monkeypatch):
+    monkeypatch.delenv("NVD_API_KEY", raising=False)
+    if api_key_env:
+        monkeypatch.setenv("NVD_API_KEY", api_key_env)
+
+    patched_session = requests.Session()
+    monkeypatch.setattr(requests, "Session", MagicMock(return_value=patched_session))
+    monkeypatch.setattr(
+        patched_session,
+        "get",
+        MagicMock(
+            side_effect=[
+                make_mock_response(start_index=0),
+                make_mock_response(start_index=1),
+            ]
+        ),
+    )
+    with patch("time.sleep") as mock_sleep:
+
+        # Simulate a connection error first, then success
+        results = list(fetch_nvd_api("", {}, api_key=api_key))
+    assert patched_session.headers.get("apiKey") == expected

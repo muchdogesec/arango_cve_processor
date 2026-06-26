@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "arango_cve_processor"
-version = "1.4.11"
+version = "1.4.12"
 authors = [
   { name = "dogesec" }
 ]
@@ -28,6 +28,7 @@ dependencies = [
     "arango-cve-processor",
     "stix2arango",
     "stix2extensions>=2.0.1",
+    "pypdl",
   ]
 
 [project.urls]
