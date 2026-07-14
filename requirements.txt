@@ -67,7 +67,7 @@ python-arango==8.3.3 ; python_version >= "3.8"
     #   arango-cve-processor
     #   arango_cve_processor (pyproject.toml)
     #   stix2arango
-python-dotenv==1.0.1
+python-dotenv==1.2.2
     # via stix2arango
 pytz==2024.1
     # via stix2
