@@ -75,7 +75,7 @@ referencing==0.35.1
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.4 ; python_version >= "3.7"
+requests==2.33.0 ; python_version >= "3.7"
     # via
     #   arango-cve-processor
     #   arango_cve_processor (pyproject.toml)
