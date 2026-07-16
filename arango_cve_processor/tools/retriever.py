@@ -2,6 +2,8 @@ import logging
 from urllib.parse import urljoin
 import os
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 
 class STIXObjectRetriever:
@@ -44,6 +46,14 @@ class STIXObjectRetriever:
                 "API-KEY": self.api_key,
             }
         )
+        retries = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[500],
+            allowed_methods=["GET"],
+        )
+        s.mount("https://", HTTPAdapter(max_retries=retries))
+        s.mount("http://", HTTPAdapter(max_retries=retries))
         data = []
         page = 1
         logging.info("fetching from: %s", endpoint)
