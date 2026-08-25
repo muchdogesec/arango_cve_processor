@@ -188,6 +188,79 @@ def test_relate_single(cpematch_manager):
     }
 
 
+def test_relate_single_skips_one_unresolvable_match(cpematch_manager, caplog):
+    indicator = {
+        "_id": "nvd_cve_vertex_collection/indicator--broken+2025-09-12T11:25:34.563706Z",
+        "created": "2025-01-02T15:15:18.650Z",
+        "external_references": [
+            {
+                "source_name": "cve",
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2022-45830",
+                "external_id": "CVE-2022-45830",
+            }
+        ],
+        "id": "indicator--broken",
+        "modified": "2025-06-05T21:01:15.860Z",
+        "name": "CVE-2022-45830",
+        "x_cpes": {
+            "not_vulnerable": [],
+            "vulnerable": [
+                {
+                    "criteria": "cpe:2.3:a:broken:broken:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "BROKEN-SWID",
+                },
+                {
+                    "criteria": "cpe:2.3:a:good:good:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "GOOD-SWID",
+                },
+            ],
+        },
+    }
+    cpematch_manager.groupings = {
+        "BROKEN-SWID": {"matchCriteriaId": "BROKEN-SWID"},
+        "GOOD-SWID": {"matchCriteriaId": "GOOD-SWID"},
+    }
+    grouping = {
+        "id": "grouping--good",
+        "name": "good",
+        "external_references": [{"external_id": "GOOD-SWID"}],
+    }
+    software = {"id": "software--good"}
+
+    with (
+        patch(
+            "arango_cve_processor.managers.cpe_match.cpe.parse_objects_for_criteria",
+            side_effect=[ValueError("SWID missing from NVD"), [grouping, software]],
+        ),
+        patch(
+            "arango_cve_processor.managers.cpe_match.cpe.relate_indicator",
+            return_value=[{"type": "relationship", "id": "relationship--good"}],
+        ),
+        patch(
+            "arango_cve_processor.managers.cpe_match.cpe.parse_deprecations",
+            return_value=[{"type": "relationship", "id": "relationship--deprecation"}],
+        ),
+        patch(
+            "arango_cve_processor.managers.cpe_match.stix2python",
+            side_effect=lambda objects: objects,
+        ),
+    ):
+        objects = cpematch_manager.relate_single(indicator)
+
+    assert objects == [
+        grouping,
+        software,
+        {
+            "type": "relationship",
+            "id": "relationship--good",
+            "_from": indicator["_id"],
+        },
+        {"type": "relationship", "id": "relationship--deprecation"},
+    ]
+    assert "skipping unresolvable CPE match BROKEN-SWID" in caplog.text
+    assert indicator["name"] in caplog.text
+
+
 @pytest.fixture
 def mocked_updates():
     c1 = {
