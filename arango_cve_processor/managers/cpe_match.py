@@ -81,10 +81,19 @@ class CpeMatchUpdateManager(STIXRelationManager, relationship_note="cpematch"):
         retval = []
         for x_cpe_item in itertools.chain(*indicator['x_cpes'].values()):
             if match_data := self.groupings.get(x_cpe_item['matchCriteriaId']):
-                objects = cpe.parse_objects_for_criteria(match_data)
-                grouping_object = objects[0]
-                relationships = cpe.relate_indicator(grouping_object, indicator)
-                deprecations = cpe.parse_deprecations(objects[1:])
+                try:
+                    objects = cpe.parse_objects_for_criteria(match_data)
+                    grouping_object = objects[0]
+                    relationships = cpe.relate_indicator(grouping_object, indicator)
+                    deprecations = cpe.parse_deprecations(objects[1:])
+                except ValueError as exc:
+                    logging.error(
+                        "skipping unresolvable CPE match %s for %s: %s",
+                        x_cpe_item["matchCriteriaId"],
+                        indicator["name"],
+                        exc,
+                    )
+                    continue
                 for r in relationships:
                     r['_from'] = indicator['_id']
                 retval.extend(objects)
