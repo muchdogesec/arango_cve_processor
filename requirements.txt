@@ -44,7 +44,7 @@ jsonschema==4.22.0 ; python_version >= "3.8"
     #   stix2arango
 jsonschema-specifications==2023.12.1
     # via jsonschema
-multidict==6.7.1
+multidict==6.9.1
     # via
     #   aiohttp
     #   yarl
