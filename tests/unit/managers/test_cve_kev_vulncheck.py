@@ -1,18 +1,52 @@
+from collections import ChainMap
+from unittest.mock import Mock, patch
+
 import pytest
 
 from arango_cve_processor.managers.cve_kev_vulncheck import VulnCheckKevManager
-from collections import ChainMap
+
+
+VULNCHECK_KEV = {
+    "cve": ["CVE-2025-5086"],
+    "cwes": [],
+    "shortDescription": "A deserialization vulnerability could lead to remote code execution.",
+    "vulnerabilityName": "DELMIA Apriso Deserialization Vulnerability",
+    "required_action": "Apply vendor mitigations.",
+    "knownRansomwareCampaignUse": "Unknown",
+    "date_added": "2025-09-11T00:00:00Z",
+    "_timestamp": "2025-09-16T10:25:34.044567372Z",
+    "vulncheck_xdb": [],
+    "vulncheck_reported_exploitation": [],
+}
 
 
 @pytest.fixture
 def vulncheck_kev_manager(acp_processor):
-    manager = VulnCheckKevManager(acp_processor)
+    with patch.object(VulnCheckKevManager, "verify_auth"):
+        manager = VulnCheckKevManager(acp_processor)
     yield manager
 
 
 def test_get_all_kevs(vulncheck_kev_manager):
+    response = Mock()
+    response.json.return_value = {
+        "_meta": {"total_documents": 1, "last_item": 1},
+        "data": [VULNCHECK_KEV],
+    }
+    vulncheck_kev_manager.session.get = Mock(return_value=response)
+
     kevs = ChainMap(*vulncheck_kev_manager.get_all_kevs())
+
     assert "CVE-2025-5086" in kevs
+    vulncheck_kev_manager.session.get.assert_called_once_with(
+        "https://api.vulncheck.com/v3/index/vulncheck-kev",
+        params={
+            "limit": 1500,
+            "lastModStartDate": "1970-01-01",
+            "pubStartDate": "1970-01-01",
+            "page": 1,
+        },
+    )
 
 
 def test_relate_single(vulncheck_kev_manager, patched_retriever):
@@ -159,6 +193,9 @@ def test_relate_single(vulncheck_kev_manager, patched_retriever):
 
 
 def test_run_all(vulncheck_kev_manager):
+    vulncheck_kev_manager.get_all_kevs = Mock(
+        return_value=[{"CVE-2025-5086": VULNCHECK_KEV}]
+    )
     vulncheck_kev_manager.process()
     query = "FOR d IN nvd_cve_vertex_collection RETURN [d.id, d.x_opencti_cisa_kev]"
     cves_has_kev_map = dict(vulncheck_kev_manager.arango.execute_raw_query(query))

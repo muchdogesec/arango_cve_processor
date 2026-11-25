@@ -205,7 +205,7 @@ def test_relate_single(cisa_kev_manager, patched_retriever):
     ]
 
 
-def test_run_all(cisa_kev_manager):
+def test_run_all(cisa_kev_manager, patched_retriever):
     cisa_kev_manager.process()
     query = "FOR d IN nvd_cve_vertex_collection RETURN [d.id, d.x_opencti_cisa_kev]"
     cves_has_kev_map = dict(cisa_kev_manager.arango.execute_raw_query(query))
