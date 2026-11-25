@@ -54,6 +54,10 @@ def test_run_all(acp_processor, monkeypatch):
             "arango_cve_processor.__main__.import_default_objects"
         ) as mock_import_defaults,
         patch("arango_cve_processor.__main__.create_indexes") as mock_create_indexes,
+        patch(
+            "arango_cve_processor.managers.cve_kev_vulncheck."
+            "VulnCheckKevManager.verify_auth"
+        ),
     ):
         processed_modes = []
         for v in RELATION_MANAGERS.values():
